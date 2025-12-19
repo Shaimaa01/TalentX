@@ -14,8 +14,9 @@ import { motion } from 'framer-motion';
 import AIMatchingModal from '@/components/AIMatchingModal';
 
 import { Pagination } from '@/components/ui/Pagination';
+import { Suspense } from 'react';
 
-export default function BrowseTalent() {
+function BrowseTalentContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [talents, setTalents] = useState<(Talent & { id: string })[]>([]);
@@ -246,6 +247,18 @@ export default function BrowseTalent() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function BrowseTalent() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#f5f7fa] pt-24 pb-12 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+        }>
+            <BrowseTalentContent />
+        </Suspense>
     );
 }
 
