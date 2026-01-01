@@ -95,8 +95,8 @@ export default function NotificationCenter({ userId }: NotificationCenterProps) 
         queryKey: ['notifications', userId],
         queryFn: async () => {
             const url = userId
-                ? `http://localhost:5000/api/applications/notifications?userId=${userId}`
-                : `http://localhost:5000/api/applications/notifications`;
+                ? `https://acme-ai-lqwv.onrender.com/api/applications/notifications?userId=${userId}`
+                : `https://acme-ai-lqwv.onrender.com/api/applications/notifications`;
 
             const res = await fetch(url, {
                 headers: {
@@ -113,7 +113,7 @@ export default function NotificationCenter({ userId }: NotificationCenterProps) 
 
     const markReadMutation = useMutation({
         mutationFn: async (id: string) => {
-            const res = await fetch(`http://localhost:5000/api/applications/notifications/${id}/read`, {
+            const res = await fetch(`https://acme-ai-lqwv.onrender.com/api/applications/notifications/${id}/read`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('talentx_token')}`
