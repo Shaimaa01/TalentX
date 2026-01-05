@@ -1,299 +1,212 @@
-import React from "react";
-import {
-  Linkedin,
-  Twitter,
-  Facebook,
-  Instagram,
-  Globe,
-  ChevronRight,
-  ArrowRight,
-} from "lucide-react";
-import Link from "next/link";
-import { createPageUrl } from "@/utils";
 
-// Helper function to build BrowseTalent URL with query params
-const buildBrowseTalentUrl = (params: {
+import React from 'react';
+import { Facebook, Linkedin, X, Youtube, Instagram } from 'lucide-react';
+import Link from 'next/link';
+import { createPageUrl } from '@/utils';
+
+// Types
+type FooterLink = {
+  label: string;
+  url?: string;
   category?: string;
   searchTerm?: string;
-}) => {
-  const queryParams = new URLSearchParams();
-  if (params.category) queryParams.set("category", params.category);
-  if (params.searchTerm) queryParams.set("searchTerm", params.searchTerm);
-  return `BrowseTalent${
-    queryParams.toString() ? "?" + queryParams.toString() : ""
-  }`;
 };
 
-// TypeScript types for footer links
-type FooterLink =
-  | { label: string; category: string; url?: never; searchTerm?: never }
-  | { label: string; url: string; category?: never; searchTerm?: never }
-  | { label: string; searchTerm: string; category?: never; url?: never };
+// Data Structures based on Research (2025 Enterprise Demand)
 
-type SkillsetLink =
-  | { label: string; category: string; searchTerm?: never }
-  | { label: string; searchTerm: string; category?: never };
+const hireTalentLinks: FooterLink[] = [
+  { label: 'Hire AI & ML Engineers', category: 'ai_ml' },
+  { label: 'Hire Developers', category: 'developer' },
+  { label: 'Hire Designers', category: 'designer' },
+  { label: 'Hire Product Managers', category: 'product_manager' },
+  { label: 'Hire Project Managers', category: 'project_manager' },
+  { label: 'Hire Marketers', category: 'marketing' },
+  { label: 'Hire Finance Experts', category: 'finance' },
+];
 
-// Category data with proper category/searchTerm fields
-const footerData: Record<string, FooterLink[]> = {
-  "Hire Talent": [
-    { label: "Developers", category: "developer" },
-    { label: "Designers", category: "designer" },
-    { label: "Marketing", category: "marketing" },
-    { label: "Finance", category: "finance" },
-    { label: "Product Managers", category: "product_manager" },
-    { label: "Project Managers", category: "project_manager" },
-  ],
-  Team: [
-    { label: "How it works", url: "Process" },
-    { label: "Our experts", url: "Experts" },
-    { label: "Talent vetting", url: "Vetting" },
-    { label: "Join as talent", url: "Join" },
-  ],
-  Agency: [
-    { label: "For agencies", url: "Agencies" },
-    { label: "Partner with us", url: "Partners" },
-    { label: "Enterprise solutions", url: "Enterprise" },
-    { label: "Case studies", url: "CaseStudies" },
-  ],
-  About: [
-    { label: "Company", url: "AboutUs" },
-    { label: "Careers", url: "AboutUs" },
-    { label: "Blog", url: "Blog" },
-    { label: "Contact", url: "HelpCenter" },
-    { label: "Help Center", url: "HelpCenter" },
-  ],
-};
+const hireTeamLinks: FooterLink[] = [
+  { label: "How it works", url: "Process" },
+  { label: "Our experts", url: "Experts" },
+  { label: "Talent vetting", url: "Vetting" },
+  { label: "Join as talent", url: "Join" },
+];
 
-const skillsets: {
-  category: string;
-  categoryFilter?: string;
-  links: SkillsetLink[];
-}[] = [
-  {
-    category: "Engineering",
-    categoryFilter: "developer",
-    links: [
-      { label: "React Specialists", searchTerm: "react" },
-      { label: "Python Architects", searchTerm: "python" },
-      { label: "AWS Experts", searchTerm: "aws" },
-      { label: "Node.js Devs", searchTerm: "node" },
-    ],
-  },
-  {
-    category: "Design",
-    categoryFilter: "designer",
-    links: [
-      { label: "UI/UX Design", category: "designer" },
-      { label: "Brand Strategy", searchTerm: "brand" },
-      { label: "Motion Graphics", searchTerm: "motion" },
-      { label: "Visual Design", searchTerm: "visual" },
-    ],
-  },
-  {
-    category: "Management",
-    categoryFilter: "project_manager",
-    links: [
-      { label: "Agile Coaches", searchTerm: "agile" },
-      { label: "Scrum Masters", searchTerm: "scrum" },
-      { label: "Product Owners", category: "product_manager" },
-      { label: "Project Leads", category: "project_manager" },
-    ],
-  },
-  {
-    category: "Specialized",
-    links: [
-      { label: "Data Science", searchTerm: "data" },
-      { label: "AI & ML", searchTerm: "ai" },
-      { label: "FinTech Experts", category: "finance" },
-      { label: "Growth Hackers", category: "marketing" },
-    ],
-  },
+const hireAgencyLinks: FooterLink[] = [
+  { label: "For agencies", url: "Agencies" },
+  { label: "Partner with us", url: "Partners" },
+  { label: "Enterprise solutions", url: "Enterprise" },
+  { label: "Case studies", url: "CaseStudies" },
+];
+
+// Organized to form approx 2 rows on large screens (e.g. 4 cols x 2 rows + extra)
+const featuredSkills: FooterLink[] = [
+  // Tech & AI (Row 1 focus)
+  { label: 'AI/ML Engineers', searchTerm: 'ai' },
+  { label: 'Data Scientists', searchTerm: 'data science' },
+  { label: 'Python Experts', searchTerm: 'python' },
+  { label: 'Full-Stack Developers', searchTerm: 'full stack' },
+  { label: 'DevOps Engineers', searchTerm: 'devops' },
+  { label: 'Cybersecurity Consultants', searchTerm: 'cybersecurity' },
+
+  // Design, Product & Business (Row 2 focus)
+  { label: 'UI/UX Designers', searchTerm: 'ux designer' },
+  { label: 'Product Managers', searchTerm: 'product manager' },
+  { label: 'Growth Marketers', searchTerm: 'growth marketing' },
+  { label: 'Fractional CFOs', searchTerm: 'fractional cfo' },
+  { label: 'Blockchain Developers', searchTerm: 'blockchain' },
+  { label: 'React Native Developers', searchTerm: 'react native' },
+];
+
+const aboutLinks: FooterLink[] = [
+  { label: 'Why TalentX', url: 'WhyTalentX' },
+  { label: 'Contact Us', url: 'Contact' },
+  { label: 'Press Center', url: 'Press' },
+  { label: 'Careers', url: 'Careers' },
+  { label: 'About Us', url: 'AboutUs' },
 ];
 
 export default function FooterLayout() {
   const currentYear = new Date().getFullYear();
 
+  const renderLink = (link: FooterLink) => {
+    let href = '#';
+    if (link.url) href = createPageUrl(link.url);
+    else if (link.category) href = createPageUrl(`BrowseTalent?category=${link.category}`);
+    else if (link.searchTerm) href = createPageUrl(`BrowseTalent?searchTerm=${link.searchTerm}`);
+
+    return (
+      <Link href={href} className="text-gray-300 hover:text-white hover:underline transition-colors text-sm block py-1">
+        {link.label}
+      </Link>
+    );
+  };
+
   return (
-    <div className="flex flex-col">
-      {/* MAIN FOOTER */}
-      <footer className="bg-[#0f256e] text-white font-sans border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
-            {/* Brand Section */}
-            <div className="lg:col-span-4 flex flex-col space-y-6">
-              <Link
-                href={createPageUrl("Home")}
-                className="flex items-center gap-3"
+    <footer className="bg-[#0f256e] text-white font-sans pt-16 pb-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        {/* Top Section: Links Grid - Balanced 12-column layout */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-8 lg:gap-12 mb-16">
+
+          {/* Hire Talent (3 cols - Increased width) */}
+          <div className="lg:col-span-3">
+            <h3 className="font-bold text-base mb-6 text-white border-b border-white/20 pb-2 inline-block w-full">Hire Talent</h3>
+            <ul className="space-y-2">{hireTalentLinks.map((link) => <li key={link.label}>{renderLink(link)}</li>)}</ul>
+          </div>
+
+          {/* Hire Team & Agency (Stacked - 2 cols) */}
+          <div className="lg:col-span-2 flex flex-col gap-10">
+            <div>
+              <h3 className="font-bold text-base mb-6 text-white border-b border-white/20 pb-2 inline-block w-full">Hire Team</h3>
+              <ul className="space-y-2">{hireTeamLinks.map((link) => <li key={link.label}>{renderLink(link)}</li>)}</ul>
+            </div>
+            <div>
+              <h3 className="font-bold text-base mb-6 text-white border-b border-white/20 pb-2 inline-block w-full">Hire Agency</h3>
+              <ul className="space-y-2">{hireAgencyLinks.map((link) => <li key={link.label}>{renderLink(link)}</li>)}</ul>
+            </div>
+          </div>
+
+          {/* Featured Skills (4 cols - Reduced from 6) */}
+          <div className="lg:col-span-4">
+            <h3 className="font-bold text-base mb-6 text-white border-b border-white/20 pb-2 w-full">Featured Skills</h3>
+            {/* 3-column grid inside 4-col span might be tight, allowing wrapping */}
+            <div className="grid grid-cols-2 lg:grid-cols-2 gap-x-6 gap-y-3">
+              {featuredSkills.map((link) => (
+                <div key={link.label}>{renderLink(link)}</div>
+              ))}
+            </div>
+          </div>
+
+          {/* About (3 cols - Increased width) */}
+          <div className="lg:col-span-3">
+            <h3 className="font-bold text-base mb-6 text-white border-b border-white/20 pb-2 inline-block w-full">About</h3>
+            <ul className="space-y-2">{aboutLinks.map((link) => <li key={link.label}>{renderLink(link)}</li>)}</ul>
+          </div>
+
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-white/10 w-full mb-8"></div>
+
+        {/* Bottom Section: Logo, Tagline, Socials */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            {/* Logo */}
+            <Link href={createPageUrl("Home")} className="flex items-center gap-2">
+              <span className="text-xl font-bold tracking-tight text-white">TalentX</span>
+            </Link>
+
+            {/* Vertical Divider (Hidden on mobile) */}
+            <div className="hidden md:block w-px h-6 bg-white/20"></div>
+
+            {/* Tagline */}
+            <span className="text-sm font-medium tracking-wide text-gray-200">The World's Top Talent Network</span>
+          </div>
+
+          {/* Social Icons & App Downloads */}
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            {/* App Downloads */}
+            <div className="flex items-center gap-3">
+              <a
+                href="#"
+                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg transition-all group"
               >
-                <div className="w-10 h-10 bg-[#00c853] flex items-center justify-center rounded-lg shadow-lg">
-                  <span className="text-white font-extrabold text-xl">X</span>
+                <div className="text-white w-5 h-5 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" className="w-full h-full fill-current" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-2.01.77-3.27.82-1.31.05-2.31-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.89 1.22-2.11 1.09-3.32-1.04.04-2.3.69-3.05 1.56-.67.77-1.26 2.01-1.1 3.2 1.15.09 2.33-.55 3.06-1.44z" />
+                  </svg>
                 </div>
-                <span className="text-2xl font-bold tracking-tight">
-                  TalentX
-                </span>
-              </Link>
-              <p className="text-gray-300 text-sm leading-relaxed max-w-xs">
-                Empowering global innovation by connecting world-class
-                enterprises with elite specialized talent. Your vision, scaled
-                by the top 3%.
-              </p>
-              <div className="flex gap-4">
-                {[Linkedin, Twitter, Facebook, Instagram].map((Icon, i) => (
-                  <a
-                    key={i}
-                    href="#"
-                    className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all text-gray-400 hover:text-white"
-                  >
-                    <Icon className="w-5 h-5" />
-                  </a>
-                ))}
-              </div>
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[10px] text-gray-400">Download on the</span>
+                  <span className="text-xs font-bold text-white">App Store</span>
+                </div>
+              </a>
+              <a
+                href="#"
+                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg transition-all group"
+              >
+                <div className="text-white w-5 h-5 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" className="w-full h-full fill-current" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.609 1.814L13.792 12 3.61 22.186a2.21 2.21 0 01-.61-1.556V3.37c0-.584.223-1.139.609-1.556zm11.332 11.231l2.903 1.638L4.621 22.951c-.134.075-.285.114-.438.114a1.002 1.002 0 01-.61-.21l11.368-10.81zm5.176-2.327l2.843 1.604a1.114 1.114 0 010 1.956l-2.843 1.604l-3.235-1.825l3.235-1.739zm-4.318-2.453L4.433 1.127a1.007 1.007 0 01-.25-.114a1.002 1.002 0 01-.61.21L14.936 12l.865-8.735z" />
+                  </svg>
+                </div>
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[10px] text-gray-400">GET IT ON</span>
+                  <span className="text-xs font-bold text-white">Google Play</span>
+                </div>
+              </a>
             </div>
 
-            {/* Links Grid */}
-            <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-              {Object.entries(footerData).map(([title, links]) => (
-                <div key={title} className="flex flex-col">
-                  <h4 className="text-white font-bold text-sm tracking-wider uppercase mb-6 flex items-center gap-2">
-                    <span className="w-1 h-4 bg-[#00c853] rounded-full"></span>
-                    {title}
-                  </h4>
-                  <ul className="space-y-4">
-                    {links.map((link) => {
-                      // Build the proper URL based on category, searchTerm, or url
-                      let href: string;
-                      if (link.category) {
-                        href = createPageUrl(
-                          buildBrowseTalentUrl({ category: link.category })
-                        );
-                      } else if (link.searchTerm) {
-                        href = createPageUrl(
-                          buildBrowseTalentUrl({ searchTerm: link.searchTerm })
-                        );
-                      } else if (link.url) {
-                        href = createPageUrl(link.url);
-                      } else {
-                        href = createPageUrl("Home"); // Default fallback
-                      }
+            {/* Vertical Divider (Hidden on mobile) */}
+            <div className="hidden md:block w-px h-6 bg-white/20"></div>
 
-                      return (
-                        <li key={link.label}>
-                          <Link
-                            href={href}
-                            className="text-gray-400 hover:text-white text-sm transition-colors flex items-center group relative overflow-visible"
-                          >
-                            <ChevronRight className="w-3.5 h-3.5 mr-1.5 opacity-0 group-hover:opacity-100 -ml-5 group-hover:ml-0 transition-all duration-300 text-[#00c853]" />
-                            {link.label}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
+            {/* Social Icons */}
+            <div className="flex items-center gap-4">
+              {[Facebook, Linkedin, X, Youtube, Instagram].map((Icon, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-400 text-gray-300 hover:text-white hover:border-white transition-all"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Legal Bar */}
-        <div className="bg-[#0a1a4f] py-6 border-t border-white/5">
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-xs">
-              © {currentYear} TalentX Professional Network. All Rights Reserved.
-            </p>
-            <div className="flex items-center gap-8 text-xs text-gray-500">
-              <Link
-                href={createPageUrl("Privacy")}
-                className="hover:text-white transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href={createPageUrl("Terms")}
-                className="hover:text-white transition-colors"
-              >
-                Terms of Service
-              </Link>
-              <div className="flex items-center gap-2 border-l border-white/10 pl-8">
-                <Globe className="w-4 h-4" />
-                <span>Global (EN)</span>
-              </div>
-            </div>
-          </div>
+        {/* Divider */}
+        <div className="h-px bg-white/10 w-full mb-8"></div>
+
+        {/* Very Bottom: Copyright & Legal */}
+        <div className="flex flex-col md:flex-row justify-center items-center gap-6 text-xs text-gray-400">
+          <span suppressHydrationWarning>Copyright {currentYear} TalentX, LLC</span>
+          <span className="hidden md:inline">|</span>
+          <Link href={createPageUrl("Privacy")} className="hover:text-white transition-colors">Privacy Policy</Link>
+          <Link href={createPageUrl("Terms")} className="hover:text-white transition-colors">Terms of Service</Link>
+          <Link href="#" className="hover:text-white transition-colors">Accessibility</Link>
+          <Link href="#" className="hover:text-white transition-colors">Sitemap</Link>
         </div>
-      </footer>
-
-      {/* EXPERT SKILLSETS DISCOVERY SECTION */}
-      <section className="bg-[#f8faff] py-20 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div className="max-w-xl">
-              <span className="text-[#00c853] font-bold text-xs tracking-widest uppercase">
-                Specialized Domains
-              </span>
-              <h2 className="text-[#0f256e] text-3xl md:text-4xl font-extrabold mt-3 leading-tight">
-                Find specialized expertise for your next breakthrough.
-              </h2>
-            </div>
-            <Link
-              href={createPageUrl("BrowseTalent")}
-              className="flex items-center gap-2 text-[#0f256e] font-bold hover:translate-x-1 transition-transform border-b-2 border-[#00c853] pb-1"
-            >
-              Explore all skillsets <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {skillsets.map((item) => (
-              <div
-                key={item.category}
-                className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group"
-              >
-                <h5 className="text-[#0f256e] font-bold text-lg mb-6 flex justify-between items-center">
-                  {item.category}
-                  {/* Arrow links to category if available, otherwise just BrowseTalent */}
-                  <Link
-                    href={createPageUrl(
-                      item.categoryFilter
-                        ? buildBrowseTalentUrl({
-                            category: item.categoryFilter,
-                          })
-                        : "BrowseTalent"
-                    )}
-                    className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#0f256e] group-hover:text-white transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </h5>
-                <ul className="space-y-3">
-                  {item.links.map((link) => {
-                    // Build the proper URL based on category or searchTerm
-                    const href = link.category
-                      ? createPageUrl(
-                          buildBrowseTalentUrl({ category: link.category })
-                        )
-                      : createPageUrl(
-                          buildBrowseTalentUrl({ searchTerm: link.searchTerm })
-                        );
-
-                    return (
-                      <li key={link.label}>
-                        <Link
-                          href={href}
-                          className="text-slate-500 hover:text-[#00c853] text-sm font-medium transition-colors"
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
+      </div>
+    </footer>
   );
 }
