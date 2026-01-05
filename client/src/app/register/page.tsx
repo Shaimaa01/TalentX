@@ -13,6 +13,7 @@ import { talentXApi } from '@/api/talentXApi';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Check, CreditCard, Shield, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
+import GuestGuard from '@/components/auth/GuestGuard';
 
 function RegisterContent() {
     const searchParams = useSearchParams();
@@ -327,12 +328,14 @@ function RegisterContent() {
 
 export default function RegisterPage() {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-[#204ecf] border-t-transparent rounded-full animate-spin" />
-            </div>
-        }>
-            <RegisterContent />
-        </Suspense>
+        <GuestGuard>
+            <Suspense fallback={
+                <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                    <div className="w-8 h-8 border-2 border-[#204ecf] border-t-transparent rounded-full animate-spin" />
+                </div>
+            }>
+                <RegisterContent />
+            </Suspense>
+        </GuestGuard>
     );
 }

@@ -53,6 +53,8 @@ export const metadata: Metadata = {
   },
 };
 
+import AuthInitializer from "@/components/auth/AuthInitializer";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -63,6 +65,7 @@ export default function RootLayout({
       <body className={`${montserrat.variable} font-sans`}>
         <Providers>
           <ClientLayout>
+            <AuthInitializer />
             {children}
           </ClientLayout>
           <Toaster />

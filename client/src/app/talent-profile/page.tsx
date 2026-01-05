@@ -475,52 +475,22 @@ function TalentProfileContent() {
               <div className="p-6 space-y-6">
                 {/* Rate Selection */}
                 <div className="space-y-3">
-                  <label className="block text-sm font-bold text-gray-700">
-                    Hiring Rate
-                  </label>
+                  <label className="block text-sm font-bold text-gray-700">Hiring Rate</label>
                   <div className="grid grid-cols-2 gap-3">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() =>
-                        setHireData({
-                          ...hireData,
-                          rateType: "hourly",
-                          rateAmount: talent.hourly_rate || 0,
-                        })
-                      }
-                      className={`py-4 px-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${
-                        hireData.rateType === "hourly"
-                          ? "border-[#204ecf] bg-[#204ecf]/5 text-[#204ecf] shadow-md"
-                          : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                    <button
+                      onClick={() => setHireData({ ...hireData, rateType: 'hourly', rateAmount: talent.hourly_rate || 0 })}
+                      className={`py-3 px-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${hireData.rateType === 'hourly' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 text-gray-500 hover:border-gray-200'}`}
                     >
-                      <span className="font-bold text-base">Hourly</span>
-                      <span className="text-sm">
-                        ${talent.hourly_rate || 0}/hr
-                      </span>
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() =>
-                        setHireData({
-                          ...hireData,
-                          rateType: "monthly",
-                          rateAmount: (talent.hourly_rate || 0) * 160,
-                        })
-                      }
-                      className={`py-4 px-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${
-                        hireData.rateType === "monthly"
-                          ? "border-[#204ecf] bg-[#204ecf]/5 text-[#204ecf] shadow-md"
-                          : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                      <span className="font-bold">Hourly</span>
+                      <span className="text-xs">${talent.hourly_rate || 0}/hr</span>
+                    </button>
+                    <button
+                      onClick={() => setHireData({ ...hireData, rateType: 'monthly', rateAmount: (talent.hourly_rate || 0) * 160 })}
+                      className={`py-3 px-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${hireData.rateType === 'monthly' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 text-gray-500 hover:border-gray-200'}`}
                     >
-                      <span className="font-bold text-base">Monthly</span>
-                      <span className="text-sm">
-                        ${(talent.hourly_rate || 0) * 160}/mo
-                      </span>
-                    </motion.button>
+                      <span className="font-bold">Monthly</span>
+                      <span className="text-xs">${(talent.hourly_rate || 0) * 160}/mo</span>
+                    </button>
                   </div>
                 </div>
 
@@ -576,16 +546,16 @@ function TalentProfileContent() {
   );
 }
 
+import AuthGuard from '@/components/auth/AuthGuard';
+
+// ...
+
 export default function TalentProfile() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      }
-    >
-      <TalentProfileContent />
-    </Suspense>
+    <AuthGuard>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+        <TalentProfileContent />
+      </Suspense>
+    </AuthGuard>
   );
 }

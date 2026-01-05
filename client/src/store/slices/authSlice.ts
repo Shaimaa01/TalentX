@@ -10,9 +10,9 @@ interface AuthState {
 
 const initialState: AuthState = {
     user: null,
-    token: typeof window !== 'undefined' ? localStorage.getItem('talentx_token') : null,
+    token: null,
     isAuthenticated: false,
-    loading: false,
+    loading: true,
     error: null,
 };
 
@@ -49,8 +49,11 @@ const authSlice = createSlice({
             state.user = action.payload;
             state.isAuthenticated = !!action.payload;
         },
+        stopLoading: (state) => {
+            state.loading = false;
+        }
     },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setUser } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setUser, stopLoading } = authSlice.actions;
 export default authSlice.reducer;

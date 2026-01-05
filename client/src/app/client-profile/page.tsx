@@ -193,10 +193,16 @@ function ClientProfileContent() {
     );
 }
 
+import AuthGuard from '@/components/auth/AuthGuard';
+
+// ...
+
 export default function ClientProfilePage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-            <ClientProfileContent />
-        </Suspense>
+        <AuthGuard>
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+                <ClientProfileContent />
+            </Suspense>
+        </AuthGuard>
     );
 }

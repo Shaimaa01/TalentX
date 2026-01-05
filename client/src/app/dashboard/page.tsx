@@ -1640,11 +1640,18 @@ function DashboardContent() {
         </div>
     );
 }
+import AuthGuard from '@/components/auth/AuthGuard';
+
+// ... (rest of imports)
+
+// ... (DashboardContent code)
 
 export default function Dashboard() {
     return (
-        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-            <DashboardContent />
-        </React.Suspense>
+        <AuthGuard>
+            <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+                <DashboardContent />
+            </React.Suspense>
+        </AuthGuard>
     );
 }

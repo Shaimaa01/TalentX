@@ -368,10 +368,16 @@ function AgencyProfileContent() {
     );
 }
 
+import AuthGuard from '@/components/auth/AuthGuard';
+
+// ...
+
 export default function AgencyProfile() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-            <AgencyProfileContent />
-        </Suspense>
+        <AuthGuard>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+                <AgencyProfileContent />
+            </Suspense>
+        </AuthGuard>
     );
 }
