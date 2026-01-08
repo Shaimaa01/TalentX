@@ -142,7 +142,7 @@ export default function Navbar() {
                         </Link>
 
                         {/* Desktop Navigation */}
-                        <div className="hidden lg:flex items-center gap-0" onMouseLeave={() => setHoveredTab(null)}>
+                        <div className="hidden lg:flex items-center gap-5" onMouseLeave={() => setHoveredTab(null)}>
                             {Object.entries(megaMenuData).map(([key, menu]) => (
                                 <div
                                     key={key}
@@ -153,7 +153,7 @@ export default function Navbar() {
                                     }}
                                     onMouseLeave={() => setOpenDropdown(null)}
                                 >
-                                    <button className="relative flex items-center gap-1 px-4 py-2 text-[#1a1a2e] hover:text-[#204ecf] rounded-md text-sm font-semibold transition-all duration-200">
+                                    <button className="relative flex items-center px-0 py-6 text-[#1a1a2e] hover:text-[#204ecf] rounded-md text-[14px] font-semibold transition-all duration-200">
                                         {menu.title}
                                         <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${openDropdown === key ? 'rotate-180' : ''}`} />
                                         {hoveredTab === key && (
@@ -224,7 +224,7 @@ export default function Navbar() {
                             <Link
                                 href={createPageUrl('Clients')}
                                 onMouseEnter={() => setHoveredTab('clients')}
-                                className="relative px-4 py-2 text-[#1a1a2e] hover:text-[#204ecf] text-sm font-semibold transition-colors"
+                                className="relative px-0 py-6 text-[#1a1a2e] hover:text-[#204ecf] text-[14px] font-semibold transition-colors"
                             >
                                 Clients
                                 {hoveredTab === 'clients' && (
@@ -238,7 +238,7 @@ export default function Navbar() {
                             <Link
                                 href={createPageUrl('Blog')}
                                 onMouseEnter={() => setHoveredTab('blog')}
-                                className="relative px-4 py-2 text-[#1a1a2e] hover:text-[#204ecf] text-sm font-semibold transition-colors"
+                                className="relative px-0 py-6 text-[#1a1a2e] hover:text-[#204ecf] text-[14px] font-semibold transition-colors"
                             >
                                 Blog
                                 {hoveredTab === 'blog' && (
@@ -252,7 +252,7 @@ export default function Navbar() {
                             <Link
                                 href={createPageUrl('AboutUs')}
                                 onMouseEnter={() => setHoveredTab('about')}
-                                className="relative px-4 py-2 text-[#1a1a2e] hover:text-[#204ecf] text-sm font-semibold transition-colors"
+                                className="relative px-0 py-6 text-[#1a1a2e] hover:text-[#204ecf] text-sm font-semibold transition-colors"
                             >
                                 About Us
                                 {hoveredTab === 'about' && (

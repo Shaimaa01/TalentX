@@ -1,6 +1,6 @@
 # TalentX
 
-TalentX is an AI-first talent network platform designed to connect businesses with verified talent, teams, and agencies through intelligent matching, flexible engagement models, and integrated collaboration tools. It is a private, proprietary project developed by Incrosoft and intended as a direct competitor to Toptal.
+TalentX is an AI-first talent network platform designed to connect businesses with verified talent, teams, and agencies through intelligent matching, flexible engagement models, and integrated collaboration tools. It is a private, proprietary project developed by Incrosoft.
 
 ## Project Structure
 
