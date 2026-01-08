@@ -9,9 +9,10 @@ interface GlobalMapProps {
     talents: Talent[];
     teams: Team[];
     agencies: Agency[];
+    className?: string;
 }
 
-export default function GlobalMap({ talents, teams, agencies }: GlobalMapProps) {
+export default function GlobalMap({ talents, teams, agencies, className = "" }: GlobalMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const pointerInteracting = useRef<number | null>(null);
     const pointerInteractionMovement = useRef(0);
@@ -143,7 +144,7 @@ export default function GlobalMap({ talents, teams, agencies }: GlobalMapProps) 
     }, [talents, teams, agencies, r]);
 
     return (
-        <div className="w-full h-[500px] relative flex items-center justify-center bg-[#050510] overflow-hidden rounded-xl border border-white/10 shadow-2xl">
+        <div className={`relative flex items-center justify-center bg-[#050510] overflow-hidden rounded-xl border border-white/10 shadow-2xl ${className || 'w-full h-[500px]'}`}>
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050510]/20 to-[#050510] z-10 pointer-events-none" />
 
 

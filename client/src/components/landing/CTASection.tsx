@@ -7,7 +7,7 @@ import { createPageUrl } from '@/utils';
 
 export default function CTASection() {
     return (
-        <section className="pt-5 pb-24">
+        <section className="pt-5 pb-2 w-full pb-26">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -29,8 +29,8 @@ export default function CTASection() {
 
                     {/* Benefits integrated into Paragraph */}
                     <p className="text-base md:text-lg text-gray-400 leading-relaxed px-4">
-                        Join thousands of companies who trust TalentX. 
-                        Enjoy <span className="text-white font-medium">no hiring fees</span> and a 
+                        Join thousands of companies who trust TalentX.
+                        Enjoy <span className="text-white font-medium">no hiring fees</span> and a
                         <span className="text-white font-medium"> risk-free trial period</span> for every hire.
                     </p>
 
@@ -47,7 +47,7 @@ export default function CTASection() {
                                 </div>
                             </div>
                         </Link>
-                        
+
                         <Link href={createPageUrl('Pricing')}>
                             <div className="px-8 py-3 rounded-full border border-white/20 bg-white/3 backdrop-blur-md text-white font-semibold text-base transition-all hover:bg-white/10 hover:border-white/40 cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_15px_rgba(0,0,0,0.1)]">
                                 View Pricing

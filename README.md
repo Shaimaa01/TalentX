@@ -2,64 +2,23 @@
 
 TalentX is an AI-first talent network platform designed to connect businesses with verified talent, teams, and agencies through intelligent matching, flexible engagement models, and integrated collaboration tools. It is a private, proprietary project developed by Incrosoft.
 
-## Project Structure
+## Proprietary and Confidential
 
--   `client/`: Next.js frontend application.
--   `server/`: Express.js backend application with Prisma ORM.
+This repository contains proprietary and confidential information. Access is granted exclusively to authorized personnel of Incrosoft and its designated partners.
 
-## Tech Stack
+### Legal Notice and Terms of Use
 
--   **Frontend**: Next.js, React, Tailwind CSS, Framer Motion, Lucide React.
--   **Backend**: Node.js, Express, TypeScript, Prisma.
--   **Database**: PostgreSQL (Production).
--   **Orchestration**: Docker Compose.
+1.  **Ownership**: All code, documentation, designs, and intellectual property contained herein are the sole and exclusive property of **Incrosoft**.
+2.  **Confidentiality**: Unauthorized access, disclosure, reproduction, or distribution of any portion of this codebase is strictly prohibited and may result in severe legal consequences, including civil and criminal penalties.
+3.  **Usage Restrictions**: This project is for internal use and authorized professional engagements only. No part of this software may be used, modified, or redistributed without express written consent from the legal owners.
+4.  **No Warranties**: This software is provided "as is" without warranty of any kind, express or implied, including but not limited to the warranties of merchantability or fitness for a particular purpose.
 
-## Getting Started
+### Governance
 
-### Prerequisites
-
--   Node.js (v18+)
--   npm or yarn
--   Docker (optional, for containerized setup)
-
-### Local Development
-
-1.  **Clone the repository**:
-
-    ```bash
-    git clone <repository-url>
-    cd TalentX
-    ```
-
-2.  **Install dependencies**:
-
-    ```bash
-    npm install
-    ```
-
-3.  **Set up environment variables**:
-
-    -   Create `.env` files in both `client/` and `server/` directories based on the provided `.env.example` files (if available).
-
-4.  **Run the project**:
-    ```bash
-    npm run dev
-    ```
-    This will start both the client and server concurrently.
-
-### Docker Setup
-
-To run the entire stack using Docker:
-
-```bash
-docker-compose up --build
-```
-
-## Governance
-
--   **License**: Proprietary (Incrosoft). See [LICENSE](./LICENSE) for details.
--   **Owners**: See [CODEOWNERS](./CODEOWNERS) for repository ownership details.
+-   **License**: Proprietary (Incrosoft). Refer to the [LICENSE](./LICENSE) file for formal licensing terms.
+-   **Security**: Please report any security vulnerabilities directly to the security team as per internal protocols.
 
 ---
 
- © 2025 Incrosoft. All rights reserved.
+© 2025-2026 Incrosoft. All rights reserved.
+

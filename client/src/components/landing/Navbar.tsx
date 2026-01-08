@@ -370,8 +370,7 @@ export default function Navbar() {
                                     </div>
                                     <Button
                                         onClick={handleLogout}
-                                        variant="outline"
-                                        className="border-gray-200 hover:bg-gray-50 text-gray-700 gap-2"
+                                        className="bg-gray-50 border-gray-200 hover:bg-gray-50 text-gray-700 gap-2"
                                     >
                                         <LogOut className="w-4 h-4" />
                                         Logout
