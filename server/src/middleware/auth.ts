@@ -11,7 +11,7 @@ export interface AuthRequest extends Request {
   };
 }
 
-type user = {
+export type user = {
   id: string;
   email: string;
   role: string;
@@ -24,7 +24,7 @@ export class JWTService {
   }
 
   //Verify the Token for controller
-  static decodeToken(Token: any) {
+  static decodeToken(Token: any): Promise<user> | any {
     return jwt.verify(Token, JWT_SECRET);
   }
 
@@ -37,8 +37,11 @@ export class JWTService {
     }
 
     // Check Authorization header for Bearer token
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-      return req.headers.authorization.split(' ')[1];
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+    ) {
+      return req.headers.authorization.split(" ")[1];
     }
 
     return null;
@@ -51,9 +54,6 @@ export const authenticateToken = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.cookies);
-    console.log(req.cookies.access_token);
-
     //Extract the token from user cookie
     const authToken = JWTService.extractToken(req);
     //verify the user token
@@ -79,7 +79,6 @@ export const authenticateToken = async (
     });
   }
 };
-
 
 export const requireRole = (roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {

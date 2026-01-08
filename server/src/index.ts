@@ -5,6 +5,8 @@ dotenv.config();
 
 import { PrismaClient } from "@prisma/client";
 import cookieParser from "cookie-parser";
+import http from "http";
+import { setupWebSocketServer } from "./websocket";
 
 import authRoutes from "./routes/authRoutes";
 import talentRoutes from "./routes/talentRoutes";
@@ -51,7 +53,13 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/hire-requests", hireRequestRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/applications", applicationRoutes);
-app.listen(port, async () => {
+
+const server = http.createServer(app);
+
+// Initialize WebSocket server
+setupWebSocketServer(server);
+
+server.listen(port, async () => {
   console.log(`Server is running on http://localhost:${port}`);
 
   // Ensure 'support' user exists for messaging FK constraints
