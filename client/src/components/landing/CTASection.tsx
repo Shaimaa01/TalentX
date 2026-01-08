@@ -7,7 +7,7 @@ import { createPageUrl } from '@/utils';
 
 export default function CTASection() {
     return (
-        <section className="pt-5 pb-28">
+        <section className="pt-5 pb-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

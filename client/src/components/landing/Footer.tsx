@@ -82,7 +82,7 @@ export default function FooterLayout() {
 
   return (
     <footer
-      className="relative text-white  pt-24 md:pt-30 pb-12 overflow-hidden bg-[radial-gradient(circle_at_50%_35%,#12287a_0%,#010414_85%)] [clip-path:polygon(0_3%,100%_0,100%_100%,0_100%)] md:[clip-path:polygon(0_8%,100%_0,100%_100%,0_100%)]"
+      className="relative text-white  py-10 overflow-hidden bg-[radial-gradient(circle_at_50%_100%,#12287a_0%,#010414_90%)] "
     >
       <CTASection />
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
