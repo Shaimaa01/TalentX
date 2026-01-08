@@ -16,35 +16,28 @@ import { toast } from 'sonner';
 const megaMenuData = {
     talent: {
         title: 'Hire Talent',
-        sections: [
+        viewType: 'sidebar',
+        categories: [
             {
-                title: 'Popular Roles',
-                items: [
-                    { name: 'Developers', icon: Code, category: 'developer', description: 'Frontend, Backend, Fullstack' },
-                    { name: 'Designers', icon: Palette, category: 'designer', description: 'UI/UX, Product, Graphic' },
-                    { name: 'Marketing', icon: TrendingUp, category: 'marketing', description: 'SEO, Content, Growth' },
-                    { name: 'Finance', icon: BarChart3, category: 'finance', description: 'Analysts, Accountants' },
-                    { name: 'Product Managers', icon: Briefcase, category: 'product_manager', description: 'Strategy, Execution' },
-                    { name: 'Project Managers', icon: UsersIcon, category: 'project_manager', description: 'Agile, Scrum' }
+                id: 'developers',
+                name: 'Developers',
+                roles: [
+                    'Full-stack Developers', 'Front-end Developers', 'Software Developers', 'Web Developers',
+                    'Mobile App Developers', 'AI Engineers', 'Android Developers', 'AngularJS Developers',
+                    'Django Developers', 'Drupal Developers', 'Game Developers', 'Hadoop Developers',
+                    'iOS Developers', 'Java Developers', 'JavaScript Developers', 'Kubernetes Developers',
+                    'Magento Developers', 'Node.js Developers', 'PHP Developers', 'PostgreSQL Developers',
+                    'Python Developers', 'React.js Developers', 'Ruby on Rails Developers', 'Salesforce Developers',
+                    'Scala Developers', 'Unity Developers', 'WordPress Developers'
                 ]
             },
-            {
-                title: 'Specialized Skills',
-                items: [
-                    { name: 'AI & Machine Learning', icon: Zap, category: 'ai_ml', description: 'LLMs, Computer Vision' },
-                    { name: 'Blockchain', icon: Shield, category: 'blockchain', description: 'Smart Contracts, Web3' },
-                    { name: 'Cloud Architects', icon: Globe, category: 'cloud', description: 'AWS, Azure, GCP' }
-                ]
-            },
-            {
-                title: 'Why TalentX',
-                isPromo: true,
-                items: [
-                    { name: 'Vetted Experts', icon: Target, description: 'Top 3% of global talent' },
-                    { name: '48-hour Matching', icon: Rocket, description: 'Fast-track your hiring' },
-                    { name: 'No-risk Trial', icon: Heart, description: 'Pay only if you are satisfied' }
-                ]
-            }
+            { id: 'designers', name: 'Designers', roles: ['UI/UX Designers', 'Product Designers', 'Graphic Designers', 'Brand Designers', 'Web Designers', 'Mobile App Designers'] },
+            { id: 'marketing', name: 'Marketing Experts', roles: ['SEO Specialists', 'Content Strategists', 'Growth Hackers', 'Social Media Managers', 'PPC Experts'] },
+            { id: 'management', name: 'Management Consultants', roles: ['Business Analysts', 'Financial Consultants', 'Strategic Advisors'] },
+            { id: 'researchers', name: 'Researchers', roles: ['Data Scientists', 'Research Scientists', 'UX Researchers', 'Market Researchers', 'AI Researchers', 'Clinical Researchers'] },
+            { id: 'project_managers', name: 'Project Managers', roles: ['Agile Project Managers', 'Scrum Masters', 'Technical Project Managers'] },
+            { id: 'product_managers', name: 'Product Managers', roles: ['Technical Product Managers', 'Growth Product Managers', 'Product Strategists'] },
+            { id: 'sales', name: 'Sales Experts', roles: ['Sales Representatives', 'Account Executives', 'Business Development Managers'] }
         ]
     },
     team: {
@@ -111,6 +104,7 @@ export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+    const [activeTalentCategory, setActiveTalentCategory] = useState('developers');
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
     const router = useRouter();
@@ -142,7 +136,10 @@ export default function Navbar() {
                         </Link>
 
                         {/* Desktop Navigation */}
-                        <div className="hidden lg:flex items-center gap-5" onMouseLeave={() => setHoveredTab(null)}>
+                        <div className="hidden lg:flex items-center gap-5" onMouseLeave={() => {
+                            setHoveredTab(null);
+                            setOpenDropdown(null);
+                        }}>
                             {Object.entries(megaMenuData).map(([key, menu]) => (
                                 <div
                                     key={key}
@@ -151,7 +148,6 @@ export default function Navbar() {
                                         setOpenDropdown(key);
                                         setHoveredTab(key);
                                     }}
-                                    onMouseLeave={() => setOpenDropdown(null)}
                                 >
                                     <button className="relative flex items-center px-0 py-6 text-[#1a1a2e] hover:text-[#204ecf] rounded-md text-[14px] font-semibold transition-all duration-200">
                                         {menu.title}
@@ -159,110 +155,188 @@ export default function Navbar() {
                                         {hoveredTab === key && (
                                             <motion.div
                                                 layoutId="navUnderline"
-                                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#204ecf]"
+                                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#204ecf] z-[60]"
                                                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                             />
                                         )}
                                     </button>
 
-                                    <AnimatePresence>
-                                        {openDropdown === key && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: 10 }}
-                                                transition={{ duration: 0.2 }}
-                                                className="absolute left-0 right-0 top-full bg-white border-t border-gray-100 shadow-2xl z-50 fixed-mega-menu"
-                                                style={{ position: 'fixed', left: 0, right: 0, top: 'auto' }}
-                                            >
-                                                <div className="max-w-7xl mx-auto px-8 py-10">
-                                                    <div className="grid grid-cols-3 gap-12">
-                                                        {menu.sections.map((section, idx) => (
-                                                            <div key={idx} className={`${section.isPromo ? 'bg-gray-50 p-6 rounded-2xl border border-gray-100' : ''}`}>
-                                                                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
-                                                                    {section.title}
-                                                                </h3>
-                                                                <div className="space-y-6">
-                                                                    {section.items.map((item: any, itemIdx) => (
-                                                                        <Link
-                                                                            key={itemIdx}
-                                                                            href={createPageUrl(
-                                                                                key === 'talent' ? `BrowseTalent?category=${item.category}` :
-                                                                                    key === 'team' ? `BrowseTeams?spec=${item.spec}` :
-                                                                                        `BrowseAgencies?filter=${item.filter}`
-                                                                            )}
-                                                                            className="group flex items-start gap-4 transition-all duration-200"
-                                                                        >
-                                                                            {item.icon && (
-                                                                                <div className="mt-1 p-2 bg-blue-50 text-[#204ecf] rounded-lg group-hover:bg-[#204ecf] group-hover:text-white transition-colors duration-200">
-                                                                                    <item.icon className="w-5 h-5" />
-                                                                                </div>
-                                                                            )}
-                                                                            <div>
-                                                                                <div className="text-sm font-bold text-[#1a1a2e] group-hover:text-[#204ecf] transition-colors">
-                                                                                    {item.name}
-                                                                                </div>
-                                                                                {item.description && (
-                                                                                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                                                                                        {item.description}
-                                                                                    </p>
-                                                                                )}
-                                                                            </div>
-                                                                        </Link>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                    {/* Invisible bridge to prevent gap */}
+                                    {openDropdown === key && (
+                                        <div className="absolute left-0 right-0 h-2 top-full" />
+                                    )}
                                 </div>
                             ))}
 
                             <Link
                                 href={createPageUrl('Clients')}
-                                onMouseEnter={() => setHoveredTab('clients')}
+                                onMouseEnter={() => {
+                                    setHoveredTab('clients');
+                                    setOpenDropdown(null);
+                                }}
                                 className="relative px-0 py-6 text-[#1a1a2e] hover:text-[#204ecf] text-[14px] font-semibold transition-colors"
                             >
                                 Clients
                                 {hoveredTab === 'clients' && (
                                     <motion.div
                                         layoutId="navUnderline"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#204ecf]"
+                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#204ecf] z-[60]"
                                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                     />
                                 )}
                             </Link>
                             <Link
                                 href={createPageUrl('Blog')}
-                                onMouseEnter={() => setHoveredTab('blog')}
+                                onMouseEnter={() => {
+                                    setHoveredTab('blog');
+                                    setOpenDropdown(null);
+                                }}
                                 className="relative px-0 py-6 text-[#1a1a2e] hover:text-[#204ecf] text-[14px] font-semibold transition-colors"
                             >
                                 Blog
                                 {hoveredTab === 'blog' && (
                                     <motion.div
                                         layoutId="navUnderline"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#204ecf]"
+                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#204ecf] z-[60]"
                                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                     />
                                 )}
                             </Link>
                             <Link
                                 href={createPageUrl('AboutUs')}
-                                onMouseEnter={() => setHoveredTab('about')}
+                                onMouseEnter={() => {
+                                    setHoveredTab('about');
+                                    setOpenDropdown(null);
+                                }}
                                 className="relative px-0 py-6 text-[#1a1a2e] hover:text-[#204ecf] text-sm font-semibold transition-colors"
                             >
                                 About Us
                                 {hoveredTab === 'about' && (
                                     <motion.div
                                         layoutId="navUnderline"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#204ecf]"
+                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#204ecf] z-[60]"
                                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                     />
                                 )}
                             </Link>
+
+                            {/* Shared Mega Menu */}
+                            <AnimatePresence>
+                                {openDropdown && megaMenuData[openDropdown as keyof typeof megaMenuData] && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="fixed left-1/2 -translate-x-1/2 top-[calc(4rem)] bg-white border-t border-gray-100 shadow-2xl z-50 w-[calc(100vw-2rem)] max-w-7xl overflow-hidden"
+                                    >
+                                        <div className="px-8 py-10">
+                                            {(() => {
+                                                const menu = megaMenuData[openDropdown as keyof typeof megaMenuData];
+                                                if ((menu as any).viewType === 'sidebar') {
+                                                    return (
+                                                        <div className="flex gap-12 min-h-[400px]">
+                                                            {/* Sidebar */}
+                                                            <div className="w-1/4 border-r border-gray-100 pr-8 flex flex-col justify-between">
+                                                                <div className="space-y-1">
+                                                                    {(menu as any).categories.map((cat: any) => (
+                                                                        <button
+                                                                            key={cat.id}
+                                                                            onMouseEnter={() => setActiveTalentCategory(cat.id)}
+                                                                            className={`w-full text-left px-4 py-3 text-sm font-bold transition-all duration-200 ${activeTalentCategory === cat.id ? 'bg-blue-50 text-[#204ecf]' : 'text-[#1a1a2e] hover:bg-gray-50'}`}
+                                                                        >
+                                                                            {cat.name}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                                <div className="pt-8 mt-8 border-t border-gray-100">
+                                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Want to hire a team?</p>
+                                                                    <Link href={createPageUrl('BrowseTeams')} className="flex items-center gap-2 text-sm font-bold text-[#204ecf] group">
+                                                                        <span className="group-hover:underline">Hire a Team</span>
+                                                                        <span className="text-lg">→</span>
+                                                                    </Link>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Content */}
+                                                            <div className="w-3/4 pl-8">
+                                                                {(() => {
+                                                                    const currentCat = (menu as any).categories.find((c: any) => c.id === activeTalentCategory);
+                                                                    if (!currentCat) return null;
+                                                                    return (
+                                                                        <>
+                                                                            <Link href={createPageUrl(`BrowseTalent?category=${currentCat.id}`)} className="inline-flex items-center gap-2 text-lg font-bold text-[#204ecf] hover:underline mb-8">
+                                                                                {currentCat.name} <span className="text-xl">→</span>
+                                                                            </Link>
+                                                                            <div className="grid grid-cols-3 gap-x-12 gap-y-4">
+                                                                                {currentCat.roles.map((role: string, roleIdx: number) => (
+                                                                                    <Link
+                                                                                        key={roleIdx}
+                                                                                        href={createPageUrl(`BrowseTalent?query=${encodeURIComponent(role)}`)}
+                                                                                        className="text-sm text-gray-600 hover:text-[#204ecf] transition-colors"
+                                                                                    >
+                                                                                        {role}
+                                                                                    </Link>
+                                                                                ))}
+                                                                            </div>
+                                                                            <div className="mt-12">
+                                                                                <Link href={createPageUrl('BrowseTalent')} className="text-sm font-bold text-[#204ecf] hover:underline">
+                                                                                    See more skills →
+                                                                                </Link>
+                                                                            </div>
+                                                                        </>
+                                                                    );
+                                                                })()}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                } else {
+                                                    return (
+                                                        <div className="grid grid-cols-3 gap-12">
+                                                            {(menu as any).sections.map((section: any, idx: number) => (
+                                                                <div key={idx} className={`${section.isPromo ? 'bg-gray-50 p-6 rounded-2xl border border-gray-100' : ''}`}>
+                                                                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
+                                                                        {section.title}
+                                                                    </h3>
+                                                                    <div className="space-y-6">
+                                                                        {section.items.map((item: any, itemIdx: number) => (
+                                                                            <Link
+                                                                                key={itemIdx}
+                                                                                href={createPageUrl(
+                                                                                    openDropdown === 'talent' ? `BrowseTalent?category=${item.category}` :
+                                                                                        openDropdown === 'team' ? `BrowseTeams?spec=${item.spec}` :
+                                                                                            `BrowseAgencies?filter=${item.filter}`
+                                                                                )}
+                                                                                className="group flex items-start gap-4 transition-all duration-200"
+                                                                            >
+                                                                                {item.icon && (
+                                                                                    <div className="mt-1 p-2 bg-blue-50 text-[#204ecf] rounded-lg group-hover:bg-[#204ecf] group-hover:text-white transition-colors duration-200">
+                                                                                        <item.icon className="w-5 h-5" />
+                                                                                    </div>
+                                                                                )}
+                                                                                <div>
+                                                                                    <div className="text-sm font-bold text-[#1a1a2e] group-hover:text-[#204ecf] transition-colors">
+                                                                                        {item.name}
+                                                                                    </div>
+                                                                                    {item.description && (
+                                                                                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                                                                                            {item.description}
+                                                                                        </p>
+                                                                                    )}
+                                                                                </div>
+                                                                            </Link>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    );
+                                                }
+                                            })()}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     </div>
 
@@ -332,23 +406,47 @@ export default function Navbar() {
                                     <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
                                         {menu.title}
                                     </div>
-                                    {menu.sections.map((section, sIdx) => (
-                                        <div key={sIdx} className="pl-4 space-y-1">
-                                            {section.items.map((item: any, iIdx) => (
-                                                <Link
-                                                    key={iIdx}
-                                                    href={createPageUrl(
-                                                        key === 'talent' ? `BrowseTalent?category=${item.category}` :
-                                                            key === 'team' ? `BrowseTeams?spec=${item.spec}` :
-                                                                `BrowseAgencies?filter=${item.filter}`
-                                                    )}
-                                                    className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
-                                                >
-                                                    {item.name}
-                                                </Link>
+                                    {(menu as any).viewType === 'sidebar' ? (
+                                        <div className="pl-4 space-y-4">
+                                            {(menu as any).categories.map((cat: any) => (
+                                                <div key={cat.id} className="space-y-2">
+                                                    <div className="text-sm font-bold text-gray-900 px-4">{cat.name}</div>
+                                                    <div className="pl-4 border-l-2 border-gray-100 space-y-1">
+                                                        {cat.roles.slice(0, 5).map((role: string, rIdx: number) => (
+                                                            <Link
+                                                                key={rIdx}
+                                                                href={createPageUrl(`BrowseTalent?query=${encodeURIComponent(role)}`)}
+                                                                className="block px-4 py-1.5 text-xs text-gray-600 hover:text-[#204ecf]"
+                                                            >
+                                                                {role}
+                                                            </Link>
+                                                        ))}
+                                                        <Link href={createPageUrl(`BrowseTalent?category=${cat.id}`)} className="block px-4 py-1.5 text-xs font-bold text-[#204ecf]">
+                                                            View all {cat.name}
+                                                        </Link>
+                                                    </div>
+                                                </div>
                                             ))}
                                         </div>
-                                    ))}
+                                    ) : (
+                                        (menu as any).sections.map((section: any, sIdx: number) => (
+                                            <div key={sIdx} className="pl-4 space-y-1">
+                                                {section.items.map((item: any, iIdx: number) => (
+                                                    <Link
+                                                        key={iIdx}
+                                                        href={createPageUrl(
+                                                            key === 'talent' ? `BrowseTalent?category=${item.category}` :
+                                                                key === 'team' ? `BrowseTeams?spec=${item.spec}` :
+                                                                    `BrowseAgencies?filter=${item.filter}`
+                                                        )}
+                                                        className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
+                                                    >
+                                                        {item.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             ))}
                             <div className="pt-6 border-t border-gray-100 space-y-4">
@@ -382,6 +480,6 @@ export default function Navbar() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </nav>
+        </nav >
     );
 }
