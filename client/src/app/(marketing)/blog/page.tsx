@@ -7,7 +7,6 @@ import BlogHero from '@/widgets/blog/BlogHero';
 import FeaturedPost from '@/widgets/blog/FeaturedPost';
 import BlogPostCard from '@/widgets/blog/BlogPostCard';
 import NewsletterSignup from '@/widgets/blog/NewsletterSignup';
-import { Skeleton } from '@/shared/components/ui/skeleton';
 
 export default function Blog() {
     const { data: blogPosts, isLoading } = useQuery({
