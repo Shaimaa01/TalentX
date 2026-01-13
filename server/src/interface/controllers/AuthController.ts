@@ -49,14 +49,16 @@ export class AuthController {
         if (!req.user) {
             return res.status(401).json({ message: "Unauthorized" });
         }
-        // Return user info. In a real app we might fetch fresh from DB, 
-        // but token info is often enough or we can use AuthService to get details.
-        // For legacy parity we just return the user obj found or decoded.
-        // Let's rely on middleware decoded info for speed, or fetch if needed.
-        // Legacy fetches from DB.
 
-        // TODO: Add getMe to AuthService if we want fresh DB data.
-        // For now return req.user
-        res.json(req.user);
+        try {
+            // Fetch fresh user data from DB to ensure roles/permissions are up to date
+            const user = await this.authService.getUserById(req.user.id);
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+            res.json(user);
+        } catch (error) {
+            res.json(req.user); // Fallback to token data if DB fails
+        }
     };
 }

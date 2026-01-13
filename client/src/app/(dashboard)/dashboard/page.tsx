@@ -1366,7 +1366,7 @@ function DashboardContent() {
         );
     }
 
-    if (user.role === 'admin') {
+    if (user.role === 'admin' || user.role === 'core_team') {
         return <AdminDashboard />;
     }
 

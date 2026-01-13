@@ -25,6 +25,7 @@ import { createPageUrl } from '@/shared/lib/utils';
 import { motion } from 'framer-motion';
 import { MessagesView } from './MessagesView';
 import ProjectDetail from './ProjectDetail';
+import AdminDisputePanel from '../Legal/AdminDisputePanel';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 // --- Types ---
@@ -54,6 +55,9 @@ export default function AdminDashboard() {
     const [cmsFormData, setCmsFormData] = useState<any>({});
     const [user, setUser] = useState<any>(null);
     const [selectedProject, setSelectedProject] = useState<any>(null);
+    const [maintenanceMode, setMaintenanceMode] = useState(false);
+    const [platformCommission, setPlatformCommission] = useState(12.0);
+    const [automaticVetting, setAutomaticVetting] = useState(false);
 
     useEffect(() => {
         talentXApi.auth.me().then(setUser);
@@ -162,6 +166,57 @@ export default function AdminDashboard() {
         }
     }, [searchParams, projects]);
 
+    useEffect(() => {
+        if (activeTab === 'settings') {
+            talentXApi.Settings.getAll().then((settings: any[]) => {
+                const maintenance = settings.find(s => s.key === 'maintenance_mode')?.value === 'true';
+                const commission = settings.find(s => s.key === 'platform_commission')?.value;
+                const vetting = settings.find(s => s.key === 'automatic_vetting')?.value === 'true';
+
+                setMaintenanceMode(maintenance);
+                if (commission) setPlatformCommission(parseFloat(commission));
+                setAutomaticVetting(vetting);
+            });
+        }
+    }, [activeTab]);
+
+    const handleToggleMaintenance = async () => {
+        try {
+            const newStatus = !maintenanceMode;
+            await talentXApi.Settings.setMaintenanceMode(newStatus);
+            setMaintenanceMode(newStatus);
+            toast({ title: `Maintenance mode ${newStatus ? 'enabled' : 'disabled'}` });
+        } catch (error) {
+            toast({ title: 'Failed to toggle maintenance mode', variant: 'destructive' });
+        }
+    };
+
+    const handleUpdateCommission = async (val: string) => {
+        const num = parseFloat(val);
+        if (isNaN(num)) return;
+        setPlatformCommission(num);
+    };
+
+    const handleSaveCommission = async () => {
+        try {
+            await talentXApi.Settings.updateCommission(platformCommission);
+            toast({ title: 'Platform commission updated successfully' });
+        } catch (error) {
+            toast({ title: 'Failed to update commission', variant: 'destructive' });
+        }
+    };
+
+    const handleToggleVetting = async () => {
+        try {
+            const newStatus = !automaticVetting;
+            await talentXApi.Settings.updateVetting(newStatus);
+            setAutomaticVetting(newStatus);
+            toast({ title: `Automatic vetting ${newStatus ? 'enabled' : 'disabled'}` });
+        } catch (error) {
+            toast({ title: 'Failed to toggle automatic vetting', variant: 'destructive' });
+        }
+    };
+
     const deleteProjectMutation = useMutation({
         mutationFn: async (id: string) => talentXApi.entities.Project.delete(id),
         onSuccess: () => {
@@ -217,7 +272,7 @@ export default function AdminDashboard() {
         } else {
             // Defaults based on current subtab
             if (contentSubTab === 'faqs') setCmsFormData({ question: '', answer: '', category: 'General' });
-            if (contentSubTab === 'testimonials') setCmsFormData({ author: '', role: '', company: '', quote: '', headline: '', rating: 5 });
+            if (contentSubTab === 'testimonials') setCmsFormData({ author: '', role: '', company: '', quote: '', headline: '', rating: 5, logo: '' });
             if (contentSubTab === 'case-studies') setCmsFormData({ title: '', image: '', client_name: '', video_url: '', logo: '', color: '#000000' });
             if (contentSubTab === 'blog') setCmsFormData({ title: '', content: '', excerpt: '', image: '', author: '', category: 'Industry', published: true });
         }
@@ -413,21 +468,27 @@ export default function AdminDashboard() {
                     />
                 </div>
             ) : (
-                <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
+                <Tabs key={user?.role || 'loading'} defaultValue={user?.role === 'admin' ? "overview" : "messages"} className="w-full" onValueChange={setActiveTab}>
                     <TabsList className="flex flex-wrap lg:grid w-full grid-cols-4 lg:grid-cols-10 lg:w-fit mb-8 h-auto p-1 bg-gray-100 rounded-xl">
-                        <TabsTrigger value="overview" className="flex-1">Overview</TabsTrigger>
-                        <TabsTrigger value="insights" className="flex-1">Insights</TabsTrigger>
-                        <TabsTrigger value="content" className="flex-1">Content</TabsTrigger>
-                        <TabsTrigger value="applications" className="flex-1">Applications</TabsTrigger>
-                        <TabsTrigger value="hire-requests" className="flex items-center gap-2 flex-1">
-                            Leads
-                            {hireRequests?.filter((r: any) => r.status === 'pending').length ? (
-                                <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{hireRequests.filter((r: any) => r.status === 'pending').length}</span>
-                            ) : null}
-                        </TabsTrigger>
+                        {user?.role === 'admin' && (
+                            <>
+                                <TabsTrigger value="overview" className="flex-1">Overview</TabsTrigger>
+                                <TabsTrigger value="insights" className="flex-1">Insights</TabsTrigger>
+                                <TabsTrigger value="content" className="flex-1">Content</TabsTrigger>
+                                <TabsTrigger value="applications" className="flex-1">Applications</TabsTrigger>
+                                <TabsTrigger value="hire-requests" className="flex items-center gap-2 flex-1">
+                                    Leads
+                                    {hireRequests?.filter((r: any) => r.status === 'pending').length ? (
+                                        <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{hireRequests.filter((r: any) => r.status === 'pending').length}</span>
+                                    ) : null}
+                                </TabsTrigger>
+                            </>
+                        )}
                         <TabsTrigger value="projects" className="flex-1">Projects</TabsTrigger>
                         <TabsTrigger value="users" className="flex-1">Users</TabsTrigger>
-                        <TabsTrigger value="financials" className="flex-1">Financials</TabsTrigger>
+                        {user?.role === 'admin' && (
+                            <TabsTrigger value="financials" className="flex-1">Financials</TabsTrigger>
+                        )}
                         <TabsTrigger value="messages" className="flex items-center gap-2 flex-1">
                             Support
                             {unreadCounts?.support ? (
@@ -437,34 +498,52 @@ export default function AdminDashboard() {
                         <TabsTrigger value="audit-logs" className="flex items-center gap-2 flex-1">
                             Audit Logs
                         </TabsTrigger>
-                        <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
+                        {user?.role === 'admin' && (
+                            <TabsTrigger value="legal" className="flex-1 text-red-600 font-bold">Legal</TabsTrigger>
+                        )}
+                        {user?.role === 'admin' && (
+                            <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
+                        )}
                     </TabsList>
 
                     {/* --- Overview Tab --- */}
                     <TabsContent value="overview" className="space-y-6 mt-6">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <Card className="bg-white border-gray-100 shadow-sm">
-                                <CardContent className="pt-6">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="p-2 bg-blue-50 rounded-lg">
-                                            <DollarSign className="w-5 h-5 text-blue-600" />
+                            {user?.role === 'admin' ? (
+                                <Card className="bg-white border-gray-100 shadow-sm">
+                                    <CardContent className="pt-6">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="p-2 bg-blue-50 rounded-lg">
+                                                <DollarSign className="w-5 h-5 text-blue-600" />
+                                            </div>
+                                            <Badge className="bg-green-100 text-green-700 border-none">+{analytics?.revenue.growth}%</Badge>
                                         </div>
-                                        <Badge className="bg-green-100 text-green-700 border-none">+{analytics?.revenue.growth}%</Badge>
-                                    </div>
-                                    <p className="text-sm font-medium text-gray-500">Global Revenue</p>
-                                    <h3 className="text-2xl font-bold text-gray-900 mt-1">${analytics?.revenue.total.toLocaleString()}</h3>
-                                    <div className="h-10 mt-4 flex items-end gap-1">
-                                        {analytics?.revenue.history.map((h: any, i: number) => (
-                                            <div
-                                                key={i}
-                                                className="flex-1 bg-blue-100 rounded-sm hover:bg-blue-600 transition-colors"
-                                                style={{ height: `${(h.value / 150000) * 100}%` }}
-                                                title={`${h.month}: $${h.value.toLocaleString()}`}
-                                            />
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        <p className="text-sm font-medium text-gray-500">Global Revenue</p>
+                                        <h3 className="text-2xl font-bold text-gray-900 mt-1">${analytics?.revenue.total.toLocaleString()}</h3>
+                                        <div className="h-10 mt-4 flex items-end gap-1">
+                                            {analytics?.revenue.history.map((h: any, i: number) => (
+                                                <div
+                                                    key={i}
+                                                    className="flex-1 bg-blue-100 rounded-sm hover:bg-blue-600 transition-colors"
+                                                    style={{ height: `${(h.value / 150000) * 100}%` }}
+                                                    title={`${h.month}: $${h.value.toLocaleString()}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                <Card className="bg-white border-gray-100 shadow-sm">
+                                    <CardContent className="pt-6 flex flex-col items-center justify-center h-full min-h-[160px]">
+                                        <div className="p-3 bg-gray-50 rounded-full mb-3">
+                                            <Briefcase className="w-6 h-6 text-gray-400" />
+                                        </div>
+                                        <p className="text-sm font-medium text-gray-500">Core Team Dashboard</p>
+                                        <p className="text-xs text-gray-400 mt-1">Limited View Mode</p>
+                                    </CardContent>
+                                </Card>
+                            )}
+
 
                             <Card className="bg-white border-gray-100 shadow-sm">
                                 <CardContent className="pt-6">
@@ -1119,15 +1198,17 @@ export default function AdminDashboard() {
                                                     >
                                                         <ExternalLink className="w-3 h-3" /> View
                                                     </Button>
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        className="h-8 w-8 text-red-600 hover:bg-red-50"
-                                                        onClick={() => handleDeleteProject(project.id, project.name)}
-                                                        disabled={deleteProjectMutation.isPending}
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
+                                                    {user?.role === 'admin' && (
+                                                        <Button
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            className="h-8 w-8 text-red-600 hover:bg-red-50"
+                                                            onClick={() => handleDeleteProject(project.id, project.name)}
+                                                            disabled={deleteProjectMutation.isPending}
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -1193,9 +1274,11 @@ export default function AdminDashboard() {
                                                     <Button variant="ghost" size="sm" className={`h-8 text-xs font-bold ${u.status === 'active' ? 'text-orange-600' : 'text-green-600'}`} onClick={() => handleToggleUserStatus(u.id, u.status)}>
                                                         {u.status === 'active' ? 'Disable' : 'Enable'}
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-300 hover:text-red-600" onClick={() => handleDeleteUser(u.id, u.full_name)}>
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
+                                                    {user?.role === 'admin' && (
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-300 hover:text-red-600" onClick={() => handleDeleteUser(u.id, u.full_name)}>
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -1241,6 +1324,7 @@ export default function AdminDashboard() {
                                                 <option value="talent">Talent</option>
                                                 <option value="agency">Agency</option>
                                                 <option value="admin">Admin</option>
+                                                <option value="core_team">Core Team (Support)</option>
                                             </select>
                                         </div>
                                         <div className="flex justify-end gap-3 mt-6">
@@ -1348,8 +1432,14 @@ export default function AdminDashboard() {
                                                 <p className="text-xs text-gray-500">Service fee taken from each payment</p>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-lg font-black text-blue-600">12%</span>
-                                                <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-gray-400"><TrendingUp className="w-4 h-4" /></Button>
+                                                <input
+                                                    type="number"
+                                                    value={platformCommission}
+                                                    onChange={(e) => handleUpdateCommission(e.target.value)}
+                                                    onBlur={handleSaveCommission}
+                                                    className="w-16 bg-transparent text-right text-lg font-black text-blue-600 focus:outline-none"
+                                                />
+                                                <span className="text-lg font-black text-blue-600">%</span>
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50 border border-gray-100">
@@ -1357,18 +1447,24 @@ export default function AdminDashboard() {
                                                 <p className="text-sm font-bold text-gray-900">Automatic Vetting</p>
                                                 <p className="text-xs text-gray-500">AI-powered initial review for talents</p>
                                             </div>
-                                            <div className="w-10 h-5 bg-blue-600 rounded-full flex items-center px-1">
-                                                <div className="w-3 h-3 bg-white rounded-full ml-auto" />
-                                            </div>
+                                            <button
+                                                onClick={handleToggleVetting}
+                                                className={`w-10 h-5 rounded-full flex items-center px-1 transition-colors ${automaticVetting ? 'bg-blue-600' : 'bg-gray-200'}`}
+                                            >
+                                                <div className={`w-3 h-3 bg-white rounded-full transition-all ${automaticVetting ? 'ml-auto' : ''}`} />
+                                            </button>
                                         </div>
                                         <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50 border border-gray-100">
                                             <div>
                                                 <p className="text-sm font-bold text-gray-900">Maintenance Mode</p>
                                                 <p className="text-xs text-gray-500">Disable platform for public updates</p>
                                             </div>
-                                            <div className="w-10 h-5 bg-gray-200 rounded-full flex items-center px-1">
-                                                <div className="w-3 h-3 bg-white rounded-full" />
-                                            </div>
+                                            <button
+                                                onClick={handleToggleMaintenance}
+                                                className={`w-10 h-5 rounded-full flex items-center px-1 transition-colors ${maintenanceMode ? 'bg-red-500' : 'bg-gray-200'}`}
+                                            >
+                                                <div className={`w-3 h-3 bg-white rounded-full transition-all ${maintenanceMode ? 'ml-auto' : ''}`} />
+                                            </button>
                                         </div>
                                     </div>
                                     <Button className="w-full bg-gray-900 hover:bg-black text-white font-bold h-11">Save Settings</Button>
@@ -1426,6 +1522,10 @@ export default function AdminDashboard() {
                             filters={auditFilters}
                             onFilterChange={setAuditFilters}
                         />
+                    </TabsContent>
+
+                    <TabsContent value="legal" className="mt-6">
+                        <AdminDisputePanel />
                     </TabsContent>
                 </Tabs>
             )}
@@ -1494,12 +1594,20 @@ export default function AdminDashboard() {
                                         <Input required className="h-12 rounded-xl bg-white text-gray-900" value={cmsFormData.author} onChange={e => setCmsFormData({ ...cmsFormData, author: e.target.value })} />
                                     </div>
                                     <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Role</Label>
+                                        <Input required className="h-12 rounded-xl bg-white text-gray-900" value={cmsFormData.role} onChange={e => setCmsFormData({ ...cmsFormData, role: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
                                         <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Company</Label>
                                         <Input required className="h-12 rounded-xl bg-white text-gray-900" value={cmsFormData.company} onChange={e => setCmsFormData({ ...cmsFormData, company: e.target.value })} />
                                     </div>
                                     <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Company Logo URL</Label>
+                                        <Input className="h-12 rounded-xl bg-white text-gray-900" value={cmsFormData.logo || ''} onChange={e => setCmsFormData({ ...cmsFormData, logo: e.target.value })} placeholder="https://..." />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
                                         <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Headline</Label>
-                                        <Input required className="h-12 rounded-xl md:col-span-2 bg-white text-gray-900" value={cmsFormData.headline} onChange={e => setCmsFormData({ ...cmsFormData, headline: e.target.value })} />
+                                        <Input required className="h-12 rounded-xl bg-white text-gray-900" value={cmsFormData.headline} onChange={e => setCmsFormData({ ...cmsFormData, headline: e.target.value })} />
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
                                         <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Quote</Label>

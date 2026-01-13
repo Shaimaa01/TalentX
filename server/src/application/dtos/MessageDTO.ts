@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const CreateMessageSchema = z.object({
-    receiver_id: z.string().min(1, "Receiver ID is required"),
+    receiver_id: z.string().optional(), // Optional - will be set to SUPPORT_ID if isSupport=true
     content: z.string().min(1, "Content is required"),
     isSupport: z.union([z.boolean(), z.string()]).optional() // Handle "true" string from query/body sometimes
 });

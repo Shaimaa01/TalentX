@@ -55,4 +55,15 @@ export class PrismaHireRequestRepository implements IHireRequestRepository {
             return request;
         });
     }
+
+    async findById(id: string): Promise<any | null> {
+        return prisma.hireRequest.findUnique({ where: { id } });
+    }
+
+    async updateStatus(id: string, status: string): Promise<any> {
+        return prisma.hireRequest.update({
+            where: { id },
+            data: { status }
+        });
+    }
 }

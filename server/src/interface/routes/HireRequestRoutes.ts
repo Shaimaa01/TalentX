@@ -10,6 +10,7 @@ export const createHireRequestRoutes = (controller: HireRequestController) => {
 
     router.post('/', controller.createHireRequest);
     router.get('/', controller.listHireRequests); // Likely should be admin protected in real app
+    router.patch('/:id/status', controller.updateStatus);
 
     return router;
 };

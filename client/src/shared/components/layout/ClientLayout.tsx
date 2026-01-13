@@ -5,6 +5,9 @@ import { usePathname } from 'next/navigation';
 import Navbar from "@/widgets/Navbar/Navbar";
 import Footer from "@/widgets/Footer/Footer";
 import { useAuthStore } from '@/features/auth/model/auth.store';
+import { useState, useEffect } from 'react';
+import { talentXApi } from '@/shared/api/talentXApi';
+import MaintenancePage from './MaintenancePage';
 
 export default function ClientLayout({
     children,
@@ -21,6 +24,26 @@ export default function ClientLayout({
     const showFooter = !isDashboardPage && !isAuthenticated;
     // Navbar is always shown to provide consistent branding and logout
     const showNavbar = true;
+
+    const [isMaintenance, setIsMaintenance] = useState(false);
+    const { user } = useAuthStore();
+    const isAdmin = user?.role === 'admin';
+
+    useEffect(() => {
+        const checkMaintenance = async () => {
+            try {
+                const res = await talentXApi.Settings.getMaintenanceMode();
+                setIsMaintenance(res.enabled);
+            } catch (error) {
+                console.error('Failed to check maintenance mode', error);
+            }
+        };
+        checkMaintenance();
+    }, []);
+
+    if (isMaintenance && !isAdmin) {
+        return <MaintenancePage />;
+    }
 
     return (
         <div className="min-h-screen bg-white flex flex-col">

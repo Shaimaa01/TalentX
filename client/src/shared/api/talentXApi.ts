@@ -307,10 +307,44 @@ export const talentXApi = {
             }
         }
     },
+    Legal: {
+        Contracts: {
+            listByProject: async (projectId: string): Promise<any[]> => {
+                const response = await apiClient.get(`/contracts/project/${projectId}`);
+                return response.data;
+            },
+            create: async (data: any) => {
+                const response = await apiClient.post('/contracts', data);
+                return response.data;
+            },
+            sign: async (id: string, signature: string) => {
+                const response = await apiClient.post(`/contracts/${id}/sign`, { signature });
+                return response.data;
+            }
+        },
+        Disputes: {
+            listByProject: async (projectId: string): Promise<any[]> => {
+                const response = await apiClient.get(`/disputes/project/${projectId}`);
+                return response.data;
+            },
+            create: async (data: any) => {
+                const response = await apiClient.post('/disputes', data);
+                return response.data;
+            },
+            // Admin
+            listAll: async (): Promise<any[]> => {
+                const response = await apiClient.get('/disputes/admin/all');
+                return response.data;
+            },
+            resolve: async (id: string, data: { resolution: string; status: string }) => {
+                const response = await apiClient.post(`/disputes/${id}/resolve`, data);
+                return response.data;
+            }
+        }
+    },
     integrations: {
         Core: {
             InvokeLLM: async (params: any) => {
-                // Keep mock for LLM for now
                 if (params.prompt.includes('team compositions')) {
                     return {
                         teams: [
@@ -319,26 +353,72 @@ export const talentXApi = {
                                 talent_ids: ["1", "2", "3"],
                                 rationale: "Perfect blend of frontend, backend, and design skills.",
                                 hourly_rate: 250
-                            },
-                            {
-                                team_name: "Innovation Squad",
-                                talent_ids: ["4", "5", "6"],
-                                rationale: "High expertise in AI and Data Science.",
-                                hourly_rate: 300
-                            },
-                            {
-                                team_name: "Rapid Launchers",
-                                talent_ids: ["1", "3", "5"],
-                                rationale: "Optimized for quick MVP delivery.",
-                                hourly_rate: 200
                             }
                         ]
                     };
                 }
-                return {
-                    matches: []
-                };
+                return { matches: [] };
             }
+        }
+    },
+    WorkVerification: {
+        TimeLogs: {
+            listByProject: async (projectId: string): Promise<any[]> => {
+                const response = await apiClient.get(`/work-verification/time-logs/project/${projectId}`);
+                return response.data;
+            },
+            log: async (data: { projectId: string; hours: number; description: string; date: string }) => {
+                const response = await apiClient.post('/work-verification/time-logs', data);
+                return response.data;
+            },
+            approve: async (id: string) => {
+                const response = await apiClient.patch(`/work-verification/time-logs/${id}/approve`);
+                return response.data;
+            },
+            reject: async (id: string) => {
+                const response = await apiClient.patch(`/work-verification/time-logs/${id}/reject`);
+                return response.data;
+            }
+        },
+        Milestones: {
+            listByProject: async (projectId: string): Promise<any[]> => {
+                const response = await apiClient.get(`/work-verification/milestones/project/${projectId}`);
+                return response.data;
+            },
+            create: async (data: { projectId: string; title: string; description: string; amount: number; due_date?: string }) => {
+                const response = await apiClient.post('/work-verification/milestones', data);
+                return response.data;
+            },
+            requestApproval: async (id: string) => {
+                const response = await apiClient.patch(`/work-verification/milestones/${id}/request-approval`);
+                return response.data;
+            },
+            approve: async (id: string) => {
+                const response = await apiClient.patch(`/work-verification/milestones/${id}/approve`);
+                return response.data;
+            }
+        }
+    },
+    Settings: {
+        getMaintenanceMode: async () => {
+            const response = await apiClient.get('/settings/maintenance');
+            return response.data;
+        },
+        setMaintenanceMode: async (enabled: boolean) => {
+            const response = await apiClient.post('/settings/maintenance', { enabled });
+            return response.data;
+        },
+        updateCommission: async (value: number) => {
+            const response = await apiClient.post('/settings/commission', { value });
+            return response.data;
+        },
+        updateVetting: async (enabled: boolean) => {
+            const response = await apiClient.post('/settings/vetting', { enabled });
+            return response.data;
+        },
+        getAll: async () => {
+            const response = await apiClient.get('/settings/all');
+            return response.data;
         }
     }
 };

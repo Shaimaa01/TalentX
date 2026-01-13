@@ -16,9 +16,10 @@ interface ProjectListProps {
     onSelectProject: (projectId: string) => void;
     onEdit?: (project: Project) => void;
     onDelete?: (projectId: string) => void;
+    onCreate?: () => void;
 }
 
-export default function ProjectList({ projects, onSelectProject, onEdit, onDelete }: ProjectListProps) {
+export default function ProjectList({ projects, onSelectProject, onEdit, onDelete, onCreate }: ProjectListProps) {
     if (projects.length === 0) {
         return (
             <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
@@ -27,7 +28,7 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">No projects yet</h3>
                 <p className="text-gray-500 max-w-sm mx-auto mb-6">Start your first project by hiring talent or a team.</p>
-                <Button className="bg-[#204ecf] hover:bg-[#1a3da8] text-white">Create Project</Button>
+                <Button onClick={onCreate} className="bg-[#204ecf] hover:bg-[#1a3da8] text-white">Create Project</Button>
             </div>
         );
     }

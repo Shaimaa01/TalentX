@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { talentXApi } from '@/shared/api/talentXApi';
 import ReactMarkdown from 'react-markdown';
-import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Button } from '@/shared/components/ui/button';
 import { Calendar, Clock, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin } from 'lucide-react';
 import Link from 'next/link';

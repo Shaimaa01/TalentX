@@ -81,4 +81,11 @@ export class AuthService {
 
         return { user: { id: user.id, email: user.email, role: user.role }, token };
     }
+
+    async getUserById(id: string) {
+        const user = await this.userRepo.findById(id);
+        if (!user) return null;
+        const { password, ...safeUser } = user;
+        return safeUser;
+    }
 }

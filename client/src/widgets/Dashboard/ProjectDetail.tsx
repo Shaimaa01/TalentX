@@ -9,6 +9,9 @@ import { talentXApi } from '@/shared/api/talentXApi';
 import { toast } from 'sonner';
 import TaskModal from './TaskModal';
 import TaskListView from './TaskListView';
+import { ContractsList } from '../Legal/ContractComponents';
+import { DisputeBanner, DisputeModal } from '../Legal/DisputeComponents';
+import { WorkVerificationWidgets } from './WorkVerificationWidgets';
 
 interface ProjectDetailProps {
     user: User;
@@ -17,7 +20,8 @@ interface ProjectDetailProps {
 }
 
 export default function ProjectDetail({ user, project, onBack }: ProjectDetailProps) {
-    const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'team' | 'files' | 'srs' | 'design' | 'whiteboard'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'team' | 'files' | 'srs' | 'design' | 'whiteboard' | 'contracts' | 'work'>('overview');
+    const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
     const [srsContent, setSrsContent] = useState(project.srs_content || '');
     const [whiteboardUrl, setWhiteboardUrl] = useState(project.whiteboard_url || '');
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -662,8 +666,19 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         </div>
     );
 
+    const ContractsTab = () => (
+        <ContractsList projectId={project.id} currentUser={user} />
+    );
+
     return (
         <div className="space-y-8">
+            <DisputeBanner projectId={project.id} isFrozen={project.paymentStatus === 'frozen'} />
+            <DisputeModal
+                isOpen={isDisputeModalOpen}
+                onClose={() => setIsDisputeModalOpen(false)}
+                projectId={project.id}
+                onDisputeCreated={() => queryClient.invalidateQueries({ queryKey: ['projects'] })}
+            />
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -704,22 +719,23 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
                             <DollarSign className="w-4 h-4 mr-2" /> Release Payment
                         </Button>
                     )}
+                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-500 hover:bg-red-50" title="Report Issue" onClick={() => setIsDisputeModalOpen(true)}>
+                        <AlertCircle className="w-5 h-5" />
+                    </Button>
                 </div>
             </div>
-
-
 
             {/* Tabs */}
             <div className="border-b border-gray-200 flex justify-between items-end">
                 <nav className="flex gap-8 overflow-x-auto no-scrollbar">
-                    {['overview', 'tasks', 'team', 'files', 'srs', 'design', 'whiteboard'].map((tab) => (
+                    {['overview', 'work', 'tasks', 'team', 'files', 'srs', 'design', 'whiteboard', 'contracts'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab as any)}
                             className={`pb-4 text-sm font-medium capitalize transition-colors relative whitespace-nowrap ${activeTab === tab ? 'text-[#204ecf]' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
-                            {tab === 'srs' ? 'SRS' : tab}
+                            {tab === 'srs' ? 'SRS' : tab === 'work' ? 'Work & Billing' : tab}
                             {activeTab === tab && (
                                 <motion.div
                                     layoutId="activeTab"
@@ -783,23 +799,23 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
                 {activeTab === 'srs' && <SRSTab />}
                 {activeTab === 'design' && <DesignTab />}
                 {activeTab === 'whiteboard' && <WhiteboardTab />}
+                {activeTab === 'work' && <WorkVerificationWidgets projectId={project.id} currentUser={user} />}
+                {activeTab === 'contracts' && <ContractsTab />}
             </motion.div>
 
             {/* Task Modal */}
-            {
-                isTaskModalOpen && (
-                    <TaskModal
-                        task={selectedTask}
-                        user={user}
-                        teamMembers={assignableMembers}
-                        onClose={() => { setIsTaskModalOpen(false); setSelectedTask(null); }}
-                        onSave={handleTaskSave}
-                        onDelete={(id) => deleteTaskMutation.mutate(id)}
-                        isSaving={createTaskMutation.isPending || updateTaskMutation.isPending || deleteTaskMutation.isPending}
-                        readOnly={!!selectedTask && !isClientOrAdmin}
-                    />
-                )
-            }
+            {isTaskModalOpen && (
+                <TaskModal
+                    task={selectedTask}
+                    user={user}
+                    teamMembers={assignableMembers}
+                    onClose={() => { setIsTaskModalOpen(false); setSelectedTask(null); }}
+                    onSave={handleTaskSave}
+                    onDelete={(id) => deleteTaskMutation.mutate(id)}
+                    isSaving={createTaskMutation.isPending || updateTaskMutation.isPending || deleteTaskMutation.isPending}
+                    readOnly={!!selectedTask && !isClientOrAdmin}
+                />
+            )}
 
             {/* Project Completion Modal */}
             {isCompletionModalOpen && (
@@ -858,17 +874,15 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
                                 <Button
                                     onClick={handleCompleteProject}
                                     disabled={completeProjectMutation.isPending}
-                                    className="flex-[2] bg-green-600 hover:bg-green-700 text-white py-6 rounded-2xl font-bold shadow-lg shadow-green-100 transition-all"
+                                    className="flex-1 py-6 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-lg shadow-green-200"
                                 >
-                                    {completeProjectMutation.isPending ? 'Processing...' : 'Complete & Finalize'}
+                                    {completeProjectMutation.isPending ? 'Completing...' : 'Complete Project'}
                                 </Button>
                             </div>
                         </div>
                     </motion.div>
                 </div>
             )}
-        </div >
+        </div>
     );
 }
-
-

@@ -1,4 +1,4 @@
-export type UserRole = 'client' | 'talent' | 'agency' | 'admin';
+export type UserRole = 'client' | 'talent' | 'agency' | 'admin' | 'core_team';
 
 export interface User {
     id: string;
@@ -141,7 +141,7 @@ export interface Project {
     design_diagram_url?: string;
     clientReview?: string;
     clientRating?: number;
-    paymentStatus?: 'pending' | 'released';
+    paymentStatus?: 'pending' | 'released' | 'frozen';
 }
 
 export interface Task {
@@ -220,5 +220,37 @@ export interface AuditLog {
     entityId?: string;
     details?: string;
     createdAt: string;
+}
+
+export interface Contract {
+    id: string;
+    projectId: string;
+    type: 'MSA' | 'NDA';
+    title: string;
+    content: string;
+    status: 'draft' | 'pending_signature' | 'active' | 'terminated';
+    clientId: string;
+    talentId?: string;
+    agencyId?: string;
+    clientSignature?: string;
+    clientSignedAt?: string;
+    contractorSignature?: string;
+    contractorSignedAt?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface Dispute {
+    id: string;
+    projectId: string;
+    initiatorId: string;
+    reason: string;
+    description: string;
+    status: 'open' | 'under_review' | 'resolved' | 'dismissed';
+    resolution?: string;
+    adminId?: string;
+    createdAt: string;
+    initiator?: User;
+    admin?: User;
 }
 

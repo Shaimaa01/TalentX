@@ -6,4 +6,5 @@ export interface IUserRepository {
     findAll(): Promise<any[]>;
     update(id: string, data: any): Promise<any>;
     delete(id: string): Promise<void>;
+    ensureSupportUser(id: string): Promise<void>;
 }

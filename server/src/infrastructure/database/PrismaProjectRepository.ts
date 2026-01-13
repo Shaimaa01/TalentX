@@ -33,14 +33,15 @@ export class PrismaProjectRepository implements IProjectRepository {
     async findAllByRole(userId: string, role: string): Promise<any[]> {
         let whereClause: any = {};
 
-        if (role === 'admin') {
+        if (role === 'admin' || role === 'core_team') {
             whereClause = {};
         } else if (role === 'talent') {
             const talent = await prisma.talent.findUnique({ where: { userId } as any });
+            if (!talent) return [];
             whereClause = {
                 OR: [
-                    { talentId: talent?.id },
-                    { memberships: { some: { talentId: talent?.id } } }
+                    { talentId: talent.id },
+                    { memberships: { some: { talentId: talent.id } } }
                 ]
             };
         } else if (role === 'agency') {
@@ -69,5 +70,9 @@ export class PrismaProjectRepository implements IProjectRepository {
             where: { id: projectId },
             include: { memberships: { where: { talentId } } }
         });
+    }
+
+    async addProjectMembership(data: any): Promise<any> {
+        return prisma.projectMembership.create({ data });
     }
 }

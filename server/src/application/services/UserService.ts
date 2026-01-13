@@ -19,6 +19,16 @@ export class UserService {
         return user;
     }
 
+    async createUser(adminId: string, data: any) {
+        const newUser = await this.userRepo.create(data);
+        await this.auditLogService.logAction(adminId, 'CREATE', 'User', newUser.id, {
+            name: data.full_name,
+            email: data.email,
+            role: data.role
+        });
+        return newUser;
+    }
+
     async updateUser(adminId: string, id: string, dto: UpdateUserDTO) {
         // Handle Password Hashing if present
         let updateData: any = { ...dto };

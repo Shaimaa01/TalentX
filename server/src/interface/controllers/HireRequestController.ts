@@ -26,4 +26,15 @@ export class HireRequestController {
             res.status(500).json({ message: error.message || 'Error listing hire requests' });
         }
     };
+
+    updateStatus = async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            const request = await this.hireRequestService.updateStatus(id, status);
+            res.json(request);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message || 'Error updating hire request status' });
+        }
+    };
 }

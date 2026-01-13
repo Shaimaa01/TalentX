@@ -147,4 +147,27 @@ export class PrismaUserRepository implements IUserRepository {
         }
         await prisma.user.delete({ where: { id } });
     }
+
+    async ensureSupportUser(id: string): Promise<void> {
+        const password = await bcrypt.hash('1234', 10);
+        await prisma.user.upsert({
+            where: { id },
+            update: {
+                password,
+                // Ensure critical fields are correct
+                email: 'support@talentx.com',
+                role: 'core_team',
+                status: 'active'
+            },
+            create: {
+                id: id,
+                email: 'support@talentx.com',
+                password,
+                full_name: 'Admin Support',
+                role: 'core_team', // Low power role
+                avatar_url: 'https://ui-avatars.com/api/?name=Admin+Support&background=00c853&color=fff',
+                status: 'active'
+            }
+        });
+    }
 }

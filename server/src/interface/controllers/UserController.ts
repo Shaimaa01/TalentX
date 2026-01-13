@@ -24,6 +24,15 @@ export class UserController {
         }
     };
 
+    createUser = async (req: AuthRequest, res: Response) => {
+        try {
+            const newUser = await this.userService.createUser(req.user!.id, req.body);
+            res.status(201).json(newUser);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message || 'Error creating user' });
+        }
+    };
+
     updateUser = async (req: AuthRequest, res: Response) => {
         try {
             const validationResult = UpdateUserSchema.safeParse(req.body);

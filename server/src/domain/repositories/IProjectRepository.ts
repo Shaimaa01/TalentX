@@ -7,4 +7,5 @@ export interface IProjectRepository {
     findAll(filters: any): Promise<any[]>;
     // Specialized find for payments
     findByIdForPayment(projectId: string, talentId: string, clientId: string): Promise<any | null>;
+    addProjectMembership(data: { projectId: string; talentId: string; role?: string; rateType: string; rateAmount: number }): Promise<any>;
 }

@@ -14,4 +14,6 @@ export interface IHireRequestRepository {
 
     processDirectHire(data: any, extraData: any): Promise<any>;
     processAgencyHire(data: any, extraData: any): Promise<any>;
+    findById(id: string): Promise<any | null>;
+    updateStatus(id: string, status: string): Promise<any>;
 }

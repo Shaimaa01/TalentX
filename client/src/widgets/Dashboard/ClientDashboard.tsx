@@ -242,12 +242,24 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                                 onBack={() => setSelectedProjectId(null)}
                             />
                         ) : (
-                            <ProjectList
-                                projects={projects}
-                                onSelectProject={setSelectedProjectId}
-                                onEdit={openEditModal}
-                                onDelete={handleDeleteProject}
-                            />
+                            <div className="space-y-6">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h2 className="text-2xl font-bold text-[#1a1a2e]">All Projects</h2>
+                                    <Button
+                                        onClick={() => setIsNewProjectModalOpen(true)}
+                                        className="bg-[#204ecf] hover:bg-[#1a3da8] text-white rounded-xl"
+                                    >
+                                        <Plus className="w-4 h-4 mr-2" /> New Project
+                                    </Button>
+                                </div>
+                                <ProjectList
+                                    projects={projects}
+                                    onSelectProject={setSelectedProjectId}
+                                    onEdit={openEditModal}
+                                    onDelete={handleDeleteProject}
+                                    onCreate={() => setIsNewProjectModalOpen(true)}
+                                />
+                            </div>
                         )
                     )}
 

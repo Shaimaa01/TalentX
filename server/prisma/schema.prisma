@@ -30,6 +30,10 @@ model User {
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
   auditLogs        AuditLog[] @relation("AdminActions")
+  
+  // Dispute Relations
+  initiatedDisputes Dispute[] @relation("InitiatedDisputes")
+  resolvedDisputes  Dispute[] @relation("ResolvedDisputes")
 }
 
 model AuditLog {
@@ -71,6 +75,7 @@ model Talent {
   teams             TeamMember[]
   assignedProjects  Project[] @relation("AssignedTalent")
   memberships       ProjectMembership[]
+  timeLogs          TimeLog[]
 }
 
 model Agency {
@@ -147,6 +152,7 @@ model Project {
   progress     Int      @default(0)
   budget_spent Float?   @default(0)
   total_budget Float?
+  escrowBalance Float?   @default(0)
   next_milestone String?
 
   assignedType String?  // 'talent' | 'team' | 'agency'
@@ -164,10 +170,59 @@ model Project {
 
   clientReview  String?  @db.Text
   clientRating  Int?
-  paymentStatus String   @default("pending") // 'pending' | 'released'
+  paymentStatus String   @default("pending") // 'pending' | 'released' | 'frozen'
 
   tasks        Task[]
   memberships  ProjectMembership[]
+
+  // Legal & Protection
+  contracts    Contract[]
+  disputes     Dispute[]
+  
+  // Work Verification
+  timeLogs     TimeLog[]
+  milestones   Milestone[]
+}
+
+model Contract {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  type        String   // 'MSA' | 'NDA'
+  title       String
+  content     String   @db.Text
+  status      String   @default("draft") // 'draft' | 'pending_signature' | 'active' | 'terminated'
+  
+  clientId    String
+  talentId    String?
+  agencyId    String?
+
+  clientSignature String?
+  clientSignedAt  DateTime?
+  
+  contractorSignature String?
+  contractorSignedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Dispute {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  initiatorId String
+  initiator   User     @relation("InitiatedDisputes", fields: [initiatorId], references: [id])
+  reason      String
+  description String   @db.Text
+  status      String   @default("open") // 'open' | 'under_review' | 'resolved' | 'dismissed'
+  resolution  String?  @db.Text
+  
+  adminId     String?
+  admin       User?    @relation("ResolvedDisputes", fields: [adminId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model ProjectMembership {
@@ -313,5 +368,41 @@ model BlogPost {
   featured  Boolean  @default(false)
   published Boolean  @default(false)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TimeLog {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  talentId    String
+  talent      Talent   @relation(fields: [talentId], references: [id])
+  date        DateTime @default(now())
+  hours       Float
+  description String
+  status      String   @default("pending") // 'pending' | 'approved' | 'rejected'
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Milestone {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  amount      Float
+  status      String   @default("pending") // 'pending' | 'requested' | 'approved' | 'paid'
+  due_date    DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
   updatedAt DateTime @updatedAt
 }

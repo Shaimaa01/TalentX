@@ -36,17 +36,21 @@ export class MessageService {
         }));
     }
 
+    private isSupportStaff(role: string) {
+        return ['admin', 'core_team'].includes(role);
+    }
+
     async listMessages(userId: string, role: string, query: any) {
         const isSupport = query.isSupport === 'true';
         const targetQueryId = query.userId || query.threadUserId || query.receiverID;
 
-        if (isSupport && role === 'admin' && query.type === 'threads') {
+        if (isSupport && this.isSupportStaff(role) && query.type === 'threads') {
             const threads = await this.messageRepo.findSupportThreads(MessageService.SUPPORT_ID);
             return this.formatThreads(threads);
         }
 
         if (isSupport) {
-            const targetId = (role === 'admin' && targetQueryId) ? targetQueryId : userId;
+            const targetId = (this.isSupportStaff(role) && targetQueryId) ? targetQueryId : userId;
             const messages = await this.messageRepo.findSupportMessages(targetId, MessageService.SUPPORT_ID);
             return messages.map(m => this.formatMessage(m));
         }
@@ -63,8 +67,17 @@ export class MessageService {
     async createMessage(senderId: string, role: string, dto: CreateMessageDTO) {
         const isSupport = dto.isSupport === true || dto.isSupport === "true";
 
-        const actualSenderId = isSupport && role === "admin" ? MessageService.SUPPORT_ID : senderId;
-        const actualReceiverId = isSupport && role !== "admin" ? MessageService.SUPPORT_ID : dto.receiver_id;
+        if (isSupport) {
+            await this.userRepo.ensureSupportUser(MessageService.SUPPORT_ID);
+        }
+
+        // Validate receiver_id for non-support messages
+        if (!isSupport && !dto.receiver_id) {
+            throw new Error("receiver_id is required for direct messages");
+        }
+
+        const actualSenderId = isSupport && this.isSupportStaff(role) ? MessageService.SUPPORT_ID : senderId;
+        const actualReceiverId = isSupport && !this.isSupportStaff(role) ? MessageService.SUPPORT_ID : dto.receiver_id!;
 
         const message = await this.messageRepo.create({
             senderId: actualSenderId,
@@ -73,14 +86,14 @@ export class MessageService {
         });
 
         // Notifications
-        if (isSupport && role !== "admin") {
-            // Notify all admins
-            const admins = await (this.userRepo as any).findAll();
-            const adminUsers = (admins as any[]).filter(u => u.role === 'admin');
+        if (isSupport && !this.isSupportStaff(role)) {
+            // Notify all admins and core_team
+            const allUsers = await (this.userRepo as any).findAll();
+            const supportStaff = (allUsers as any[]).filter(u => this.isSupportStaff(u.role));
 
-            for (const admin of adminUsers) {
+            for (const staff of supportStaff) {
                 await this.notificationRepo.create({
-                    userId: admin.id,
+                    userId: staff.id,
                     type: "support_ticket",
                     content: `New support ticket: "${dto.content.substring(0, 30)}..."`,
                     data: JSON.stringify({ senderId, messageId: message.id })
@@ -92,7 +105,7 @@ export class MessageService {
     }
 
     async getUnreadCount(userId: string, role: string) {
-        return this.messageRepo.countUnreadLegacy(userId, MessageService.SUPPORT_ID, role === 'admin');
+        return this.messageRepo.countUnreadLegacy(userId, MessageService.SUPPORT_ID, this.isSupportStaff(role));
     }
 
     async markAsRead(userId: string, role: string, dto: any) {
@@ -100,7 +113,7 @@ export class MessageService {
         let where: any = { read: false };
 
         if (isSupport) {
-            if (role === "admin") {
+            if (this.isSupportStaff(role)) {
                 where = {
                     ...where,
                     senderId: threadUserId,
