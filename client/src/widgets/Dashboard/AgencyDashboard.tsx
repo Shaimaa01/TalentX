@@ -16,6 +16,7 @@ import TaskListView from './TaskListView';
 import TaskModal from './TaskModal';
 import NotificationCenter from './NotificationCenter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { ViewModeToggle } from '@/shared/components/ui/view-mode-toggle';
 
 interface AgencyDashboardProps {
     user: User;
@@ -168,26 +169,14 @@ export default function AgencyDashboard({ user, onLogout, activeView, setActiveV
                             <div className="flex justify-between items-center mb-4">
                                 <h1 className="text-2xl font-bold text-[#1a1a2e]">My Agency Tasks</h1>
                                 <div className="bg-white p-1 rounded-xl flex items-center gap-1 border border-gray-200">
-                                    <button
-                                        onClick={() => setTaskViewMode('board')}
-                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${taskViewMode === 'board'
-                                            ? 'bg-blue-50 text-[#204ecf]'
-                                            : 'text-gray-500 hover:text-gray-700'
-                                            }`}
-                                    >
-                                        <LayoutGrid className="w-3.5 h-3.5" />
-                                        Board
-                                    </button>
-                                    <button
-                                        onClick={() => setTaskViewMode('list')}
-                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${taskViewMode === 'list'
-                                            ? 'bg-blue-50 text-[#204ecf]'
-                                            : 'text-gray-500 hover:text-gray-700'
-                                            }`}
-                                    >
-                                        <List className="w-3.5 h-3.5" />
-                                        List
-                                    </button>
+                                  <ViewModeToggle
+                                    modes={[
+                                    { id: "board" as const, icon: LayoutGrid, label: "Board" },
+                                    { id: "list" as const, icon: List, label: "List" },
+                                    ]}
+                                    activeMode={taskViewMode}
+                                    onChange={setTaskViewMode}
+                                    />
                                 </div>
                             </div>
                             {taskViewMode === 'board' ? (
