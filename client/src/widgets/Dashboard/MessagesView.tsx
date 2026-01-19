@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWebSocket } from '@/shared/lib/hooks/useWebSocket';
-import { talentXApi, API_URL, WS_URL } from '@/shared/api/talentXApi';
+import { talentXApi, WS_URL } from '@/shared/api/talentXApi';
 import { Button } from "@/shared/components/ui/button";
 import { MessageSquare, Users, Clock } from 'lucide-react';
 import { User } from '@/shared/types';
@@ -257,9 +257,9 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
                                     name="message"
                                     type="text"
                                     placeholder={showSupport ? "Type support response..." : "Write your message..."}
-                                    className="flex-1 bg-transparent px-4 py-2 outline-none text-sm"
+                                    className="flex-1 bg-transparent px-4 py-2 outline-none text-sm text-gray-800"
                                 />
-                                <Button type="submit" className="bg-[#204ecf] hover:bg-[#1a3da8] text-white px-6 rounded-xl font-bold text-xs uppercase tracking-widest">
+                                <Button type="submit" className="bg-[#204ecf] hover:bg-[#1a3da8] text-white px-6 rounded-xl font-bold text-xs uppercase tracking-widest cursor-pointer">
                                     Send
                                 </Button>
                             </form>
