@@ -14,7 +14,7 @@ import { WorkVerificationWidgets } from './WorkVerificationWidgets';
 import { ProjectOverviewTab } from './ProjectOverviewTab';
 import { ProjectKanbanBoard } from './ProjectKanbanBoard';
 import { ProjectTeamTab } from './ProjectTeamTab';
-import { ProjectDetailTab } from '@/entities/project/model/types';
+import { ProjectDetailTab, TaskCreatePayload, TaskFormData, TaskUpdatePayload } from '@/entities/project/model/types';
 import { ProjectFilesTab } from './ProjectFilesTab';
 import { ProjectSRSTab } from './ProjectSRSTab';
 import { ProjectDesignTab } from './ProjectDesignTab';
@@ -34,6 +34,10 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [taskViewMode, setTaskViewMode] = useState<'board' | 'list'>('board');
     const queryClient = useQueryClient();
+    const tabs: ProjectDetailTab[] = [
+    'overview', 'work', 'tasks', 'team', 'files', 
+    'srs', 'design', 'whiteboard', 'contracts'
+    ];
 
     const isClientOrAdmin = user.role === 'client' || user.role === 'admin';
     const canManageTasks = user.role === 'client' || user.role === 'admin' || user.role === 'agency';
@@ -68,17 +72,18 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
 
     // Detailed Update Task Mutation
     const updateTaskMutation = useMutation({
-        mutationFn: async (updatedTask: any) => {
-            const { id, ...data } = updatedTask;
-            const payload = {
-                title: data.title,
-                description: data.description,
-                priority: data.priority,
-                due_date: data.due_date,
-                assignee_id: data.assigneeId || null,
-            };
-            return await talentXApi.entities.Task.update(id, payload);
-        },
+      mutationFn: async (updatedTask: TaskFormData & { id: string }) => {
+        const { id, assigneeId, ...data } = updatedTask;
+        const payload: TaskUpdatePayload = {
+            title: data.title,
+            description: data.description,
+            priority: data.priority,
+            due_date: data.due_date,
+            assignee_id: assigneeId || null,
+            status: data.status,
+        };
+        return await talentXApi.entities.Task.update(id, payload);
+    },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks', project.id] });
             setIsTaskModalOpen(false);
@@ -106,16 +111,18 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
 
     // Create Task Mutation
     const createTaskMutation = useMutation({
-        mutationFn: async (newTask: any) => {
-            return await talentXApi.entities.Task.create({
-                title: newTask.title,
-                description: newTask.description,
-                priority: newTask.priority,
-                due_date: newTask.due_date,
-                assignee_id: newTask.assigneeId || null,
-                project_id: project.id
-            });
-        },
+    mutationFn: async (newTask: TaskFormData) => {
+        const payload: TaskCreatePayload = {
+            title: newTask.title,
+            description: newTask.description,
+            priority: newTask.priority,
+            due_date: newTask.due_date,
+            assignee_id: newTask.assigneeId || null,
+            project_id: project.id,
+            status: newTask.status || 'todo',
+        };
+        return await talentXApi.entities.Task.create(payload);
+    },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks', project.id] });
             setIsTaskModalOpen(false);
@@ -142,20 +149,16 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         }
     });
 
-  
-
-    
-
     const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
     const [rating, setRating] = useState(5);
     const [review, setReview] = useState('');
 
-    const handleTaskSave = (data: any) => {
-        if (selectedTask) {
-            updateTaskMutation.mutate({ ...data, id: selectedTask.id });
-        } else {
-            createTaskMutation.mutate(data as any);
-        }
+    const handleTaskSave = (data: TaskFormData) => {
+    if (selectedTask) {
+        updateTaskMutation.mutate({ ...data, id: selectedTask.id });
+    } else {
+        createTaskMutation.mutate(data);
+    }
     };
 
     const completeProjectMutation = useMutation({
@@ -257,11 +260,11 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
             {/* Tabs */}
             <div className="border-b border-gray-200 flex justify-between items-end">
                 <nav className="flex gap-8 overflow-x-auto no-scrollbar">
-                    {['overview', 'work', 'tasks', 'team', 'files', 'srs', 'design', 'whiteboard', 'contracts'].map((tab) => (
+                    {tabs.map((tab) => (
                         <button
                             key={tab}
-                            onClick={() => setActiveTab(tab as any)}
-                            className={`pb-4 text-sm font-medium capitalize transition-colors relative whitespace-nowrap ${activeTab === tab ? 'text-[#204ecf]' : 'text-gray-500 hover:text-gray-700'
+                            onClick={() => setActiveTab(tab)}
+                            className={`pb-4 text-sm font-medium capitalize transition-colors relative whitespace-nowrap cursor-pointer ${activeTab === tab ? 'text-[#204ecf]' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             {tab === 'srs' ? 'SRS' : tab === 'work' ? 'Work & Billing' : tab}
