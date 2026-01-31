@@ -10,6 +10,24 @@ export class ProjectController {
         this.projectService = projectService;
     }
 
+    /**
+     * @swagger
+     * /api/projects:
+     *   post:
+     *     summary: Create a new project
+     *     tags: [Projects]
+     *     security:
+     *       - cookieAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/CreateProjectDTO'
+     *     responses:
+     *       201:
+     *         description: Project created
+     */
     createProject = async (req: AuthRequest, res: Response) => {
         try {
             // Augment with user info if missing
@@ -31,6 +49,18 @@ export class ProjectController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/projects:
+     *   get:
+     *     summary: List projects for current user
+     *     tags: [Projects]
+     *     security:
+     *       - cookieAuth: []
+     *     responses:
+     *       200:
+     *         description: List of projects
+     */
     listProjects = async (req: AuthRequest, res: Response) => {
         try {
             const userId = req.user!.id;
@@ -43,6 +73,24 @@ export class ProjectController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/projects/{id}:
+     *   get:
+     *     summary: Get project by ID
+     *     tags: [Projects]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Project information
+     *       404:
+     *         description: Project not found
+     */
     getProject = async (req: Request, res: Response) => {
         try {
             const project = await this.projectService.getProjectById(req.params.id);
@@ -52,6 +100,30 @@ export class ProjectController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/projects/{id}:
+     *   put:
+     *     summary: Update project
+     *     tags: [Projects]
+     *     security:
+     *       - cookieAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/CreateProjectDTO'
+     *     responses:
+     *       200:
+     *         description: Project updated
+     */
     updateProject = async (req: AuthRequest, res: Response) => {
         try {
             const validation = UpdateProjectSchema.safeParse(req.body);
@@ -65,6 +137,24 @@ export class ProjectController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/projects/{id}:
+     *   delete:
+     *     summary: Delete project
+     *     tags: [Projects]
+     *     security:
+     *       - cookieAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Project deleted
+     */
     deleteProject = async (req: AuthRequest, res: Response) => {
         try {
             await this.projectService.deleteProject(req.user!.id, req.params.id);
@@ -74,6 +164,24 @@ export class ProjectController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/projects/payments:
+     *   post:
+     *     summary: Record a payment
+     *     tags: [Projects]
+     *     security:
+     *       - cookieAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/RecordPaymentDTO'
+     *     responses:
+     *       200:
+     *         description: Payment recorded
+     */
     recordPayment = async (req: AuthRequest, res: Response) => {
         try {
             const validation = RecordPaymentSchema.safeParse(req.body);
@@ -87,6 +195,30 @@ export class ProjectController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/projects/{id}/complete:
+     *   post:
+     *     summary: Complete project and provide review
+     *     tags: [Projects]
+     *     security:
+     *       - cookieAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/CompleteProjectDTO'
+     *     responses:
+     *       200:
+     *         description: Project completed
+     */
     completeProject = async (req: AuthRequest, res: Response) => {
         try {
             const validation = CompleteProjectSchema.safeParse(req.body);
@@ -100,6 +232,24 @@ export class ProjectController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/projects/{id}/release:
+     *   post:
+     *     summary: Release payment for project
+     *     tags: [Projects]
+     *     security:
+     *       - cookieAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Payment released
+     */
     releasePayment = async (req: AuthRequest, res: Response) => {
         try {
             const project = await this.projectService.releasePayment(req.user!.id, req.params.id);

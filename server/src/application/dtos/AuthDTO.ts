@@ -1,5 +1,50 @@
 import { z } from 'zod';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     RegisterDTO:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *         - full_name
+ *         - role
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ *           minLength: 6
+ *         full_name:
+ *           type: string
+ *         role:
+ *           type: string
+ *           enum: [client, talent, agency, admin, core_team]
+ *         company_name:
+ *           type: string
+ *         title:
+ *           type: string
+ *         category:
+ *           type: string
+ *         expertise:
+ *           type: string
+ *         agency_name:
+ *           type: string
+ *     LoginDTO:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ */
 export const RegisterSchema = z.object({
     email: z.string().email("Invalid email").max(255),
     password: z.string().min(6, "Password must be at least 6 characters").max(100),

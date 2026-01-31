@@ -13,6 +13,10 @@ import * as Router from "./interface/routes/indexRouter";
 import { maintenanceMiddleware} from "./interface/middleware/MaintenanceMiddleware";
 
 import { setupWebSocketServer } from "./infrastructure/websocket/WebSocketServer";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./infrastructure/swagger";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -104,6 +108,19 @@ app.use(
 app.use(
   "/api/settings",
   Router.createSystemSettingRoutes(systemSettingController),
+);
+
+// --- Swagger Documentation ---
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Export Swagger JSON for FE team
+const apiDir = path.join(__dirname, "../api");
+if (!fs.existsSync(apiDir)) {
+  fs.mkdirSync(apiDir, { recursive: true });
+}
+fs.writeFileSync(
+  path.join(apiDir, "swagger.json"),
+  JSON.stringify(swaggerSpec, null, 2)
 );
 
 // Legacy compatibility for notifications

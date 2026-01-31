@@ -10,6 +10,16 @@ export class UserController {
         this.userService = userService;
     }
 
+    /**
+     * @swagger
+     * /api/users:
+     *   get:
+     *     summary: Get all users
+     *     tags: [Users]
+     *     responses:
+     *       200:
+     *         description: List of users
+     */
     getAllUsers = async (req: Request, res: Response) => {
         try {
             const users = await this.userService.getAllUsers();
@@ -19,6 +29,24 @@ export class UserController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/users/{id}:
+     *   get:
+     *     summary: Get user by ID
+     *     tags: [Users]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+	 *           type: string
+     *     responses:
+     *       200:
+     *         description: User information
+     *       404:
+     *         description: User not found
+     */
     getUserById = async (req: Request, res: Response) => {
         try {
             const user = await this.userService.getUserById(req.params.id);
@@ -28,6 +56,18 @@ export class UserController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/users:
+     *   post:
+     *     summary: Create a user (Admin)
+     *     tags: [Users]
+     *     security:
+     *       - cookieAuth: []
+     *     responses:
+     *       201:
+     *         description: User created
+     */
     createUser = async (req: AuthRequest, res: Response) => {
         try {
             const newUser = await this.userService.createUser(req.user!.id, req.body);
@@ -37,6 +77,32 @@ export class UserController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/users/{id}:
+     *   put:
+     *     summary: Update a user
+     *     tags: [Users]
+     *     security:
+     *       - cookieAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+	 *           type: string
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/UpdateUserDTO'
+     *     responses:
+     *       200:
+     *         description: User updated
+     *       400:
+     *         description: Validation error
+     */
     updateUser = async (req: AuthRequest, res: Response) => {
         try {
             const validationResult = UpdateUserSchema.safeParse(req.body);
@@ -51,6 +117,24 @@ export class UserController {
         }
     };
 
+    /**
+     * @swagger
+     * /api/users/{id}:
+     *   delete:
+     *     summary: Delete a user
+     *     tags: [Users]
+     *     security:
+     *       - cookieAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+	 *           type: string
+     *     responses:
+     *       200:
+     *         description: User deleted
+     */
     deleteUser = async (req: AuthRequest, res: Response) => {
         try {
             await this.userService.deleteUser(req.user!.id, req.params.id);

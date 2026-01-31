@@ -9,6 +9,24 @@ export class AuthController {
     this.authService = authService;
   }
 
+  /**
+   * @swagger
+   * /api/auth/register:
+   *   post:
+   *     summary: Register a new user
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/RegisterDTO'
+   *     responses:
+   *       201:
+   *         description: User registered successfully
+   *       400:
+   *         description: Validation error or registration failed
+   */
   register = async (req: Request, res: Response) => {
     try {
       const validationResult = RegisterSchema.safeParse(req.body);
@@ -26,6 +44,26 @@ export class AuthController {
     }
   };
 
+  /**
+   * @swagger
+   * /api/auth/login:
+   *   post:
+   *     summary: Login a user
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/LoginDTO'
+   *     responses:
+   *       200:
+   *         description: Login successful
+   *       400:
+   *         description: Validation error
+   *       401:
+   *         description: Login failed
+   */
   login = async (req: Request, res: Response) => {
     try {
       const validationResult = LoginSchema.safeParse(req.body);
@@ -50,6 +88,22 @@ export class AuthController {
     }
   };
 
+  /**
+   * @swagger
+   * /api/auth/me:
+   *   get:
+   *     summary: Get current user info
+   *     tags: [Auth]
+   *     security:
+   *       - cookieAuth: []
+   *     responses:
+   *       200:
+   *         description: User information
+   *       401:
+   *         description: Unauthorized
+   *       404:
+   *         description: User not found
+   */
   me = async (req: Request, res: Response) => {
     // req.user is set by middleware
     if (!req.user) {
