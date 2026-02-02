@@ -7,14 +7,14 @@ dotenv.config();
 import http from "http";
 import cookieParser from "cookie-parser";
 
-
 import * as Router from "./interface/routes/indexRouter";
 
-import { maintenanceMiddleware} from "./interface/middleware/MaintenanceMiddleware";
+import { maintenanceMiddleware } from "./interface/middleware/MaintenanceMiddleware";
 
 import { setupWebSocketServer } from "./infrastructure/websocket/WebSocketServer";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./infrastructure/swagger";
+import { ErrorHandler } from "./infrastructure/ErrorApp";
 import fs from "fs";
 import path from "path";
 
@@ -61,7 +61,9 @@ const cmsController = container.resolve("cmsController");
 const auditLogController = container.resolve("auditLogController");
 const contractController = container.resolve("contractController");
 const disputeController = container.resolve("disputeController");
-const workVerificationController = container.resolve("workVerificationController");
+const workVerificationController = container.resolve(
+  "workVerificationController",
+);
 const systemSettingController = container.resolve("systemSettingController");
 
 const systemSettingService = container.resolve("systemSettingService");
@@ -71,7 +73,6 @@ const userRepo = container.resolve("userRepo");
 // Middleware to block traffic during maintenance (except for admin/auth)
 // (Placed after DI so services are available)
 app.use(maintenanceMiddleware(systemSettingService));
-
 
 // --- Routes ---
 app.use(
@@ -110,6 +111,10 @@ app.use(
   Router.createSystemSettingRoutes(systemSettingController),
 );
 
+// ------ Error Handling -------
+app.use(ErrorHandler);
+
+
 // --- Swagger Documentation ---
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -120,7 +125,7 @@ if (!fs.existsSync(apiDir)) {
 }
 fs.writeFileSync(
   path.join(apiDir, "swagger.json"),
-  JSON.stringify(swaggerSpec, null, 2)
+  JSON.stringify(swaggerSpec, null, 2),
 );
 
 // Legacy compatibility for notifications

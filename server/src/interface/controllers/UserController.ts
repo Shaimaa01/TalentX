@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../../application/services/UserService';
 import { UpdateUserSchema } from '../../application/dtos/UserDTO';
 import { AuthRequest } from '../middleware/AuthMiddleware';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class UserController {
     private userService: UserService;
@@ -20,12 +21,12 @@ export class UserController {
      *       200:
      *         description: List of users
      */
-    getAllUsers = async (req: Request, res: Response) => {
+    getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const users = await this.userService.getAllUsers();
             res.json(users);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error fetching users' });
+            next(error);
         }
     };
 
@@ -46,13 +47,17 @@ export class UserController {
      *         description: User information
      *       404:
      *         description: User not found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
      */
-    getUserById = async (req: Request, res: Response) => {
+    getUserById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = await this.userService.getUserById(req.params.id);
             res.json(user);
         } catch (error: any) {
-            res.status(404).json({ message: error.message || 'User not found' });
+            next(error);
         }
     };
 
@@ -67,13 +72,19 @@ export class UserController {
      *     responses:
      *       201:
      *         description: User created
+     *       400:
+     *         description: Validation error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
      */
-    createUser = async (req: AuthRequest, res: Response) => {
+    createUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const newUser = await this.userService.createUser(req.user!.id, req.body);
             res.status(201).json(newUser);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error creating user' });
+            next(error);
         }
     };
 
@@ -102,18 +113,22 @@ export class UserController {
      *         description: User updated
      *       400:
      *         description: Validation error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
      */
-    updateUser = async (req: AuthRequest, res: Response) => {
+    updateUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const validationResult = UpdateUserSchema.safeParse(req.body);
             if (!validationResult.success) {
-                return res.status(400).json({ errors: (validationResult.error as any).errors });
+                return next(new ErrorApp("Validation Error", 400, JSON.stringify(validationResult.error.issues)));
             }
 
             const updatedUser = await this.userService.updateUser(req.user!.id, req.params.id, validationResult.data);
             res.json(updatedUser);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error updating user' });
+            next(error);
         }
     };
 
@@ -134,13 +149,19 @@ export class UserController {
      *     responses:
      *       200:
      *         description: User deleted
+     *       404:
+     *         description: User not found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
      */
-    deleteUser = async (req: AuthRequest, res: Response) => {
+    deleteUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             await this.userService.deleteUser(req.user!.id, req.params.id);
             res.json({ message: 'User deleted successfully' });
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error deleting user' });
+            next(error);
         }
     };
 }

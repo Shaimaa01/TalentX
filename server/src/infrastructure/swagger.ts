@@ -22,6 +22,29 @@ const options: swaggerJSDoc.Options = {
           name: 'access_token',
         },
       },
+      schemas: {
+        ErrorResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: false,
+            },
+            status: {
+              type: 'integer',
+              example: 400,
+            },
+            message: {
+              type: 'string',
+              example: 'Validation Error',
+            },
+            help: {
+              type: 'string',
+              example: 'Try again later or contact support.',
+            },
+          },
+        },
+      },
     },
   },
   apis: ['./src/interface/controllers/*.ts', './src/application/dtos/*.ts'], // Path to the API docs

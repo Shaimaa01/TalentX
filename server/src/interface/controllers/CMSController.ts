@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { CMSService } from '../../application/services/CMSService';
 import { AuthRequest } from '../middleware/AuthMiddleware';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class CMSController {
     private cmsService: CMSService;
@@ -10,165 +11,148 @@ export class CMSController {
     }
 
     // FAQs
-    async listFAQs(req: Request, res: Response) {
+    listFAQs = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const faqs = await this.cmsService.listFAQs();
             res.json(faqs);
         } catch (error: any) {
-            console.error('Error listing FAQs:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async createFAQ(req: AuthRequest, res: Response) {
+    createFAQ = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const faq = await this.cmsService.createFAQ(req.user!.id, req.body);
             res.json(faq);
         } catch (error: any) {
-            console.error('Error creating FAQ:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async updateFAQ(req: AuthRequest, res: Response) {
+    updateFAQ = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const faq = await this.cmsService.updateFAQ(req.user!.id, req.params.id, req.body);
             res.json(faq);
         } catch (error: any) {
-            console.error('Error updating FAQ:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async deleteFAQ(req: AuthRequest, res: Response) {
+    deleteFAQ = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             await this.cmsService.deleteFAQ(req.user!.id, req.params.id);
             res.json({ message: 'Deleted' });
         } catch (error: any) {
-            console.error('Error deleting FAQ:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
 
     // Testimonials
-    async listTestimonials(req: Request, res: Response) {
+    listTestimonials = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const items = await this.cmsService.listTestimonials();
             res.json(items);
         } catch (error: any) {
-            console.error('Error listing testimonials:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async createTestimonial(req: AuthRequest, res: Response) {
+    createTestimonial = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const item = await this.cmsService.createTestimonial(req.user!.id, req.body);
             res.json(item);
         } catch (error: any) {
-            console.error('Error creating testimonial:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async updateTestimonial(req: AuthRequest, res: Response) {
+    updateTestimonial = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const item = await this.cmsService.updateTestimonial(req.user!.id, req.params.id, req.body);
             res.json(item);
         } catch (error: any) {
-            console.error('Error updating testimonial:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async deleteTestimonial(req: AuthRequest, res: Response) {
+    deleteTestimonial = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             await this.cmsService.deleteTestimonial(req.user!.id, req.params.id);
             res.json({ message: 'Deleted' });
         } catch (error: any) {
-            console.error('Error deleting testimonial:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
 
     // Case Studies
-    async listCaseStudies(req: Request, res: Response) {
+    listCaseStudies = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const items = await this.cmsService.listCaseStudies();
             res.json(items);
         } catch (error: any) {
-            console.error('Error listing case studies:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async createCaseStudy(req: AuthRequest, res: Response) {
+    createCaseStudy = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const item = await this.cmsService.createCaseStudy(req.user!.id, req.body);
             res.json(item);
         } catch (error: any) {
-            console.error('Error creating case study:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async updateCaseStudy(req: AuthRequest, res: Response) {
+    updateCaseStudy = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const item = await this.cmsService.updateCaseStudy(req.user!.id, req.params.id, req.body);
             res.json(item);
         } catch (error: any) {
-            console.error('Error updating case study:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async deleteCaseStudy(req: AuthRequest, res: Response) {
+    deleteCaseStudy = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             await this.cmsService.deleteCaseStudy(req.user!.id, req.params.id);
             res.json({ message: 'Deleted' });
         } catch (error: any) {
-            console.error('Error deleting case study:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
 
     // Blog Posts
-    async listBlogPosts(req: Request, res: Response) {
+    listBlogPosts = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const items = await this.cmsService.listBlogPosts();
             res.json(items);
         } catch (error: any) {
-            console.error('Error listing blog posts:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async createBlogPost(req: AuthRequest, res: Response) {
+    createBlogPost = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const item = await this.cmsService.createBlogPost(req.user!.id, req.body);
             res.json(item);
         } catch (error: any) {
-            console.error('Error creating blog post:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async updateBlogPost(req: AuthRequest, res: Response) {
+    updateBlogPost = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const item = await this.cmsService.updateBlogPost(req.user!.id, req.params.id, req.body);
             res.json(item);
         } catch (error: any) {
-            console.error('Error updating blog post:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
-    async deleteBlogPost(req: AuthRequest, res: Response) {
+    deleteBlogPost = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             await this.cmsService.deleteBlogPost(req.user!.id, req.params.id);
             res.json({ message: 'Deleted' });
         } catch (error: any) {
-            console.error('Error deleting blog post:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
 
-    async getBlogPostBySlug(req: Request, res: Response) {
+    getBlogPostBySlug = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const item = await this.cmsService.getBlogPostBySlug(req.params.slug);
-            if (!item) return res.status(404).json({ message: 'Blog post not found' });
+            if (!item) return next(new ErrorApp('Blog post not found', 404));
             res.json(item);
         } catch (error: any) {
-            console.error('Error fetching blog post by slug:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
 }

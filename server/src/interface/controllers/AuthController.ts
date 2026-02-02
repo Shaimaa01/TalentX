@@ -1,6 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { RegisterSchema, LoginSchema } from "../../application/dtos/AuthDTO";
 import { AuthService } from "../../application/services/AuthService";
+import { ErrorApp } from "../../infrastructure/ErrorApp";
 
 export class AuthController {
   private authService: AuthService;
@@ -26,21 +27,22 @@ export class AuthController {
    *         description: User registered successfully
    *       400:
    *         description: Validation error or registration failed
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
    */
-  register = async (req: Request, res: Response) => {
+  register = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validationResult = RegisterSchema.safeParse(req.body);
       if (!validationResult.success) {
-        return res.status(400).json({
-          message: "Validation Error",
-          errors: (validationResult.error as any).errors,
-        });
+        return next(new ErrorApp("Validation Error", 400, JSON.stringify(validationResult.error.issues)));
       }
 
       const result = await this.authService.register(validationResult.data);
       res.status(201).json(result);
     } catch (error: any) {
-      res.status(400).json({ message: error.message || "Registration failed" });
+      next(error);
     }
   };
 
@@ -61,14 +63,22 @@ export class AuthController {
    *         description: Login successful
    *       400:
    *         description: Validation error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
    *       401:
    *         description: Login failed
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
    */
-  login = async (req: Request, res: Response) => {
+  login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validationResult = LoginSchema.safeParse(req.body);
       if (!validationResult.success) {
-        return res.status(400).json({ message: "Validation Error" });
+        return next(new ErrorApp("Validation Error", 400));
       }
 
       const result = await this.authService.login(validationResult.data);
@@ -84,7 +94,7 @@ export class AuthController {
 
       res.json({ message: "Login successful", ...result });
     } catch (error: any) {
-      res.status(401).json({ message: error.message || "Login failed" });
+      next(new ErrorApp(error.message || "Login failed", 401));
     }
   };
 
@@ -101,20 +111,28 @@ export class AuthController {
    *         description: User information
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
    *       404:
    *         description: User not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
    */
-  me = async (req: Request, res: Response) => {
+  me = async (req: Request, res: Response, next: NextFunction) => {
     // req.user is set by middleware
     if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return next(new ErrorApp("Unauthorized", 401));
     }
 
     try {
       // Fetch fresh user data from DB to ensure roles/permissions are up to date
       const user = await this.authService.getUserById(req.user.id);
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return next(new ErrorApp("User not found", 404));
       }
       res.json(user);
     } catch (error) {

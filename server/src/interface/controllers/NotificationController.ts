@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { NotificationService } from '../../application/services/NotificationService';
 import { AuthRequest } from '../middleware/AuthMiddleware';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class NotificationController {
     private notificationService: NotificationService;
@@ -9,22 +10,22 @@ export class NotificationController {
         this.notificationService = notificationService;
     }
 
-    listNotifications = async (req: Request, res: Response) => {
+    listNotifications = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userId = req.query.userId as string;
             const notifications = await this.notificationService.listNotifications(userId);
             res.json(notifications);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error listing notifications' });
+            next(error);
         }
     };
 
-    markAsRead = async (req: AuthRequest, res: Response) => {
+    markAsRead = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             await this.notificationService.markAsRead(req.params.id);
             res.json({ success: true });
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error marking notification as read' });
+            next(error);
         }
     };
 }
