@@ -469,14 +469,14 @@ export default function AdminDashboard() {
                 </div>
             ) : (
                 <Tabs key={user?.role || 'loading'} defaultValue={user?.role === 'admin' ? "overview" : "messages"} className="w-full" onValueChange={setActiveTab}>
-                    <TabsList className="flex flex-wrap lg:grid w-full grid-cols-4 lg:grid-cols-10 lg:w-fit mb-8 h-auto p-1 bg-gray-100 rounded-xl">
+                    <TabsList className="flex flex-wrap  w-full  gap-4 mb-8 h-auto p-1 bg-gray-100 rounded-xl">
                         {user?.role === 'admin' && (
                             <>
-                                <TabsTrigger value="overview" className="flex-1">Overview</TabsTrigger>
-                                <TabsTrigger value="insights" className="flex-1">Insights</TabsTrigger>
-                                <TabsTrigger value="content" className="flex-1">Content</TabsTrigger>
-                                <TabsTrigger value="applications" className="flex-1">Applications</TabsTrigger>
-                                <TabsTrigger value="hire-requests" className="flex items-center gap-2 flex-1">
+                                <TabsTrigger value="overview" >Overview</TabsTrigger>
+                                <TabsTrigger value="insights" >Insights</TabsTrigger>
+                                <TabsTrigger value="content" >Content</TabsTrigger>
+                                <TabsTrigger value="applications" >Applications</TabsTrigger>
+                                <TabsTrigger value="hire-requests" className="flex items-center gap-2 ">
                                     Leads
                                     {hireRequests?.filter((r: any) => r.status === 'pending').length ? (
                                         <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{hireRequests.filter((r: any) => r.status === 'pending').length}</span>
@@ -484,25 +484,25 @@ export default function AdminDashboard() {
                                 </TabsTrigger>
                             </>
                         )}
-                        <TabsTrigger value="projects" className="flex-1">Projects</TabsTrigger>
-                        <TabsTrigger value="users" className="flex-1">Users</TabsTrigger>
+                        <TabsTrigger value="projects" >Projects</TabsTrigger>
+                        <TabsTrigger value="users" >Users</TabsTrigger>
                         {user?.role === 'admin' && (
-                            <TabsTrigger value="financials" className="flex-1">Financials</TabsTrigger>
+                            <TabsTrigger value="financials" >Financials</TabsTrigger>
                         )}
-                        <TabsTrigger value="messages" className="flex items-center gap-2 flex-1">
+                        <TabsTrigger value="messages" className="flex items-center gap-2 ">
                             Support
                             {unreadCounts?.support ? (
                                 <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{unreadCounts.support}</span>
                             ) : null}
                         </TabsTrigger>
-                        <TabsTrigger value="audit-logs" className="flex items-center gap-2 flex-1">
+                        <TabsTrigger value="audit-logs" className="flex items-center gap-2">
                             Audit Logs
                         </TabsTrigger>
                         {user?.role === 'admin' && (
-                            <TabsTrigger value="legal" className="flex-1 text-red-600 font-bold">Legal</TabsTrigger>
+                            <TabsTrigger value="legal" className=" text-red-600 font-bold">Legal</TabsTrigger>
                         )}
                         {user?.role === 'admin' && (
-                            <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
+                            <TabsTrigger value="settings" >Settings</TabsTrigger>
                         )}
                     </TabsList>
 

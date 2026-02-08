@@ -6,29 +6,17 @@ import { talentXApi } from "@/shared/api/talentXApi";
 import { Button } from "@/shared/components/ui/button";
 import {
   Plus,
-  MoreHorizontal,
-  Clock,
-  CheckCircle,
-  Circle,
-  AlertCircle,
-  Search,
-  Bell,
   Settings,
-  LogOut,
   MessageSquare,
   Briefcase,
   Users,
-  BarChart,
   User as UserIcon,
   CheckCircle2,
-  LayoutGrid,
-  List,
   DollarSign,
   X,
   CheckCircle as CheckCircleIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { createPageUrl } from "@/shared/lib/utils";
 import { Task, User,  Talent } from "@/shared/types";
 import { toast } from "sonner";
@@ -38,7 +26,6 @@ import AgencyDashboard from "@/widgets/Dashboard/AgencyDashboard";
 import TaskModal from "@/widgets/Dashboard/TaskModal";
 import { MessagesView } from "@/widgets/Dashboard/MessagesView";
 import { Badge } from "@/shared/components/ui/badge";
-import NotificationCenter from "@/widgets/Dashboard/NotificationCenter";
 import { DashboardSkeleton } from "@/shared/components/ui/skeleton-variants";
 import { useAuthStore } from "@/features/auth/model/auth.store";
 import {
