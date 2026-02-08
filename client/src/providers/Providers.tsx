@@ -20,7 +20,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <SocketProvider>
                 {children}
             </SocketProvider>
-            <Toaster position="top-right" />
+            <Toaster position="top-right" richColors closeButton duration={4000} />
         </QueryClientProvider>
     );
 }

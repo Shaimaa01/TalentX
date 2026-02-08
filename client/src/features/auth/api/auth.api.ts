@@ -3,12 +3,16 @@ import { User, LoginCredentials, RegisterData, AuthResponse } from "./types";
 
 export const authApi = {
     login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-        const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+        const response = await apiClient.post<AuthResponse>('/auth/login', credentials, {
+            _suppressToast: true
+        });
         return response.data;
     },
 
     register: async (data: RegisterData): Promise<AuthResponse> => {
-        const response = await apiClient.post<AuthResponse>('/auth/register', data);
+        const response = await apiClient.post<AuthResponse>('/auth/register', data, {
+             _suppressToast: true
+        });
         return response.data;
     },
 
