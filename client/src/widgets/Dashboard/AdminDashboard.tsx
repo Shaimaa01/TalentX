@@ -27,6 +27,7 @@ import { MessagesView } from './MessagesView';
 import ProjectDetail from './ProjectDetail';
 import AdminDisputePanel from '../Legal/AdminDisputePanel';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { DashboardSkeleton } from '@/shared/components/ui/skeleton-variants';
 
 // --- Types ---
 interface Application {
@@ -53,15 +54,17 @@ export default function AdminDashboard() {
     const [cmsModalSubmitting, setCmsModalSubmitting] = useState(false);
     const [editingItem, setEditingItem] = useState<any>(null);
     const [cmsFormData, setCmsFormData] = useState<any>({});
-    const [user, setUser] = useState<any>(null);
     const [selectedProject, setSelectedProject] = useState<any>(null);
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [platformCommission, setPlatformCommission] = useState(12.0);
     const [automaticVetting, setAutomaticVetting] = useState(false);
 
-    useEffect(() => {
-        talentXApi.auth.me().then(setUser);
-    }, []);
+    // Fetch current user with useQuery to prevent double loading
+    const { data: user, isLoading: isUserLoading } = useQuery({
+        queryKey: ['current-user'],
+        queryFn: () => talentXApi.auth.me(),
+        staleTime: 300000, // 5 minutes - user data rarely changes
+    });
 
 
     // --- Queries ---
@@ -93,25 +96,29 @@ export default function AdminDashboard() {
     // Users (From Legacy Dashboard)
     const { data: allUsers } = useQuery({
         queryKey: ['users'],
-        queryFn: async () => talentXApi.entities.User.list()
+        queryFn: async () => talentXApi.entities.User.list(),
+        staleTime: 30000, // 30 seconds
     });
 
     // Messages (From Legacy Dashboard)
     const { data: messages } = useQuery({
         queryKey: ['messages'],
-        queryFn: async () => talentXApi.entities.Message.list({})
+        queryFn: async () => talentXApi.entities.Message.list({}),
+        staleTime: 30000, // 30 seconds
     });
 
     // Projects
     const { data: projects, refetch: refetchProjects } = useQuery({
         queryKey: ['projects'],
-        queryFn: async () => talentXApi.entities.Project.list()
+        queryFn: async () => talentXApi.entities.Project.list(),
+        staleTime: 30000, // 30 seconds
     });
 
     // Hire Requests
     const { data: hireRequests, refetch: refetchHireRequests } = useQuery({
         queryKey: ['hire-requests'],
-        queryFn: async () => talentXApi.entities.HireRequest.list()
+        queryFn: async () => talentXApi.entities.HireRequest.list(),
+        staleTime: 30000, // 30 seconds
     });
 
     // CMS queries
@@ -135,7 +142,8 @@ export default function AdminDashboard() {
     // Analytics
     const { data: analytics } = useQuery({
         queryKey: ['admin-analytics'],
-        queryFn: async () => talentXApi.entities.Admin.getAnalytics()
+        queryFn: async () => talentXApi.entities.Admin.getAnalytics(),
+        staleTime: 60000, // 60 seconds
     });
 
     const [auditFilters, setAuditFilters] = useState({
@@ -148,7 +156,8 @@ export default function AdminDashboard() {
     const { data: auditLogs } = useQuery({
         queryKey: ['audit-logs', auditFilters],
         queryFn: async () => talentXApi.entities.Admin.getAuditLogs(auditFilters),
-        refetchInterval: 30000 // Refresh every 30 seconds
+        refetchInterval: 30000, // Refresh every 30 seconds
+        staleTime: 30000, // 30 seconds
     });
 
     useEffect(() => {
@@ -449,14 +458,20 @@ export default function AdminDashboard() {
     const { data: unreadCounts } = useQuery({
         queryKey: ['unread-counts'],
         queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
-        refetchInterval: 10000
+        refetchInterval: 10000,
+        staleTime: 10000, // 10 seconds
     });
+
+    // Show skeleton while user data is loading
+    if (isUserLoading || !user) {
+        return <DashboardSkeleton />;
+    }
 
     return (
         <div className="p-8 space-y-8  bg-blue min-h-screen">
 
 
-            {selectedProject && user ? (
+            {selectedProject ? (
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                     <ProjectDetail
                         user={user}
@@ -468,7 +483,7 @@ export default function AdminDashboard() {
                     />
                 </div>
             ) : (
-                <Tabs key={user?.role || 'loading'} defaultValue={user?.role === 'admin' ? "overview" : "messages"} className="w-full" onValueChange={setActiveTab}>
+                <Tabs key={user?.role} defaultValue={user.role === 'admin' ? "overview" : "messages"} className="w-full" onValueChange={setActiveTab}>
                     <TabsList className="flex flex-wrap  w-full  gap-4 mb-8 h-auto p-1 bg-gray-100 rounded-xl">
                         {user?.role === 'admin' && (
                             <>
