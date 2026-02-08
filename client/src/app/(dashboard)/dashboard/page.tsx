@@ -15,6 +15,7 @@ import {
   DollarSign,
   X,
   CheckCircle as CheckCircleIcon,
+  Clock,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { createPageUrl } from "@/shared/lib/utils";
