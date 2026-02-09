@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Table,
     TableBody,
@@ -22,6 +22,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { talentXApi, API_URL } from '@/shared/api/talentXApi';
 import Link from 'next/link';
 import { createPageUrl } from '@/shared/lib/utils';
+import { useSmartQuery } from '@/shared/lib/smartQuery';
 import { motion } from 'framer-motion';
 import { MessagesView } from './MessagesView';
 import ProjectDetail from './ProjectDetail';
@@ -122,19 +123,19 @@ export default function AdminDashboard() {
     });
 
     // CMS queries
-    const { data: faqs } = useQuery({
+    const { data: faqs } = useSmartQuery({
         queryKey: ['cms-faqs'],
         queryFn: () => talentXApi.entities.CMS.FAQ.list()
     });
-    const { data: testimonials } = useQuery({
+    const { data: testimonials } = useSmartQuery({
         queryKey: ['cms-testimonials'],
         queryFn: () => talentXApi.entities.CMS.Testimonial.list()
     });
-    const { data: caseStudies } = useQuery({
+    const { data: caseStudies } = useSmartQuery({
         queryKey: ['cms-case-studies'],
         queryFn: () => talentXApi.entities.CMS.CaseStudy.list()
     });
-    const { data: blogPosts } = useQuery({
+    const { data: blogPosts } = useSmartQuery({
         queryKey: ['cms-blog-posts'],
         queryFn: () => talentXApi.entities.CMS.BlogPost.list()
     });
@@ -159,6 +160,11 @@ export default function AdminDashboard() {
         refetchInterval: 30000, // Refresh every 30 seconds
         staleTime: 30000, // 30 seconds
     });
+
+    const totalUnreadNotifications = useMemo(
+        () => (notifications || []).filter((n: any) => !n.isRead).length,
+        [notifications]
+    );
 
     useEffect(() => {
         const projectId = searchParams.get('project');
@@ -251,8 +257,15 @@ export default function AdminDashboard() {
             if (action === 'delete') return api[entityKey].delete(id);
         },
         onSuccess: (_, variables) => {
-            const key = `cms-${variables.type}`;
-            queryClient.invalidateQueries({ queryKey: [key] });
+            const queryKeyRoot =
+                variables.type === 'blog'
+                    ? 'cms-blog-posts'
+                    : variables.type === 'faqs'
+                        ? 'cms-faqs'
+                        : variables.type === 'testimonials'
+                            ? 'cms-testimonials'
+                            : 'cms-case-studies';
+            queryClient.invalidateQueries({ queryKey: [queryKeyRoot] });
             toast({ title: `CMS Entry ${variables.action === 'delete' ? 'deleted' : 'saved'} successfully` });
             setIsCMSModalOpen(false);
             setEditingItem(null);

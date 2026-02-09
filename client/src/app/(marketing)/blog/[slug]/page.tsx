@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { talentXApi } from '@/shared/api/talentXApi';
 import ReactMarkdown from 'react-markdown';
@@ -17,11 +16,12 @@ import {
     Linkedin,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSmartQuery } from '@/shared/lib/smartQuery';
 
 export default function BlogPostDetail() {
     const { slug } = useParams();
 
-    const { data: post, isLoading } = useQuery({
+    const { data: post, isLoading } = useSmartQuery({
         queryKey: ['blog-post', slug],
         queryFn: () => talentXApi.entities.CMS.BlogPost.getBySlug(slug as string),
     });

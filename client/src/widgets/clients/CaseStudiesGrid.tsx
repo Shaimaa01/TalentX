@@ -1,8 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
+
+interface CaseStudyCardData {
+    title: string;
+    image: string;
+    logo: string;
+    color: string;
+}
 
 const caseStudies = [
     {
@@ -80,12 +87,14 @@ const caseStudies = [
 ];
 
 export default function CaseStudiesGrid() {
-    const row1 = [...caseStudies.slice(0, 6), ...caseStudies.slice(0, 6)];
-    const row2 = [...caseStudies.slice(6, 12), ...caseStudies.slice(6, 12)];
+    const row1 = useMemo(() => [...caseStudies.slice(0, 6), ...caseStudies.slice(0, 6)], []);
+    const row2 = useMemo(() => [...caseStudies.slice(6, 12), ...caseStudies.slice(6, 12)], []);
 
-    const cardWidth = 320; // px
-    const gap = 10; // px (gap-8)
-    const totalWidth = (cardWidth + gap) * 6;
+    const totalWidth = useMemo(() => {
+        const cardWidth = 320;
+        const gap = 10;
+        return (cardWidth + gap) * 6;
+    }, []);
 
     return (
         <section className="relative bg-[#001741] overflow-hidden">
@@ -152,7 +161,7 @@ export default function CaseStudiesGrid() {
     );
 }
 
-function CaseStudyCard({ study, index }: { study: any; index: number }) {
+function CaseStudyCard({ study, index }: { study: CaseStudyCardData; index: number }) {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}

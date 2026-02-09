@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import createGlobe from 'cobe';
 import { useSpring } from 'react-spring';
 import { Talent, Team, Agency } from '@/shared/types';
@@ -25,6 +25,12 @@ export default function GlobalMap({ talents, teams, agencies, className = '' }: 
             precision: 0.001,
         },
     }));
+
+    const otherMarkers = useMemo(() => ([
+        ...talents.filter(t => t.coordinates).map(t => ({ location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number], size: 0.05, color: [0.2, 0.5, 1] as [number, number, number] })),
+        ...teams.filter(t => t.coordinates).map(t => ({ location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number], size: 0.08, color: [0.6, 0.2, 1] as [number, number, number] })),
+        ...agencies.filter(t => t.coordinates).map(t => ({ location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number], size: 0.08, color: [0.2, 0.8, 0.4] as [number, number, number] }))
+    ]), [talents, teams, agencies]);
 
     useEffect(() => {
         let phi = 0;
@@ -82,7 +88,7 @@ export default function GlobalMap({ talents, teams, agencies, className = '' }: 
 
         // Create connections to a subset of markers to avoid clutter
         const maxConnections = 40;
-        const targetMarkers = otherMarkers.sort(() => 0.5 - Math.random()).slice(0, maxConnections);
+        const targetMarkers = otherMarkers.slice(0, maxConnections);
 
         targetMarkers.forEach((target) => {
             connections.push({
@@ -170,7 +176,7 @@ export default function GlobalMap({ talents, teams, agencies, className = '' }: 
             globe.destroy();
             window.removeEventListener('resize', onResize);
         };
-    }, [talents, teams, agencies, r]);
+    }, [otherMarkers, r]);
 
     return (
         <div
