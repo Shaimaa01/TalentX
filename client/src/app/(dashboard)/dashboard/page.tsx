@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { talentXApi } from "@/shared/api/talentXApi";
-import { Button } from "@/shared/components/ui/button";
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { talentXApi } from '@/shared/api/talentXApi';
+import { Button } from '@/shared/components/ui/button';
 import {
   Plus,
   Settings,
@@ -70,30 +70,30 @@ import { ProjectsView } from "@/widgets/Dashboard/ProjectsView";
 import TalentDashboard from "@/widgets/Dashboard/TalentDashboard";
 
 type TabValue =
-  | "overview"
-  | "projects"
-  | "messages"
-  | "tasks"
-  | "users"
-  | "stats"
-  | "hire"
-  | "settings";
+    | 'overview'
+    | 'projects'
+    | 'messages'
+    | 'tasks'
+    | 'users'
+    | 'stats'
+    | 'hire'
+    | 'settings';
 
 function DashboardContent() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { user, logout } = useAuthStore();
-  const [activeView, setActiveView] = useState<TabValue>("overview");
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const { user, logout } = useAuthStore();
+    const [activeView, setActiveView] = useState<TabValue>('overview');
+    const [selectedProject, setSelectedProject] = useState<string | null>(null);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+    const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  const searchParams = useSearchParams();
+    const searchParams = useSearchParams();
 
-  // Initialize View State
-  useEffect(() => {
-    if (!user) return;
+    // Initialize View State
+    useEffect(() => {
+        if (!user) return;
 
     // Sync with search params
     const viewParam = searchParams.get("view");
@@ -103,20 +103,20 @@ function DashboardContent() {
       setActiveView("overview");
     }
 
-    const projectParam = searchParams.get("project");
-    if (projectParam) {
-      setSelectedProject(projectParam);
-      setActiveView("projects");
-    }
-  }, [user, searchParams]);
+        const projectParam = searchParams.get('project');
+        if (projectParam) {
+            setSelectedProject(projectParam);
+            setActiveView('projects');
+        }
+    }, [user, searchParams]);
 
-  const handleLogout = async () => {
-    await talentXApi.auth.logout();
-    logout();
-    router.push(createPageUrl("Login"));
-  };
+    const handleLogout = async () => {
+        await talentXApi.auth.logout();
+        logout();
+        router.push(createPageUrl('Login'));
+    };
 
-  // --- Queries ---
+    // --- Queries ---
 
   const { data: projects = [] } = useQuery({
     queryKey: ["projects", user?.id],
@@ -168,7 +168,7 @@ function DashboardContent() {
     staleTime: 60000, // Consider data fresh for 60 seconds (profile changes less frequently)
   });
 
-  // --- Mutations ---
+    // --- Mutations ---
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({
@@ -217,14 +217,14 @@ function DashboardContent() {
     },
   });
 
-  const updateTalentMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Talent> }) =>
-      await talentXApi.entities.Talent.update(id, data),
-    onSuccess: () => {
-      toast.success("Profile updated successfully");
-      refetchTalentProfile();
-    },
-  });
+    const updateTalentMutation = useMutation({
+        mutationFn: async ({ id, data }: { id: string; data: Partial<Talent> }) =>
+            await talentXApi.entities.Talent.update(id, data),
+        onSuccess: () => {
+            toast.success('Profile updated successfully');
+            refetchTalentProfile();
+        },
+    });
 
   const updateAgencyMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Agency> }) =>
@@ -262,30 +262,30 @@ function DashboardContent() {
     onError: () => toast.error("Failed to create user"),
   });
 
-  const deleteUserMutation = useMutation({
-    mutationFn: async (id: string) => talentXApi.entities.User.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast.success("User deleted successfully");
-    },
-    onError: () => toast.error("Failed to delete user"),
-  });
+    const deleteUserMutation = useMutation({
+        mutationFn: async (id: string) => talentXApi.entities.User.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            toast.success('User deleted successfully');
+        },
+        onError: () => toast.error('Failed to delete user'),
+    });
 
-  const generateTeamsMutation = useMutation({
-    mutationFn: (data: any) => talentXApi.entities.Team.generate(data),
-    onSuccess: (data) => {
-      // This is handled inside HireView state
-    },
-    onError: () => toast.error("Failed to generate teams. Please try again."),
-  });
+    const generateTeamsMutation = useMutation({
+        mutationFn: (data: any) => talentXApi.entities.Team.generate(data),
+        onSuccess: (data) => {
+            // This is handled inside HireView state
+        },
+        onError: () => toast.error('Failed to generate teams. Please try again.'),
+    });
 
-  const hireTeamMutation = useMutation({
-    mutationFn: (data: any) => talentXApi.entities.Team.hire(data),
-    onSuccess: () => {
-      toast.success("Team hired successfully!");
-    },
-    onError: () => toast.error("Failed to hire team."),
-  });
+    const hireTeamMutation = useMutation({
+        mutationFn: (data: any) => talentXApi.entities.Team.hire(data),
+        onSuccess: () => {
+            toast.success('Team hired successfully!');
+        },
+        onError: () => toast.error('Failed to hire team.'),
+    });
 
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -298,30 +298,30 @@ function DashboardContent() {
     agency_name: "",
   });
 
-  const handleOpenUserModal = (user?: User) => {
-    if (user) {
-      setEditingUser(user);
-      setUserFormData({
-        full_name: user.full_name,
-        email: user.email,
-        password: "",
-        role: user.role,
-        title: "",
-        agency_name: "",
-      });
-    } else {
-      setEditingUser(null);
-      setUserFormData({
-        full_name: "",
-        email: "",
-        password: "",
-        role: "client",
-        title: "",
-        agency_name: "",
-      });
-    }
-    setIsUserModalOpen(true);
-  };
+    const handleOpenUserModal = (user?: User) => {
+        if (user) {
+            setEditingUser(user);
+            setUserFormData({
+                full_name: user.full_name,
+                email: user.email,
+                password: '',
+                role: user.role,
+                title: '',
+                agency_name: '',
+            });
+        } else {
+            setEditingUser(null);
+            setUserFormData({
+                full_name: '',
+                email: '',
+                password: '',
+                role: 'client',
+                title: '',
+                agency_name: '',
+            });
+        }
+        setIsUserModalOpen(true);
+    };
 
   const handleTaskSave = (taskData: TaskFormData) => {
     if (selectedTask) {
@@ -356,11 +356,11 @@ function DashboardContent() {
     setEditingUser(null);
   };
 
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => talentXApi.entities.User.list(),
-    enabled: !!user && user.role === "admin",
-  });
+    const { data: allUsers = [] } = useQuery({
+        queryKey: ['users'],
+        queryFn: async () => talentXApi.entities.User.list(),
+        enabled: !!user && user.role === 'admin',
+    });
 
   // --- Views ---
 
@@ -374,12 +374,12 @@ function DashboardContent() {
       password: "",
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      if (user?.id) {
-        updateUserMutation.mutate({ id: user.id, data: formData });
-      }
-    };
+        const handleSubmit = (e: React.FormEvent) => {
+            e.preventDefault();
+            if (user?.id) {
+                updateUserMutation.mutate({ id: user.id, data: formData });
+            }
+        };
 
     return (
       <div className="max-w-4xl xl:max-w-7xl mx-auto space-y-6 sm:space-y-8">
@@ -389,162 +389,167 @@ function DashboardContent() {
           </h1>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="flex flex-col sm:flex-row border-b border-gray-100">
-            <button
-              onClick={() => setActiveTab("profile")}
-              className={`px-4 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold transition-all ${
-                activeTab === "profile"
-                  ? "text-[#204ecf] border-b-2 border-[#204ecf]"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              Profile
-            </button>
-            <button
-              onClick={() => setActiveTab("billing")}
-              className={`px-4 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold transition-all ${
-                activeTab === "billing"
-                  ? "text-[#204ecf] border-b-2 border-[#204ecf]"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              Billing & Subscription
-            </button>
-          </div>
-
-          <div className="p-4 sm:p-6 lg:p-8">
-            {activeTab === "profile" ? (
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs sm:text-sm font-bold text-gray-700">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-black focus:ring-2 focus:ring-[#204ecf] outline-none"
-                      value={formData.full_name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, full_name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs sm:text-sm font-bold text-gray-700">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      className="w-full px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-black focus:ring-2 focus:ring-[#204ecf] outline-none"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs sm:text-sm font-bold text-gray-700">
-                      New Password (leave blank to keep current)
-                    </label>
-                    <input
-                      type="password"
-                      className="w-full px-3 sm:px-4 py-2 rounded-xl border text-black border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      placeholder="•••••••"
-                    />
-                  </div>
-                </div>
-                <div className="pt-4">
-                  <Button
-                    type="submit"
-                    disabled={updateUserMutation.isPending}
-                    className="bg-[#204ecf] hover:bg-[#1a3da8] text-white px-8 h-12 rounded-xl shadow-lg shadow-blue-100"
-                  >
-                    {updateUserMutation.isPending
-                      ? "Saving..."
-                      : "Save Profile Changes"}
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <div className="space-y-8">
-                <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-bold text-[#1a1a2e]">
-                        Professional Plan
-                      </h3>
-                      <p className="text-sm text-[#204ecf] font-semibold">
-                        $99/month
-                      </p>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="flex flex-col sm:flex-row border-b border-gray-100">
+                        <button
+                            onClick={() => setActiveTab('profile')}
+                            className={`px-4 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold transition-all ${
+                                activeTab === 'profile'
+                                    ? 'text-[#204ecf] border-b-2 border-[#204ecf]'
+                                    : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            Profile
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('billing')}
+                            className={`px-4 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold transition-all ${
+                                activeTab === 'billing'
+                                    ? 'text-[#204ecf] border-b-2 border-[#204ecf]'
+                                    : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            Billing & Subscription
+                        </button>
                     </div>
-                    <Badge className="bg-[#204ecf] text-white hover:bg-[#204ecf]">
-                      Active
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-6 font-medium">
-                    Your next billing date is January 24, 2026.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="border-[#204ecf] bg-[#204ecf] text-white hover:bg-blue-50"
-                  >
-                    Manage Subscription
-                  </Button>
-                </div>
 
-                <div className="space-y-4">
-                  <h3 className="font-bold text-[#1a1a2e]">Payment Methods</h3>
-                  <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center font-bold text-gray-400 text-xs italic">
-                        VISA
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-[#1a1a2e]">
-                          Visa ending in 4242
-                        </p>
-                        <p className="text-xs text-gray-400">Expires 12/26</p>
-                      </div>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        {activeTab === 'profile' ? (
+                            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs sm:text-sm font-bold text-gray-700">
+                                            Full Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="w-full px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-black focus:ring-2 focus:ring-[#204ecf] outline-none"
+                                            value={formData.full_name}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    full_name: e.target.value,
+                                                })
+                                            }
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs sm:text-sm font-bold text-gray-700">
+                                            Email Address
+                                        </label>
+                                        <input
+                                            type="email"
+                                            className="w-full px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-black focus:ring-2 focus:ring-[#204ecf] outline-none"
+                                            value={formData.email}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, email: e.target.value })
+                                            }
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs sm:text-sm font-bold text-gray-700">
+                                            New Password (leave blank to keep current)
+                                        </label>
+                                        <input
+                                            type="password"
+                                            className="w-full px-3 sm:px-4 py-2 rounded-xl border text-black border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                                            value={formData.password}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    password: e.target.value,
+                                                })
+                                            }
+                                            placeholder="•••••••"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="pt-4">
+                                    <Button
+                                        type="submit"
+                                        disabled={updateUserMutation.isPending}
+                                        className="bg-[#204ecf] hover:bg-[#1a3da8] text-white px-8 h-12 rounded-xl shadow-lg shadow-blue-100"
+                                    >
+                                        {updateUserMutation.isPending
+                                            ? 'Saving...'
+                                            : 'Save Profile Changes'}
+                                    </Button>
+                                </div>
+                            </form>
+                        ) : (
+                            <div className="space-y-8">
+                                <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 className="text-lg font-bold text-[#1a1a2e]">
+                                                Professional Plan
+                                            </h3>
+                                            <p className="text-sm text-[#204ecf] font-semibold">
+                                                $99/month
+                                            </p>
+                                        </div>
+                                        <Badge className="bg-[#204ecf] text-white hover:bg-[#204ecf]">
+                                            Active
+                                        </Badge>
+                                    </div>
+                                    <p className="text-sm text-gray-600 mb-6 font-medium">
+                                        Your next billing date is January 24, 2026.
+                                    </p>
+                                    <Button
+                                        variant="outline"
+                                        className="border-[#204ecf] bg-[#204ecf] text-white hover:bg-blue-50"
+                                    >
+                                        Manage Subscription
+                                    </Button>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h3 className="font-bold text-[#1a1a2e]">Payment Methods</h3>
+                                    <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center font-bold text-gray-400 text-xs italic">
+                                                VISA
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-[#1a1a2e]">
+                                                    Visa ending in 4242
+                                                </p>
+                                                <p className="text-xs text-gray-400">
+                                                    Expires 12/26
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-gray-400 hover:text-red-500"
+                                        >
+                                            Remove
+                                        </Button>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        className="text-[#204ecf] p-0 font-bold hover:bg-transparent"
+                                    >
+                                        <Plus className="w-4 h-4 mr-2" /> Add payment method
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-gray-400 hover:text-red-500"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    className="text-[#204ecf] p-0 font-bold hover:bg-transparent"
-                  >
-                    <Plus className="w-4 h-4 mr-2" /> Add payment method
-                  </Button>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const ClientOverview = () => {
-    const stats = {
-      totalProjects: projects?.length || 0,
-      completedProjects:
-        projects?.filter((p) => p.status === "completed").length || 0,
-      totalBudget:
-        projects?.reduce((acc, p) => acc + (p.total_budget || 0), 0) || 0,
-      totalSpent:
-        projects?.reduce((acc, p) => acc + (p.budget_spent || 0), 0) || 0,
-      activeTasks: tasks?.filter((t) => t.status !== "done").length || 0,
+            </div>
+        );
     };
+
+    const ClientOverview = () => {
+        const stats = {
+            totalProjects: projects?.length || 0,
+            completedProjects: projects?.filter((p) => p.status === 'completed').length || 0,
+            totalBudget: projects?.reduce((acc, p) => acc + (p.total_budget || 0), 0) || 0,
+            totalSpent: projects?.reduce((acc, p) => acc + (p.budget_spent || 0), 0) || 0,
+            activeTasks: tasks?.filter((t) => t.status !== 'done').length || 0,
+        };
 
     const StatCard = ({
       title,
@@ -590,34 +595,34 @@ function DashboardContent() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Active Projects"
-            value={stats.totalProjects - stats.completedProjects}
-            icon={Briefcase}
-            color="bg-blue-50 text-blue-600"
-            subtitle={`/ ${stats.totalProjects} total`}
-          />
-          <StatCard
-            title="Completed Projects"
-            value={stats.completedProjects}
-            icon={CheckCircleIcon}
-            color="bg-green-50 text-green-600"
-          />
-          <StatCard
-            title="Total Investment"
-            value={`$${stats.totalSpent.toLocaleString()}`}
-            icon={DollarSign}
-            color="bg-purple-50 text-purple-600"
-            subtitle={`of $${stats.totalBudget.toLocaleString()}`}
-          />
-          <StatCard
-            title="Tasks in Progress"
-            value={stats.activeTasks}
-            icon={Clock}
-            color="bg-orange-50 text-orange-600"
-          />
-        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard
+                        title="Active Projects"
+                        value={stats.totalProjects - stats.completedProjects}
+                        icon={Briefcase}
+                        color="bg-blue-50 text-blue-600"
+                        subtitle={`/ ${stats.totalProjects} total`}
+                    />
+                    <StatCard
+                        title="Completed Projects"
+                        value={stats.completedProjects}
+                        icon={CheckCircleIcon}
+                        color="bg-green-50 text-green-600"
+                    />
+                    <StatCard
+                        title="Total Investment"
+                        value={`$${stats.totalSpent.toLocaleString()}`}
+                        icon={DollarSign}
+                        color="bg-purple-50 text-purple-600"
+                        subtitle={`of $${stats.totalBudget.toLocaleString()}`}
+                    />
+                    <StatCard
+                        title="Tasks in Progress"
+                        value={stats.activeTasks}
+                        icon={Clock}
+                        color="bg-orange-50 text-orange-600"
+                    />
+                </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
@@ -692,58 +697,58 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-[#1a1a2e] p-6 rounded-2xl text-white shadow-xl shadow-blue-900/10">
-              <h3 className="font-bold mb-4">Quick Actions</h3>
-              <div className="space-y-2">
-                <button
-                  onClick={() => setActiveView("messages")}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
-                >
-                  <MessageSquare className="w-4 h-4 text-blue-400" />
-                  Contact Support
-                </button>
-                <button
-                  onClick={() => setActiveView("settings")}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
-                >
-                  <Settings className="w-4 h-4 text-purple-400" />
-                  Account Settings
-                </button>
-                <button
-                  onClick={() => setActiveView("hire")}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
-                >
-                  <Users className="w-4 h-4 text-green-400" />
-                  Hire More Talent
-                </button>
-              </div>
-            </div>
+                    <div className="space-y-6">
+                        <div className="bg-[#1a1a2e] p-6 rounded-2xl text-white shadow-xl shadow-blue-900/10">
+                            <h3 className="font-bold mb-4">Quick Actions</h3>
+                            <div className="space-y-2">
+                                <button
+                                    onClick={() => setActiveView('messages')}
+                                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
+                                >
+                                    <MessageSquare className="w-4 h-4 text-blue-400" />
+                                    Contact Support
+                                </button>
+                                <button
+                                    onClick={() => setActiveView('settings')}
+                                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
+                                >
+                                    <Settings className="w-4 h-4 text-purple-400" />
+                                    Account Settings
+                                </button>
+                                <button
+                                    onClick={() => setActiveView('hire')}
+                                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
+                                >
+                                    <Users className="w-4 h-4 text-green-400" />
+                                    Hire More Talent
+                                </button>
+                            </div>
+                        </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 className="font-bold text-[#1a1a2e] mb-4">Recent Messages</h3>
-              <div className="space-y-4 text-center py-4">
-                <MessageSquare className="w-8 h-8 text-gray-200 mx-auto" />
-                <p className="text-xs text-gray-400">
-                  No new messages from your team.
-                </p>
-              </div>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 className="font-bold text-[#1a1a2e] mb-4">Recent Messages</h3>
+                            <div className="space-y-4 text-center py-4">
+                                <MessageSquare className="w-8 h-8 text-gray-200 mx-auto" />
+                                <p className="text-xs text-gray-400">
+                                    No new messages from your team.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
+        );
+    };
 
-  const AgencyOverview = () => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-      agency_name: agencyProfile?.agency_name || "",
-      description: agencyProfile?.description || "",
-      team_size: agencyProfile?.team_size || 1,
-      hourly_rate_range: agencyProfile?.hourly_rate_range || "",
-      services: agencyProfile?.services || [],
-    });
+    const AgencyOverview = () => {
+        const [isEditing, setIsEditing] = useState(false);
+        const [formData, setFormData] = useState({
+            agency_name: agencyProfile?.agency_name || '',
+            description: agencyProfile?.description || '',
+            team_size: agencyProfile?.team_size || 1,
+            hourly_rate_range: agencyProfile?.hourly_rate_range || '',
+            services: agencyProfile?.services || [],
+        });
 
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -756,199 +761,200 @@ function DashboardContent() {
       }
     };
 
-    return (
-      <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-[#1a1a2e]">Agency Profile</h1>
-          <Button
-            onClick={() => setIsEditing(!isEditing)}
-            variant={isEditing ? "ghost" : "outline"}
-          >
-            {isEditing ? "Cancel" : "Edit Profile"}
-          </Button>
-        </div>
+        return (
+            <div className="space-y-8">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-[#1a1a2e]">Agency Profile</h1>
+                    <Button
+                        onClick={() => setIsEditing(!isEditing)}
+                        variant={isEditing ? 'ghost' : 'outline'}
+                    >
+                        {isEditing ? 'Cancel' : 'Edit Profile'}
+                    </Button>
+                </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6">
-          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
-              </div>
-              <h3 className="text-xs sm:text-sm font-medium uppercase text-gray-500">
-                Revenue
-              </h3>
-            </div>
-            <div className="mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold text-[#1a1a2e]">
-              ${(agencyProfile?.completed_projects || 0) * 5000}
-            </div>
-            <p className="text-xs text-gray-400 mt-1">Platform earnings</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                <Briefcase className="w-6 h-6 text-[#204ecf]" />
-              </div>
-              <h3 className="text-gray-500 text-sm font-medium uppercase">
-                Projects
-              </h3>
-            </div>
-            <div className="mt-2 text-3xl font-bold text-[#1a1a2e]">
-              {agencyProfile?.completed_projects || 0}
-            </div>
-            <p className="text-xs text-gray-400 mt-1">Total completed</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-purple-600" />
-              </div>
-              <h3 className="text-gray-500 text-sm font-medium uppercase">
-                Team Size
-              </h3>
-            </div>
-            <div className="mt-2 text-3xl font-bold text-[#1a1a2e]">
-              {agencyProfile?.team_size || 0}
-            </div>
-            <p className="text-xs text-gray-400 mt-1">Active members</p>
-          </div>
-        </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6">
+                    <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                                <DollarSign className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
+                            </div>
+                            <h3 className="text-xs sm:text-sm font-medium uppercase text-gray-500">
+                                Revenue
+                            </h3>
+                        </div>
+                        <div className="mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold text-[#1a1a2e]">
+                            ${(agencyProfile?.completed_projects || 0) * 5000}
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">Platform earnings</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                                <Briefcase className="w-6 h-6 text-[#204ecf]" />
+                            </div>
+                            <h3 className="text-gray-500 text-sm font-medium uppercase">
+                                Projects
+                            </h3>
+                        </div>
+                        <div className="mt-2 text-3xl font-bold text-[#1a1a2e]">
+                            {agencyProfile?.completed_projects || 0}
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">Total completed</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                                <Users className="w-6 h-6 text-purple-600" />
+                            </div>
+                            <h3 className="text-gray-500 text-sm font-medium uppercase">
+                                Team Size
+                            </h3>
+                        </div>
+                        <div className="mt-2 text-3xl font-bold text-[#1a1a2e]">
+                            {agencyProfile?.team_size || 0}
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">Active members</p>
+                    </div>
+                </div>
 
-        {isEditing ? (
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 max-w-4xl">
-            <h2 className="text-xl font-bold text-[#1a1a2e] mb-6">
-              Edit Agency Profile
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Agency Name
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                    value={formData.agency_name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, agency_name: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Team Size
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                    value={formData.team_size}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        team_size: parseInt(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Hourly Rate Range
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                    value={formData.hourly_rate_range}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        hourly_rate_range: e.target.value,
-                      })
-                    }
-                    placeholder="$100-$200"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  rows={4}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none resize-none"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsEditing(false)}
-                  disabled={updateAgencyMutation.isPending}
-                  className="px-8"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={updateAgencyMutation.isPending}
-                  className="bg-[#204ecf] text-white hover:bg-[#1a3da8] px-8"
-                >
-                  {updateAgencyMutation.isPending
-                    ? "Saving..."
-                    : "Save Profile"}
-                </Button>
-              </div>
-            </form>
-          </div>
-        ) : (
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-            <div className="flex items-center gap-6 mb-8">
-              <img
-                src={
-                  user?.avatar_url ||
-                  `https://ui-avatars.com/api/?name=${agencyProfile?.agency_name}&background=random`
-                }
-                alt={agencyProfile?.agency_name}
-                className="w-24 h-24 rounded-2xl object-cover ring-4 ring-blue-50"
-              />
-              <div>
-                <h2 className="text-2xl font-bold text-[#1a1a2e]">
-                  {agencyProfile?.agency_name}
-                </h2>
-                <p className="text-[#204ecf] font-semibold">
-                  {agencyProfile?.hourly_rate_range || "Rate not set"}
-                </p>
-                <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 font-medium">
-                  <span className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />{" "}
-                    {agencyProfile?.team_size || 0} Members
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Briefcase className="w-4 h-4" />{" "}
-                    {agencyProfile?.completed_projects || 0} Projects
-                  </span>
-                </div>
-              </div>
-            </div>
+                {isEditing ? (
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 max-w-4xl">
+                        <h2 className="text-xl font-bold text-[#1a1a2e] mb-6">
+                            Edit Agency Profile
+                        </h2>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                                        Agency Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                                        value={formData.agency_name}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                agency_name: e.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                                        Team Size
+                                    </label>
+                                    <input
+                                        type="number"
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                                        value={formData.team_size}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                team_size: parseInt(e.target.value),
+                                            })
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                                        Hourly Rate Range
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                                        value={formData.hourly_rate_range}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                hourly_rate_range: e.target.value,
+                                            })
+                                        }
+                                        placeholder="$100-$200"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    Description
+                                </label>
+                                <textarea
+                                    rows={4}
+                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none resize-none"
+                                    value={formData.description}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, description: e.target.value })
+                                    }
+                                />
+                            </div>
+                            <div className="flex gap-3">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setIsEditing(false)}
+                                    disabled={updateAgencyMutation.isPending}
+                                    className="px-8"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={updateAgencyMutation.isPending}
+                                    className="bg-[#204ecf] text-white hover:bg-[#1a3da8] px-8"
+                                >
+                                    {updateAgencyMutation.isPending ? 'Saving...' : 'Save Profile'}
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                ) : (
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                        <div className="flex items-center gap-6 mb-8">
+                            <img
+                                src={
+                                    user?.avatar_url ||
+                                    `https://ui-avatars.com/api/?name=${agencyProfile?.agency_name}&background=random`
+                                }
+                                alt={agencyProfile?.agency_name}
+                                className="w-24 h-24 rounded-2xl object-cover ring-4 ring-blue-50"
+                            />
+                            <div>
+                                <h2 className="text-2xl font-bold text-[#1a1a2e]">
+                                    {agencyProfile?.agency_name}
+                                </h2>
+                                <p className="text-[#204ecf] font-semibold">
+                                    {agencyProfile?.hourly_rate_range || 'Rate not set'}
+                                </p>
+                                <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 font-medium">
+                                    <span className="flex items-center gap-1">
+                                        <Users className="w-4 h-4" />{' '}
+                                        {agencyProfile?.team_size || 0} Members
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <Briefcase className="w-4 h-4" />{' '}
+                                        {agencyProfile?.completed_projects || 0} Projects
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">
-                  About Agency
-                </h3>
-                <p className="text-gray-600 leading-relaxed font-medium">
-                  {agencyProfile?.description ||
-                    "No description provided yet. Update your profile to tell clients about your agency."}
-                </p>
-              </div>
+                        <div className="space-y-6">
+                            <div>
+                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                    About Agency
+                                </h3>
+                                <p className="text-gray-600 leading-relaxed font-medium">
+                                    {agencyProfile?.description ||
+                                        'No description provided yet. Update your profile to tell clients about your agency.'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-          </div>
-        )}
-      </div>
-    );
-  };
+        );
+    };
 
   const HireView = () => {
     const [step, setStep] = useState<
@@ -1001,10 +1007,10 @@ function DashboardContent() {
       }
     };
 
-    const handleGenerate = (e: React.FormEvent) => {
-      e.preventDefault();
-      internalGenerateTeamsMutation.mutate(requirements);
-    };
+        const handleGenerate = (e: React.FormEvent) => {
+            e.preventDefault();
+            internalGenerateTeamsMutation.mutate(requirements);
+        };
 
     const handleHire = (team: GeneratedTeam) => {
       if (!projects || projects.length === 0) {
@@ -1030,42 +1036,34 @@ function DashboardContent() {
       });
     };
 
-    if (step === "confirmation") {
-      return (
-        <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="ghost"
-              onClick={() => setStep("selection")}
-              className="text-gray-500 p-0 hover:bg-transparent"
-            >
-              ← Back to Team Selection
-            </Button>
-            <h2 className="text-2xl font-bold text-[#1a1a2e]">
-              Confirm Hiring
-            </h2>
-          </div>
+        if (step === 'confirmation') {
+            return (
+                <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                    <div className="flex items-center gap-4 mb-6">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setStep('selection')}
+                            className="text-gray-500 p-0 hover:bg-transparent"
+                        >
+                            ← Back to Team Selection
+                        </Button>
+                        <h2 className="text-2xl font-bold text-[#1a1a2e]">Confirm Hiring</h2>
+                    </div>
 
-          <div className="bg-gray-50 p-6 rounded-xl mb-8">
-            <h3 className="text-lg font-bold text-[#1a1a2e] mb-2">
-              {selectedTeam?.team_name}
-            </h3>
-            <p className="text-gray-500 text-sm mb-4">
-              {selectedTeam?.description}
-            </p>
-            <div className="flex justify-between text-sm font-medium">
-              <span className="text-gray-500">Total Members:</span>
-              <span className="text-[#1a1a2e]">
-                {selectedTeam?.members?.length}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm font-medium mt-2">
-              <span className="text-gray-500">Hourly Rate:</span>
-              <span className="text-[#1a1a2e]">
-                ${selectedTeam?.hourly_rate}/hr
-              </span>
-            </div>
-          </div>
+                    <div className="bg-gray-50 p-6 rounded-xl mb-8">
+                        <h3 className="text-lg font-bold text-[#1a1a2e] mb-2">
+                            {selectedTeam?.team_name}
+                        </h3>
+                        <p className="text-gray-500 text-sm mb-4">{selectedTeam?.description}</p>
+                        <div className="flex justify-between text-sm font-medium">
+                            <span className="text-gray-500">Total Members:</span>
+                            <span className="text-[#1a1a2e]">{selectedTeam?.members?.length}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-medium mt-2">
+                            <span className="text-gray-500">Hourly Rate:</span>
+                            <span className="text-[#1a1a2e]">${selectedTeam?.hourly_rate}/hr</span>
+                        </div>
+                    </div>
 
           <div className="space-y-6">
             <div>
@@ -1089,71 +1087,67 @@ function DashboardContent() {
               </p>
             </div>
 
-            <Button
-              onClick={() => {
-                if (selectedTargetProject) {
-                  confirmHire(selectedTargetProject);
-                } else {
-                  toast.error("Please select a project.");
-                }
-              }}
-              className="w-full bg-[#204ecf] hover:bg-[#1a3da8] text-white py-6 text-lg rounded-xl font-bold shadow-lg shadow-blue-500/20"
-              disabled={
-                !selectedTargetProject || internalHireTeamMutation.isPending
-              }
-            >
-              {internalHireTeamMutation.isPending
-                ? "Propagating Contracts..."
-                : "Confirm Hire & Assign Team"}
-            </Button>
-          </div>
-        </div>
-      );
-    }
+                        <Button
+                            onClick={() => {
+                                if (selectedTargetProject) {
+                                    confirmHire(selectedTargetProject);
+                                } else {
+                                    toast.error('Please select a project.');
+                                }
+                            }}
+                            className="w-full bg-[#204ecf] hover:bg-[#1a3da8] text-white py-6 text-lg rounded-xl font-bold shadow-lg shadow-blue-500/20"
+                            disabled={!selectedTargetProject || internalHireTeamMutation.isPending}
+                        >
+                            {internalHireTeamMutation.isPending
+                                ? 'Propagating Contracts...'
+                                : 'Confirm Hire & Assign Team'}
+                        </Button>
+                    </div>
+                </div>
+            );
+        }
 
-    if (step === "success") {
-      return (
-        <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-200">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-green-600" />
-          </div>
-          <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">
-            Team Hired Successfully!
-          </h2>
-          <p className="text-gray-500 mb-8 max-w-md mx-auto">
-            Your new team <strong>{selectedTeam?.team_name}</strong> has been
-            added to your project. They are ready to start collaborating.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Button
-              onClick={() => {
-                setActiveView("projects");
-                setStep("options");
-              }}
-              className="bg-[#204ecf] text-white px-8 py-2 rounded-xl"
-            >
-              View Project
-            </Button>
-          </div>
-        </div>
-      );
-    }
+        if (step === 'success') {
+            return (
+                <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-200">
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle2 className="w-10 h-10 text-green-600" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">
+                        Team Hired Successfully!
+                    </h2>
+                    <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                        Your new team <strong>{selectedTeam?.team_name}</strong> has been added to
+                        your project. They are ready to start collaborating.
+                    </p>
+                    <div className="flex justify-center gap-4">
+                        <Button
+                            onClick={() => {
+                                setActiveView('projects');
+                                setStep('options');
+                            }}
+                            className="bg-[#204ecf] text-white px-8 py-2 rounded-xl"
+                        >
+                            View Project
+                        </Button>
+                    </div>
+                </div>
+            );
+        }
 
-    if (step === "selection") {
-      return (
-        <div className="space-y-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => setStep("requirements")}
-              className="text-gray-500 p-0 hover:bg-transparent"
-            >
-              ← Back to Requirements
-            </Button>
-            <h2 className="text-2xl font-bold text-[#1a1a2e]">
-              Select Your Team
-            </h2>
-          </div>
+        if (step === 'selection') {
+            return (
+                <div className="space-y-8">
+                    <div className="flex items-center gap-4 mb-4">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setStep('requirements')}
+                            className="text-gray-500 p-0 hover:bg-transparent"
+                        >
+                            ← Back to Requirements
+                        </Button>
+                        <h2 className="text-2xl font-bold text-[#1a1a2e]">Select Your Team</h2>
+                    </div>
 
           {internalGenerateTeamsMutation.isPending ? (
             <div className="text-center py-20">
@@ -1228,50 +1222,48 @@ function DashboardContent() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div>
-                        <p className="text-xs text-gray-400 uppercase">
-                          Hourly Rate
-                        </p>
-                        <p className="text-lg font-bold text-[#1a1a2e]">
-                          ${team.hourly_rate}/hr
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => handleHire(team)}
-                        disabled={internalHireTeamMutation.isPending}
-                        className="bg-[#1a1a2e] text-white hover:bg-[#204ecf] transition-colors"
-                      >
-                        {internalHireTeamMutation.isPending &&
-                        selectedTeam?.id === team.id
-                          ? "Hiring..."
-                          : "Hire Team"}
-                      </Button>
-                    </div>
-                  </div>
+                                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                                            <div>
+                                                <p className="text-xs text-gray-400 uppercase">
+                                                    Hourly Rate
+                                                </p>
+                                                <p className="text-lg font-bold text-[#1a1a2e]">
+                                                    ${team.hourly_rate}/hr
+                                                </p>
+                                            </div>
+                                            <Button
+                                                onClick={() => handleHire(team)}
+                                                disabled={internalHireTeamMutation.isPending}
+                                                className="bg-[#1a1a2e] text-white hover:bg-[#204ecf] transition-colors"
+                                            >
+                                                {internalHireTeamMutation.isPending &&
+                                                selectedTeam?.id === team.id
+                                                    ? 'Hiring...'
+                                                    : 'Hire Team'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      );
-    }
+            );
+        }
 
-    if (step === "requirements") {
-      return (
-        <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="ghost"
-              onClick={() => setStep("options")}
-              className="text-gray-500 p-0 hover:bg-transparent"
-            >
-              ← Back
-            </Button>
-            <h2 className="text-2xl font-bold text-[#1a1a2e]">
-              Build Your Ideal Team
-            </h2>
-          </div>
+        if (step === 'requirements') {
+            return (
+                <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                    <div className="flex items-center gap-4 mb-6">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setStep('options')}
+                            className="text-gray-500 p-0 hover:bg-transparent"
+                        >
+                            ← Back
+                        </Button>
+                        <h2 className="text-2xl font-bold text-[#1a1a2e]">Build Your Ideal Team</h2>
+                    </div>
 
           <form onSubmit={handleGenerate} className="space-y-6">
             <div>
@@ -1329,216 +1321,201 @@ function DashboardContent() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Team Size
-                </label>
-                <select
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium"
-                  value={requirements.team_size}
-                  onChange={(e) =>
-                    setRequirements({
-                      ...requirements,
-                      team_size: parseInt(e.target.value),
-                    })
-                  }
+                        <div className="grid grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    Team Size
+                                </label>
+                                <select
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium"
+                                    value={requirements.team_size}
+                                    onChange={(e) =>
+                                        setRequirements({
+                                            ...requirements,
+                                            team_size: parseInt(e.target.value),
+                                        })
+                                    }
+                                >
+                                    {[2, 3, 4, 5, 6, 7, 8].map((num) => (
+                                        <option key={num} value={num}>
+                                            {num} Members
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    Monthly Budget (Est.)
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                                    placeholder="$5,000"
+                                    value={requirements.budget}
+                                    onChange={(e) =>
+                                        setRequirements({ ...requirements, budget: e.target.value })
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        <Button
+                            type="submit"
+                            className="w-full bg-[#204ecf] hover:bg-[#1a3da8] text-white py-6 text-lg rounded-xl font-bold shadow-lg shadow-blue-500/20"
+                            disabled={internalGenerateTeamsMutation.isPending}
+                        >
+                            {internalGenerateTeamsMutation.isPending
+                                ? 'Generating Teams...'
+                                : 'Generate Team Options'}
+                        </Button>
+                    </form>
+                </div>
+            );
+        }
+
+        return (
+            <div className="grid md:grid-cols-3 gap-8">
+                <div onClick={() => handleOptionSelect('talent')} className="cursor-pointer group">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:shadow-xl hover:border-[#204ecf] transition-all h-full flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <UserIcon className="w-8 h-8 text-[#204ecf]" />
+                        </div>
+                        <h3 className="text-xl font-bold text-[#1a1a2e] mb-3">Hire Freelancers</h3>
+                        <p className="text-gray-500 mb-6">
+                            Find top 3% developers, designers, and finance experts for your
+                            projects.
+                        </p>
+                        <Button
+                            variant="outline"
+                            className="mt-auto w-full group-hover:bg-[#204ecf] group-hover:text-white"
+                        >
+                            Browse Talent
+                        </Button>
+                    </div>
+                </div>
+                <div onClick={() => handleOptionSelect('team')} className="cursor-pointer group">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:shadow-xl hover:border-[#204ecf] transition-all h-full flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <Users className="w-8 h-8 text-purple-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-[#1a1a2e] mb-3">Hire a Team</h3>
+                        <p className="text-gray-500 mb-6">
+                            Get a full-stack team automatically generated based on your
+                            requirements.
+                        </p>
+                        <Button
+                            variant="outline"
+                            className="mt-auto w-full group-hover:bg-purple-600 group-hover:text-white"
+                        >
+                            Build Team
+                        </Button>
+                    </div>
+                </div>
+                <div onClick={() => handleOptionSelect('agency')} className="cursor-pointer group">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:shadow-xl hover:border-[#204ecf] transition-all h-full flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <Briefcase className="w-8 h-8 text-[#00c853]" />
+                        </div>
+                        <h3 className="text-xl font-bold text-[#1a1a2e] mb-3">Hire an Agency</h3>
+                        <p className="text-gray-500 mb-6">
+                            Partner with top development and design agencies for large-scale
+                            projects.
+                        </p>
+                        <Button
+                            variant="outline"
+                            className="mt-auto w-full group-hover:bg-[#00c853] group-hover:text-white"
+                        >
+                            Browse Agencies
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const UsersView = () => (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="font-bold text-lg text-[#1a1a2e]">User Management</h2>
+                <Button
+                    onClick={() => handleOpenUserModal()}
+                    className="bg-[#204ecf] text-white hover:bg-[#1a3da8]"
                 >
-                  {[2, 3, 4, 5, 6, 7, 8].map((num) => (
-                    <option key={num} value={num}>
-                      {num} Members
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Monthly Budget (Est.)
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                  placeholder="$5,000"
-                  value={requirements.budget}
-                  onChange={(e) =>
-                    setRequirements({ ...requirements, budget: e.target.value })
-                  }
-                />
-              </div>
+                    <Plus className="w-4 h-4 mr-2" /> Add User
+                </Button>
             </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-[#204ecf] hover:bg-[#1a3da8] text-white py-6 text-lg rounded-xl font-bold shadow-lg shadow-blue-500/20"
-              disabled={internalGenerateTeamsMutation.isPending}
-            >
-              {internalGenerateTeamsMutation.isPending
-                ? "Generating Teams..."
-                : "Generate Team Options"}
-            </Button>
-          </form>
-        </div>
-      );
-    }
-
-    return (
-      <div className="grid md:grid-cols-3 gap-8">
-        <div
-          onClick={() => handleOptionSelect("talent")}
-          className="cursor-pointer group"
-        >
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:shadow-xl hover:border-[#204ecf] transition-all h-full flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <UserIcon className="w-8 h-8 text-[#204ecf]" />
+            <div className="overflow-x-auto">
+                <table className="w-full">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                User
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Role
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Email
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {allUsers?.map((u: User) => (
+                            <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-gray-100 rounded-full overflow-hidden">
+                                            <img
+                                                src={
+                                                    u.avatar_url ||
+                                                    `https://ui-avatars.com/api/?name=${u.full_name}&background=random`
+                                                }
+                                                alt={u.full_name}
+                                            />
+                                        </div>
+                                        <div className="text-sm font-bold text-gray-900">
+                                            {u.full_name}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <Badge
+                                        variant="outline"
+                                        className="capitalize text-xs font-bold border-gray-200 text-gray-600"
+                                    >
+                                        {u.role}
+                                    </Badge>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {u.email}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleOpenUserModal(u)}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                                            onClick={() => deleteUserMutation.mutate(u.id)}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
-            <h3 className="text-xl font-bold text-[#1a1a2e] mb-3">
-              Hire Freelancers
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Find top 3% developers, designers, and finance experts for your
-              projects.
-            </p>
-            <Button
-              variant="outline"
-              className="mt-auto w-full group-hover:bg-[#204ecf] group-hover:text-white"
-            >
-              Browse Talent
-            </Button>
-          </div>
-        </div>
-        <div
-          onClick={() => handleOptionSelect("team")}
-          className="cursor-pointer group"
-        >
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:shadow-xl hover:border-[#204ecf] transition-all h-full flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Users className="w-8 h-8 text-purple-600" />
-            </div>
-            <h3 className="text-xl font-bold text-[#1a1a2e] mb-3">
-              Hire a Team
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Get a full-stack team automatically generated based on your
-              requirements.
-            </p>
-            <Button
-              variant="outline"
-              className="mt-auto w-full group-hover:bg-purple-600 group-hover:text-white"
-            >
-              Build Team
-            </Button>
-          </div>
-        </div>
-        <div
-          onClick={() => handleOptionSelect("agency")}
-          className="cursor-pointer group"
-        >
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:shadow-xl hover:border-[#204ecf] transition-all h-full flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Briefcase className="w-8 h-8 text-[#00c853]" />
-            </div>
-            <h3 className="text-xl font-bold text-[#1a1a2e] mb-3">
-              Hire an Agency
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Partner with top development and design agencies for large-scale
-              projects.
-            </p>
-            <Button
-              variant="outline"
-              className="mt-auto w-full group-hover:bg-[#00c853] group-hover:text-white"
-            >
-              Browse Agencies
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const UsersView = () => (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative">
-      <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-        <h2 className="font-bold text-lg text-[#1a1a2e]">User Management</h2>
-        <Button
-          onClick={() => handleOpenUserModal()}
-          className="bg-[#204ecf] text-white hover:bg-[#1a3da8]"
-        >
-          <Plus className="w-4 h-4 mr-2" /> Add User
-        </Button>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                User
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {allUsers?.map((u: User) => (
-              <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full overflow-hidden">
-                      <img
-                        src={
-                          u.avatar_url ||
-                          `https://ui-avatars.com/api/?name=${u.full_name}&background=random`
-                        }
-                        alt={u.full_name}
-                      />
-                    </div>
-                    <div className="text-sm font-bold text-gray-900">
-                      {u.full_name}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge
-                    variant="outline"
-                    className="capitalize text-xs font-bold border-gray-200 text-gray-600"
-                  >
-                    {u.role}
-                  </Badge>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {u.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleOpenUserModal(u)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                      onClick={() => deleteUserMutation.mutate(u.id)}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
 
       {isUserModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -1629,65 +1606,61 @@ function DashboardContent() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-3 mt-8">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setIsUserModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="bg-[#204ecf] hover:bg-[#1a3da8] text-white px-8 rounded-xl shadow-lg shadow-blue-500/20"
-                >
-                  {editingUser ? "Save Changes" : "Create User"}
-                </Button>
-              </div>
-            </form>
-          </motion.div>
+                            <div className="flex justify-end gap-3 mt-8">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() => setIsUserModalOpen(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="bg-[#204ecf] hover:bg-[#1a3da8] text-white px-8 rounded-xl shadow-lg shadow-blue-500/20"
+                                >
+                                    {editingUser ? 'Save Changes' : 'Create User'}
+                                </Button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 
-  const StatsView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-        <h3 className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">
-          Total Value
-        </h3>
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-[#1a1a2e]">
-            ${allUsers.length * 1000}
-          </span>
-          <span className="text-green-500 text-sm font-bold">+12%</span>
+    const StatsView = () => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">
+                    Total Value
+                </h3>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-[#1a1a2e]">
+                        ${allUsers.length * 1000}
+                    </span>
+                    <span className="text-green-500 text-sm font-bold">+12%</span>
+                </div>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">
+                    Active Projects
+                </h3>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-[#1a1a2e]">{projects.length}</span>
+                    <span className="text-blue-500 text-sm font-bold">Live</span>
+                </div>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">
+                    Platform Users
+                </h3>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-[#1a1a2e]">{allUsers.length}</span>
+                    <span className="text-purple-500 text-sm font-bold">Verified</span>
+                </div>
+            </div>
         </div>
-      </div>
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-        <h3 className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">
-          Active Projects
-        </h3>
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-[#1a1a2e]">
-            {projects.length}
-          </span>
-          <span className="text-blue-500 text-sm font-bold">Live</span>
-        </div>
-      </div>
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-        <h3 className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">
-          Platform Users
-        </h3>
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-[#1a1a2e]">
-            {allUsers.length}
-          </span>
-          <span className="text-purple-500 text-sm font-bold">Verified</span>
-        </div>
-      </div>
-    </div>
-  );
+    );
 
   if (!user) {
     return <DashboardSkeleton />;
@@ -1708,41 +1681,41 @@ function DashboardContent() {
     );
   }
 
-  if (user.role === "agency") {
-    return (
-      <AgencyDashboard
-        user={user}
-        onLogout={handleLogout}
-        activeView={activeView}
-        setActiveView={setActiveView}
-        MessagesView={() => <MessagesView user={user} />}
-        SettingsView={SettingsView}
-        AgencyOverview={AgencyOverview}
-      />
-    );
-  }
+    if (user.role === 'agency') {
+        return (
+            <AgencyDashboard
+                user={user}
+                onLogout={handleLogout}
+                activeView={activeView}
+                setActiveView={setActiveView}
+                MessagesView={() => <MessagesView user={user} />}
+                SettingsView={SettingsView}
+                AgencyOverview={AgencyOverview}
+            />
+        );
+    }
 
-  if (user.role === "admin" || user.role === "core_team") {
-    return <AdminDashboard />;
-  }
+    if (user.role === 'admin' || user.role === 'core_team') {
+        return <AdminDashboard />;
+    }
 
-  // Only allow 'talent' to continue to the default layout below
-  if (user.role !== "talent") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500 font-medium">Access Denied: Invalid Role</p>
-      </div>
-    );
-  }
+    // Only allow 'talent' to continue to the default layout below
+    if (user.role !== 'talent') {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <p className="text-gray-500 font-medium">Access Denied: Invalid Role</p>
+            </div>
+        );
+    }
 
-  // Talent dashboard tabs - modify this array to update navigation
-  const TALENT_DASHBOARD_TABS = [
-    { value: "overview", label: "Overview" },
-    { value: "projects", label: "Projects" },
-    { value: "tasks", label: "Tasks" },
-    { value: "messages", label: "Messages" },
-    { value: "settings", label: "Settings" },
-  ];
+    // Talent dashboard tabs - modify this array to update navigation
+    const TALENT_DASHBOARD_TABS = [
+        { value: 'overview', label: 'Overview' },
+        { value: 'projects', label: 'Projects' },
+        { value: 'tasks', label: 'Tasks' },
+        { value: 'messages', label: 'Messages' },
+        { value: 'settings', label: 'Settings' },
+    ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -1792,15 +1765,15 @@ function DashboardContent() {
             />
           </TabsContent>
 
-          <TabsContent value="messages" className="mt-0">
-            <MessagesView user={user} />
-          </TabsContent>
+                    <TabsContent value="messages" className="mt-0">
+                        <MessagesView user={user} />
+                    </TabsContent>
 
-          <TabsContent value="settings" className="mt-0">
-            <SettingsView />
-          </TabsContent>
-        </Tabs>
-      </div>
+                    <TabsContent value="settings" className="mt-0">
+                        <SettingsView />
+                    </TabsContent>
+                </Tabs>
+            </div>
 
       {isTaskModalOpen && user && (
         <TaskModal

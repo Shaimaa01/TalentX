@@ -9,10 +9,12 @@ export const UpdateTalentSchema = z.object({
     experience_years: z.number().optional(),
     availability: z.string().optional(),
     hourly_rate: z.number().optional(),
-    coordinates: z.object({
-        lat: z.number(),
-        lng: z.number()
-    }).optional(),
+    coordinates: z
+        .object({
+            lat: z.number(),
+            lng: z.number(),
+        })
+        .optional(),
 });
 
 export type UpdateTalentDTO = z.infer<typeof UpdateTalentSchema>;

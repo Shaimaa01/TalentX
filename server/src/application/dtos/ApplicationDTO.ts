@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const CreateApplicationSchema = z.object({
-    full_name: z.string().min(1, "Full Name is required"),
-    email: z.string().email("Invalid email"),
+    full_name: z.string().min(1, 'Full Name is required'),
+    email: z.string().email('Invalid email'),
     role: z.enum(['talent', 'agency']),
     password: z.string().optional(), // Not stored, but incoming
 

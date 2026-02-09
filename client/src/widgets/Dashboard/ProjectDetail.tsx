@@ -41,7 +41,8 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
     ];
 
     const isClientOrAdmin = user.role === 'client' || user.role === 'admin';
-    const canManageTasks = user.role === 'client' || user.role === 'admin' || user.role === 'agency';
+    const canManageTasks =
+        user.role === 'client' || user.role === 'admin' || user.role === 'agency';
 
     // Combine team members with the assigned entity if applicable for task assignment
     const assignableMembers = [
@@ -57,7 +58,7 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
     // Tasks Query
     const { data: tasks, isLoading: tasksLoading } = useQuery({
         queryKey: ['tasks', project.id],
-        queryFn: async () => talentXApi.entities.Task.filter({ project_id: project.id })
+        queryFn: async () => talentXApi.entities.Task.filter({ project_id: project.id }),
     });
 
     // Update Task (Status only - for Kanban drag/drop or quick actions)
@@ -68,7 +69,7 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks', project.id] });
             toast.success('Task updated');
-        }
+        },
     });
 
     // Detailed Update Task Mutation
@@ -93,7 +94,7 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         },
         onError: () => {
             toast.error('Failed to update task');
-        }
+        },
     });
 
     // Update Project Mutation
@@ -107,7 +108,7 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         },
         onError: () => {
             toast.error('Failed to update project');
-        }
+        },
     });
 
     // Create Task Mutation
@@ -131,7 +132,7 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         },
         onError: () => {
             toast.error('Failed to create task');
-        }
+        },
     });
 
     // Delete Task Mutation
@@ -147,7 +148,7 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         },
         onError: () => {
             toast.error('Failed to delete task');
-        }
+        },
     });
 
     const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
@@ -173,7 +174,7 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         },
         onError: () => {
             toast.error('Failed to complete project');
-        }
+        },
     });
 
     const releasePaymentMutation = useMutation({
@@ -186,7 +187,7 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
         },
         onError: () => {
             toast.error('Failed to release payment');
-        }
+        },
     });
 
     const handleCompleteProject = () => {
@@ -215,20 +216,33 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={onBack} className="rounded-full hover:bg-gray-100">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={onBack}
+                        className="rounded-full hover:bg-gray-100"
+                    >
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
                     <div>
                         <h1 className="text-2xl font-bold text-black">{project.name}</h1>
                         <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                            <span className={`inline-block w-2 h-2 rounded-full ${project.status === 'active' ? 'bg-green-500' :
-                                project.status === 'completed' ? 'bg-blue-500' : 'bg-yellow-500'
-                                }`} />
+                            <span
+                                className={`inline-block w-2 h-2 rounded-full ${
+                                    project.status === 'active'
+                                        ? 'bg-green-500'
+                                        : project.status === 'completed'
+                                          ? 'bg-blue-500'
+                                          : 'bg-yellow-500'
+                                }`}
+                            />
                             <span className="capitalize">{project.status.replace('_', ' ')}</span>
                             <span>•</span>
                             <span>Started {new Date(project.start_date).toLocaleDateString()}</span>
                             {project.paymentStatus === 'released' && (
-                                <Badge className="bg-green-50 text-green-700 ml-2 border-green-100">PAYMENT RELEASED</Badge>
+                                <Badge className="bg-green-50 text-green-700 ml-2 border-green-100">
+                                    PAYMENT RELEASED
+                                </Badge>
                             )}
                         </div>
                     </div>
@@ -243,16 +257,24 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
                             <CheckCircle className="w-4 h-4 mr-2" /> Complete Project
                         </Button>
                     )}
-                    {user.role === 'admin' && project.status === 'completed' && project.paymentStatus !== 'released' && (
-                        <Button
-                            onClick={handleReleasePayment}
-                            disabled={releasePaymentMutation.isPending}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
-                        >
-                            <DollarSign className="w-4 h-4 mr-2" /> Release Payment
-                        </Button>
-                    )}
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-500 hover:bg-red-50" title="Report Issue" onClick={() => setIsDisputeModalOpen(true)}>
+                    {user.role === 'admin' &&
+                        project.status === 'completed' &&
+                        project.paymentStatus !== 'released' && (
+                            <Button
+                                onClick={handleReleasePayment}
+                                disabled={releasePaymentMutation.isPending}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                            >
+                                <DollarSign className="w-4 h-4 mr-2" /> Release Payment
+                            </Button>
+                        )}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-gray-400 hover:text-red-500 hover:bg-red-50"
+                        title="Report Issue"
+                        onClick={() => setIsDisputeModalOpen(true)}
+                    >
                         <AlertCircle className="w-5 h-5" />
                     </Button>
                 </div>
@@ -330,10 +352,17 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
                     task={selectedTask}
                     user={user}
                     teamMembers={assignableMembers}
-                    onClose={() => { setIsTaskModalOpen(false); setSelectedTask(null); }}
+                    onClose={() => {
+                        setIsTaskModalOpen(false);
+                        setSelectedTask(null);
+                    }}
                     onSave={handleTaskSave}
                     onDelete={(id) => deleteTaskMutation.mutate(id)}
-                    isSaving={createTaskMutation.isPending || updateTaskMutation.isPending || deleteTaskMutation.isPending}
+                    isSaving={
+                        createTaskMutation.isPending ||
+                        updateTaskMutation.isPending ||
+                        deleteTaskMutation.isPending
+                    }
                     readOnly={!!selectedTask && !isClientOrAdmin}
                 />
             )}
@@ -348,32 +377,50 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
                     >
                         <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-linear-to-r from-green-50/50 to-white">
                             <div>
-                                <h3 className="text-2xl font-bold text-[#1a1a2e]">Complete Project</h3>
-                                <p className="text-sm text-gray-500 mt-1">Share your feedback to complete the engagement</p>
+                                <h3 className="text-2xl font-bold text-[#1a1a2e]">
+                                    Complete Project
+                                </h3>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Share your feedback to complete the engagement
+                                </p>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => setIsCompletionModalOpen(false)} className="rounded-full">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setIsCompletionModalOpen(false)}
+                                className="rounded-full"
+                            >
                                 <X className="w-6 h-6" />
                             </Button>
                         </div>
                         <div className="p-8 space-y-8">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-widest">Rate the Experience</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-widest">
+                                    Rate the Experience
+                                </label>
                                 <div className="flex gap-2">
                                     {[1, 2, 3, 4, 5].map((s) => (
                                         <button
                                             key={s}
                                             onClick={() => setRating(s)}
-                                            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${rating >= s ? 'bg-yellow-400 text-white scale-110 shadow-lg shadow-yellow-100' : 'bg-gray-50 text-gray-300 hover:bg-gray-100'
-                                                }`}
+                                            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                                                rating >= s
+                                                    ? 'bg-yellow-400 text-white scale-110 shadow-lg shadow-yellow-100'
+                                                    : 'bg-gray-50 text-gray-300 hover:bg-gray-100'
+                                            }`}
                                         >
-                                            <Star className={`w-6 h-6 ${rating >= s ? 'fill-current' : ''}`} />
+                                            <Star
+                                                className={`w-6 h-6 ${rating >= s ? 'fill-current' : ''}`}
+                                            />
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-widest">Client Review</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-widest">
+                                    Client Review
+                                </label>
                                 <textarea
                                     value={review}
                                     onChange={(e) => setReview(e.target.value)}
@@ -381,7 +428,9 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
                                     placeholder="Tell us about the quality of work, communication, and overall outcome..."
                                     className="w-full p-4 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all resize-none text-sm placeholder:text-gray-300"
                                 />
-                                <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase">Minimum 10 characters required</p>
+                                <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase">
+                                    Minimum 10 characters required
+                                </p>
                             </div>
 
                             <div className="pt-4 flex gap-4">
@@ -397,7 +446,9 @@ export default function ProjectDetail({ user, project, onBack }: ProjectDetailPr
                                     disabled={completeProjectMutation.isPending}
                                     className="flex-1 py-6 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-lg shadow-green-200"
                                 >
-                                    {completeProjectMutation.isPending ? 'Completing...' : 'Complete Project'}
+                                    {completeProjectMutation.isPending
+                                        ? 'Completing...'
+                                        : 'Complete Project'}
                                 </Button>
                             </div>
                         </div>

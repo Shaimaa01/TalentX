@@ -4,12 +4,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const brands = [
-    { name: "Kraft Heinz", style: "font-bold text-2xl" },
-    { name: "Bridgestone", style: "font-bold text-xl tracking-tight" },
-    { name: "Duolingo", style: "font-bold text-2xl" },
-    { name: "Shopify", style: "font-bold text-2xl" },
-    { name: "Calm", style: "font-light text-2xl italic" },
-    { name: "USC", style: "font-bold text-2xl" }
+    { name: 'Kraft Heinz', style: 'font-bold text-2xl' },
+    { name: 'Bridgestone', style: 'font-bold text-xl tracking-tight' },
+    { name: 'Duolingo', style: 'font-bold text-2xl' },
+    { name: 'Shopify', style: 'font-bold text-2xl' },
+    { name: 'Calm', style: 'font-light text-2xl italic' },
+    { name: 'USC', style: 'font-bold text-2xl' },
 ];
 
 export default function TrustedBrands() {

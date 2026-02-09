@@ -33,17 +33,22 @@ export const TalentCard = ({ talent }: TalentCardProps) => {
                 </div>
 
                 <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                    {talent.bio || "No bio available."}
+                    {talent.bio || 'No bio available.'}
                 </p>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                     {talent.skills.slice(0, 4).map((skill, index) => (
-                        <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                        <span
+                            key={index}
+                            className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs"
+                        >
                             {skill}
                         </span>
                     ))}
                     {talent.skills.length > 4 && (
-                        <span className="text-gray-400 text-xs py-1">+{talent.skills.length - 4} more</span>
+                        <span className="text-gray-400 text-xs py-1">
+                            +{talent.skills.length - 4} more
+                        </span>
                     )}
                 </div>
 
@@ -53,8 +58,7 @@ export const TalentCard = ({ talent }: TalentCardProps) => {
                         {talent.location || 'Remote'}
                     </div>
                     <div className="flex items-center">
-                        <DollarSign className="w-4 h-4 mr-2" />
-                        ${talent.hourly_rate}/hr
+                        <DollarSign className="w-4 h-4 mr-2" />${talent.hourly_rate}/hr
                     </div>
                     {/* <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-2" />
@@ -65,7 +69,9 @@ export const TalentCard = ({ talent }: TalentCardProps) => {
 
             <div className="p-4 border-t border-gray-50 flex gap-2 bg-gray-50">
                 <Link href={`/profile/${talent.id}`} className="flex-1">
-                    <Button variant="outline" className="w-full">View Profile</Button>
+                    <Button variant="outline" className="w-full">
+                        View Profile
+                    </Button>
                 </Link>
                 <Button className="flex-1">Hire Now</Button>
             </div>

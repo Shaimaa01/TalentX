@@ -6,23 +6,26 @@ import { Users, UserPlus, Lightbulb } from 'lucide-react';
 
 const models = [
     {
-        title: "Strategic Squads",
+        title: 'Strategic Squads',
         icon: Users,
-        description: "Full-stack development teams managed by TalentX to deliver end-to-end product requirements.",
-        points: ["Dedicated Lead", "Agile Management", "Rapid Delivery"]
+        description:
+            'Full-stack development teams managed by TalentX to deliver end-to-end product requirements.',
+        points: ['Dedicated Lead', 'Agile Management', 'Rapid Delivery'],
     },
     {
-        title: "Expert Staffing",
+        title: 'Expert Staffing',
         icon: UserPlus,
-        description: "Individual niche experts integrated into your existing team to boost velocity and depth.",
-        points: ["Seamless Integration", "Top 3% Talent", "Flexible Scaling"]
+        description:
+            'Individual niche experts integrated into your existing team to boost velocity and depth.',
+        points: ['Seamless Integration', 'Top 3% Talent', 'Flexible Scaling'],
     },
     {
-        title: "Solution Partnerships",
+        title: 'Solution Partnerships',
         icon: Lightbulb,
-        description: "Outcome-based consulting sessions to solve specific technical or architectural bottlenecks.",
-        points: ["Architecture Audit", "Security Review", "Tech Roadmapping"]
-    }
+        description:
+            'Outcome-based consulting sessions to solve specific technical or architectural bottlenecks.',
+        points: ['Architecture Audit', 'Security Review', 'Tech Roadmapping'],
+    },
 ];
 
 export default function EngagementModels() {
@@ -66,7 +69,10 @@ export default function EngagementModels() {
                             </p>
                             <ul className="space-y-4">
                                 {model.points.map((point) => (
-                                    <li key={point} className="flex items-center gap-3 text-white/80 text-[14px] font-bold uppercase tracking-widest">
+                                    <li
+                                        key={point}
+                                        className="flex items-center gap-3 text-white/80 text-[14px] font-bold uppercase tracking-widest"
+                                    >
                                         <div className="w-1.5 h-1.5 bg-[#204ecf]" />
                                         {point}
                                     </li>

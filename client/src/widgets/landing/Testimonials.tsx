@@ -9,11 +9,11 @@ import { talentXApi } from '@/shared/api/talentXApi';
 export default function Testimonials() {
     const { data: testimonials, isLoading } = useQuery({
         queryKey: ['cms-testimonials'],
-        queryFn: () => talentXApi.entities.CMS.Testimonial.list()
+        queryFn: () => talentXApi.entities.CMS.Testimonial.list(),
     });
 
     return (
-        <section className="bg-[#f9f9f9] py-24">
+        <section id="testimonials" className="bg-[#f9f9f9] py-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1a1a2e] text-center mb-8">
                     Trusted by Industry Leaders
@@ -38,8 +38,11 @@ export default function Testimonials() {
                 {/* Grid */}
                 <div className="flex flex-wrap justify-center gap-8">
                     {isLoading ? (
-                        [1, 2, 3].map(i => (
-                            <div key={i} className="bg-white p-6 rounded-sm shadow-md w-[384px] h-[408px] animate-pulse" />
+                        [1, 2, 3].map((i) => (
+                            <div
+                                key={i}
+                                className="bg-white p-6 rounded-sm shadow-md w-[384px] h-[408px] animate-pulse"
+                            />
                         ))
                     ) : (testimonials || []).length === 0 ? (
                         <p className="text-gray-400 italic">No testimonials available yet.</p>
@@ -69,13 +72,18 @@ export default function Testimonials() {
                                 {/* Stars */}
                                 <div className="flex gap-1 mb-6">
                                     {[...Array(testimonial.rating || 5)].map((_, i) => (
-                                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                        <Star
+                                            key={i}
+                                            className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                                        />
                                     ))}
                                 </div>
 
                                 {/* Author Info */}
                                 <div className="space-y-1">
-                                    <p className="font-bold text-[#1a1a2e] text-sm">{testimonial.author}</p>
+                                    <p className="font-bold text-[#1a1a2e] text-sm">
+                                        {testimonial.author}
+                                    </p>
                                     <p className="text-xs text-gray-500">{testimonial.role}</p>
                                     <div className="pt-4">
                                         {testimonial.logo ? (
@@ -85,7 +93,9 @@ export default function Testimonials() {
                                                 className="h-6 w-auto opacity-90"
                                             />
                                         ) : (
-                                            <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">{testimonial.company}</span>
+                                            <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                                                {testimonial.company}
+                                            </span>
                                         )}
                                     </div>
                                 </div>

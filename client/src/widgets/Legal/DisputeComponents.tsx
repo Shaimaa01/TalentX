@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from "@/shared/components/ui/button";
+import { Button } from '@/shared/components/ui/button';
 import { talentXApi } from '@/shared/api/talentXApi';
 import { AlertTriangle, ShieldAlert, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -23,15 +23,16 @@ export function DisputeModal({ isOpen, onClose, projectId, onDisputeCreated }: D
             await talentXApi.Legal.Disputes.create({
                 projectId,
                 reason,
-                description
+                description,
             });
-            toast.success("Dispute Filed", {
-                description: "The project has been frozen. Our support team will review this shortly."
+            toast.success('Dispute Filed', {
+                description:
+                    'The project has been frozen. Our support team will review this shortly.',
             });
             if (onDisputeCreated) onDisputeCreated();
             onClose();
         } catch (error: any) {
-            toast.error("Error", { description: error.message });
+            toast.error('Error', { description: error.message });
         } finally {
             setIsSubmitting(false);
         }
@@ -59,22 +60,33 @@ export function DisputeModal({ isOpen, onClose, projectId, onDisputeCreated }: D
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold">Raise a Dispute</h3>
-                                    <p className="text-xs text-red-500 font-medium">Funds will be frozen immediately</p>
+                                    <p className="text-xs text-red-500 font-medium">
+                                        Funds will be frozen immediately
+                                    </p>
                                 </div>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-red-100">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={onClose}
+                                className="rounded-full hover:bg-red-100"
+                            >
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>
 
                         <div className="p-8 space-y-6">
                             <div className="bg-red-50 p-4 rounded-xl border border-red-100 text-sm text-red-700 leading-relaxed">
-                                <span className="font-bold">Warning:</span> Filing a dispute will freeze all funds and milestones associated with this project. An admin will mediate to resolve the issue.
+                                <span className="font-bold">Warning:</span> Filing a dispute will
+                                freeze all funds and milestones associated with this project. An
+                                admin will mediate to resolve the issue.
                             </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-widest">Reason for Dispute</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-widest">
+                                        Reason for Dispute
+                                    </label>
                                     <input
                                         type="text"
                                         placeholder="e.g., Non-delivery of work, Unresponsive client"
@@ -84,7 +96,9 @@ export function DisputeModal({ isOpen, onClose, projectId, onDisputeCreated }: D
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-widest">Detailed Description</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-widest">
+                                        Detailed Description
+                                    </label>
                                     <textarea
                                         placeholder="Please provide specific details regarding the issue..."
                                         rows={4}
@@ -141,10 +155,16 @@ export function DisputeBanner({ isFrozen }: DisputeBannerProps) {
                 <div>
                     <h3 className="text-lg font-bold">Project Funds Frozen</h3>
                     <p className="text-white/80 text-sm mt-1 leading-relaxed max-w-2xl">
-                        This project is currently under dispute resolution. All payments and milestone releases are locked until an admin reaches a decision. Our support team is investigating.
+                        This project is currently under dispute resolution. All payments and
+                        milestone releases are locked until an admin reaches a decision. Our support
+                        team is investigating.
                     </p>
                     <div className="mt-4 flex gap-3">
-                        <Button variant="secondary" size="sm" className="bg-white text-red-600 hover:bg-gray-100 font-bold px-6">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="bg-white text-red-600 hover:bg-gray-100 font-bold px-6"
+                        >
                             Check Status
                         </Button>
                     </div>

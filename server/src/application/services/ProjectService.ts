@@ -14,12 +14,12 @@ export class ProjectService {
         projectRepo,
         notificationRepo,
         talentRepo,
-        auditLogService
+        auditLogService,
     }: {
-        projectRepo: IProjectRepository,
-        notificationRepo: INotificationRepository,
-        talentRepo: ITalentRepository,
-        auditLogService: AuditLogService
+        projectRepo: IProjectRepository;
+        notificationRepo: INotificationRepository;
+        talentRepo: ITalentRepository;
+        auditLogService: AuditLogService;
     }) {
         this.projectRepo = projectRepo;
         this.notificationRepo = notificationRepo;
@@ -32,28 +32,46 @@ export class ProjectService {
         if (!project) return null;
 
         const assigned_to = project.talent
-            ? { id: project.talent.id, userId: project.talent.user.id, name: project.talent.user.full_name, type: 'talent', image_url: project.talent.user.avatar_url }
+            ? {
+                  id: project.talent.id,
+                  userId: project.talent.user.id,
+                  name: project.talent.user.full_name,
+                  type: 'talent',
+                  image_url: project.talent.user.avatar_url,
+              }
             : project.team
-                ? { id: project.team.id, name: project.team.team_name, type: 'team', image_url: project.team.image_url }
-                : project.assignedAgency
-                    ? { id: project.assignedAgency.id, userId: project.assignedAgency.user.id, name: project.assignedAgency.agency_name, type: 'agency', image_url: project.assignedAgency.user.avatar_url }
-                    : (project.memberships && project.memberships.length > 0)
-                        ? {
-                            id: 'custom-team',
-                            name: `${project.memberships.length} Member Team`,
-                            type: 'team',
-                            image_url: project.memberships[0]?.talent?.user?.avatar_url
-                        }
-                        : undefined;
+              ? {
+                    id: project.team.id,
+                    name: project.team.team_name,
+                    type: 'team',
+                    image_url: project.team.image_url,
+                }
+              : project.assignedAgency
+                ? {
+                      id: project.assignedAgency.id,
+                      userId: project.assignedAgency.user.id,
+                      name: project.assignedAgency.agency_name,
+                      type: 'agency',
+                      image_url: project.assignedAgency.user.avatar_url,
+                  }
+                : project.memberships && project.memberships.length > 0
+                  ? {
+                        id: 'custom-team',
+                        name: `${project.memberships.length} Member Team`,
+                        type: 'team',
+                        image_url: project.memberships[0]?.talent?.user?.avatar_url,
+                    }
+                  : undefined;
 
-        const team_members = project.memberships?.map((m: any) => ({
-            id: m.talent.user.id,
-            full_name: m.talent.user.full_name,
-            role: m.role || m.talent.title,
-            avatar_url: m.talent.user.avatar_url,
-            rateType: m.rateType,
-            rateAmount: m.rateAmount
-        })) || [];
+        const team_members =
+            project.memberships?.map((m: any) => ({
+                id: m.talent.user.id,
+                full_name: m.talent.user.full_name,
+                role: m.role || m.talent.title,
+                avatar_url: m.talent.user.avatar_url,
+                rateType: m.rateType,
+                rateAmount: m.rateAmount,
+            })) || [];
 
         return {
             ...project,
@@ -61,7 +79,7 @@ export class ProjectService {
             team_members,
             clientReview: project.clientReview,
             clientRating: project.clientRating,
-            paymentStatus: project.paymentStatus
+            paymentStatus: project.paymentStatus,
         };
     }
 
@@ -69,7 +87,7 @@ export class ProjectService {
         const projectData = {
             ...dto,
             total_budget: dto.total_budget ? parseFloat(dto.total_budget.toString()) : undefined,
-            start_date: dto.start_date ? new Date(dto.start_date) : undefined
+            start_date: dto.start_date ? new Date(dto.start_date) : undefined,
         };
         const project = await this.projectRepo.create(projectData);
         return project;
@@ -85,33 +103,42 @@ export class ProjectService {
         } else {
             projects = await this.projectRepo.findAllByRole(userId, role);
         }
-        return projects.map(p => this.transformToDomain(p));
+        return projects.map((p) => this.transformToDomain(p));
     }
 
     async getProjectById(id: string) {
         const project = await this.projectRepo.findById(id);
-        if (!project) throw new Error("Project not found");
+        if (!project) throw new Error('Project not found');
         return this.transformToDomain(project);
     }
 
     async updateProject(adminId: string, id: string, dto: UpdateProjectDTO) {
         const project = await this.projectRepo.update(id, dto);
-        await this.auditLogService.logAction(adminId, 'UPDATE', 'Project', id, { name: project.name, updates: dto });
+        await this.auditLogService.logAction(adminId, 'UPDATE', 'Project', id, {
+            name: project.name,
+            updates: dto,
+        });
         return this.transformToDomain(project);
     }
 
     async deleteProject(adminId: string, id: string) {
         const project = await this.projectRepo.findById(id);
         const result = await this.projectRepo.delete(id);
-        await this.auditLogService.logAction(adminId, 'DELETE', 'Project', id, { name: project?.name });
+        await this.auditLogService.logAction(adminId, 'DELETE', 'Project', id, {
+            name: project?.name,
+        });
         return result;
     }
 
     async recordPayment(userId: string, dto: RecordPaymentDTO) {
-        const project = await this.projectRepo.findByIdForPayment(dto.projectId, dto.talentId, userId);
+        const project = await this.projectRepo.findByIdForPayment(
+            dto.projectId,
+            dto.talentId,
+            userId
+        );
 
         if (!project || project.clientId !== userId) {
-            throw new Error("Unauthorized or project not found");
+            throw new Error('Unauthorized or project not found');
         }
 
         const talent = await this.talentRepo.findById(dto.talentId);
@@ -121,14 +148,14 @@ export class ProjectService {
                 type: 'payment_received',
                 content: `You have received a payment of $${dto.amount} for ${project.name}!`,
                 userId: talent.userId, // Send to User ID associated with Talent
-                data: JSON.stringify({ projectId: dto.projectId, amount: dto.amount })
+                data: JSON.stringify({ projectId: dto.projectId, amount: dto.amount }),
             });
 
             // Simple admin notification mock - we don't have exact admin ID handling in legacy well defined
-            // Assuming admin just sees all or system notification. 
+            // Assuming admin just sees all or system notification.
             // Legacy cast prisma to any implies generic creation.
-            // We'll skip admin notification here for simplicity strictly matching legacy loose behavior if feasible, 
-            // OR implement a findAdmin helper. For now, let's notify the client as confirmation? 
+            // We'll skip admin notification here for simplicity strictly matching legacy loose behavior if feasible,
+            // OR implement a findAdmin helper. For now, let's notify the client as confirmation?
             // Or better, just return success message as legacy does.
         }
 
@@ -138,25 +165,25 @@ export class ProjectService {
     async completeProject(userId: string, id: string, dto: any) {
         const project = await this.projectRepo.findById(id);
         if (!project || project.clientId !== userId) {
-            throw new Error("Unauthorized or project not found");
+            throw new Error('Unauthorized or project not found');
         }
         return this.projectRepo.update(id, {
             status: 'completed',
             clientRating: dto.rating,
-            clientReview: dto.review
+            clientReview: dto.review,
         });
     }
 
     async releasePayment(adminId: string, projectId: string) {
         const project = await this.projectRepo.findById(projectId);
-        if (!project) throw new Error("Project not found");
+        if (!project) throw new Error('Project not found');
 
         if (project.status !== 'completed') {
-            throw new Error("Cannot release payment for an incomplete project");
+            throw new Error('Cannot release payment for an incomplete project');
         }
 
         const updatedProject = await this.projectRepo.update(projectId, {
-            paymentStatus: 'released'
+            paymentStatus: 'released',
         });
 
         // Notify Recipients (Primary + All Members)
@@ -184,11 +211,13 @@ export class ProjectService {
                 type: 'payment_released',
                 content: `Payment has been released for project: ${project.name}`,
                 userId: userId,
-                data: JSON.stringify({ projectId })
+                data: JSON.stringify({ projectId }),
             });
         }
 
-        await this.auditLogService.logAction(adminId, 'RELEASE_PAYMENT', 'Project', projectId, { name: project.name });
+        await this.auditLogService.logAction(adminId, 'RELEASE_PAYMENT', 'Project', projectId, {
+            name: project.name,
+        });
 
         return updatedProject;
     }

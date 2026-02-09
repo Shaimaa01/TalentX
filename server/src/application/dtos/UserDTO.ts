@@ -4,7 +4,7 @@ export const UpdateUserSchema = z.object({
     full_name: z.string().optional(),
 
     // Talent Specific (for now simpler to keep here or split?)
-    // Legacy userController handled everything via generic updates often, 
+    // Legacy userController handled everything via generic updates often,
     // but let's be specific.
     title: z.string().optional(),
     category: z.string().optional(),

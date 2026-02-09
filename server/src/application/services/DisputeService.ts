@@ -1,4 +1,3 @@
-
 import { IDisputeRepository } from '../../domain/repositories/IDisputeRepository';
 import { IProjectRepository } from '../../domain/repositories/IProjectRepository';
 import { Dispute } from '@prisma/client';
@@ -9,10 +8,10 @@ export class DisputeService {
 
     constructor({
         disputeRepo,
-        projectRepo
+        projectRepo,
     }: {
-        disputeRepo: IDisputeRepository,
-        projectRepo: IProjectRepository
+        disputeRepo: IDisputeRepository;
+        projectRepo: IProjectRepository;
     }) {
         this.disputeRepo = disputeRepo;
         this.projectRepo = projectRepo;
@@ -23,21 +22,26 @@ export class DisputeService {
         const dispute = await this.disputeRepo.create({
             ...data,
             initiatorId: userId,
-            status: 'open'
+            status: 'open',
         });
 
         // 2. Freeze Project Logic
         // We update the project paymentStatus to 'frozen' to lock funds
         if (data.projectId) {
             await this.projectRepo.update(data.projectId, {
-                paymentStatus: 'frozen'
+                paymentStatus: 'frozen',
             });
         }
 
         return dispute;
     }
 
-    async resolveDispute(disputeId: string, adminId: string, resolution: string, outcome: 'resolved' | 'dismissed'): Promise<Dispute> {
+    async resolveDispute(
+        disputeId: string,
+        adminId: string,
+        resolution: string,
+        outcome: 'resolved' | 'dismissed'
+    ): Promise<Dispute> {
         const dispute = await this.disputeRepo.findById(disputeId);
         if (!dispute) throw new Error('Dispute not found');
 
@@ -45,19 +49,19 @@ export class DisputeService {
         const updatedDispute = await this.disputeRepo.update(disputeId, {
             status: outcome,
             resolution,
-            adminId
+            adminId,
         });
 
         // 2. Unfreeze Project if resolved/dismissed
         // If dismissed -> return to previous state (assume pending/active)
         // If resolved -> usually means funds are handled manually or unlocked.
-        // For now, we set paymentStatus back to 'pending' to allow operations again, 
+        // For now, we set paymentStatus back to 'pending' to allow operations again,
         // or 'released' if the resolution was to release funds.
         // We'll default to 'pending' (active) so work can resume or standard payment flow can continue.
 
         if (dispute.projectId) {
             await this.projectRepo.update(dispute.projectId, {
-                paymentStatus: 'pending'
+                paymentStatus: 'pending',
             });
         }
 

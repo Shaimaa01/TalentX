@@ -17,7 +17,9 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
             className="relative group cursor-pointer"
         >
             <div className="relative h-[500px] md:h-[600px] rounded-[40px] overflow-hidden">
-                <Link href={`/blog/${post.slug}`}> {/* Wrapped image container with Link */}
+                <Link href={`/blog/${post.slug}`}>
+                    {' '}
+                    {/* Wrapped image container with Link */}
                     <img
                         src={post.image}
                         alt={post.title}
@@ -32,8 +34,12 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
                             Featured Article
                         </span>
 
-                        <Link href={`/blog/${post.slug}`}> {/* Wrapped title with Link */}
-                            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1] hover:text-[#204ecf] transition-colors"> {/* Added hover style from snippet */}
+                        <Link href={`/blog/${post.slug}`}>
+                            {' '}
+                            {/* Wrapped title with Link */}
+                            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1] hover:text-[#204ecf] transition-colors">
+                                {' '}
+                                {/* Added hover style from snippet */}
                                 {post.title}
                             </h2>
                         </Link>
@@ -43,9 +49,12 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
                         </p>
 
                         <div className="flex flex-wrap items-center gap-6">
-                            <Link href={`/blog/${post.slug}`}> {/* Wrapped button with Link */}
+                            <Link href={`/blog/${post.slug}`}>
+                                {' '}
+                                {/* Wrapped button with Link */}
                                 <Button className="px-8 py-4 bg-[#204ecf] text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-[#1a3fb3] transition-colors group/btn">
-                                    Read Featured Story {/* Changed button text as per instruction */}
+                                    Read Featured Story{' '}
+                                    {/* Changed button text as per instruction */}
                                     <ArrowRight className="w-5 h-5 transition-transform group-hover/btn:translate-x-1" />
                                 </Button>
                             </Link>

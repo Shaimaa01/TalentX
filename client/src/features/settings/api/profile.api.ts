@@ -1,6 +1,6 @@
-import { apiClient } from "@/shared/api/client";
-import { Profile } from "../model/types";
-import { User } from "@/features/auth/api/types";
+import { apiClient } from '@/shared/api/client';
+import { Profile } from '../model/types';
+import { User } from '@/features/auth/api/types';
 
 export const profileApi = {
     getMyProfile: async (user: User): Promise<Profile | null> => {
@@ -19,10 +19,10 @@ export const profileApi = {
             return {
                 ...response.data,
                 full_name: user.full_name,
-                email: user.email
+                email: user.email,
             };
         } catch (error) {
-            console.warn("Profile not found or fetch failed", error);
+            console.warn('Profile not found or fetch failed', error);
             return null;
         }
     },
@@ -34,10 +34,10 @@ export const profileApi = {
         } else if (role === 'agency') {
             endpoint = `/agencies/${id}`;
         } else {
-            throw new Error("Invalid role for profile update");
+            throw new Error('Invalid role for profile update');
         }
 
         const response = await apiClient.patch(endpoint, data);
         return response.data;
-    }
+    },
 };

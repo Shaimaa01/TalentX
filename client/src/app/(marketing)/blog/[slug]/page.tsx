@@ -6,7 +6,16 @@ import { useParams } from 'next/navigation';
 import { talentXApi } from '@/shared/api/talentXApi';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/shared/components/ui/button';
-import { Calendar, Clock, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin } from 'lucide-react';
+import {
+    Calendar,
+    Clock,
+    User,
+    ArrowLeft,
+    Share2,
+    Facebook,
+    Twitter,
+    Linkedin,
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function BlogPostDetail() {
@@ -14,7 +23,7 @@ export default function BlogPostDetail() {
 
     const { data: post, isLoading } = useQuery({
         queryKey: ['blog-post', slug],
-        queryFn: () => talentXApi.entities.CMS.BlogPost.getBySlug(slug as string)
+        queryFn: () => talentXApi.entities.CMS.BlogPost.getBySlug(slug as string),
     });
 
     if (isLoading) {
@@ -52,7 +61,10 @@ export default function BlogPostDetail() {
         <main className="min-h-screen bg-white selection:bg-[#204ecf] selection:text-white pb-32">
             {/* Header / Meta */}
             <div className="max-w-4xl mx-auto px-4 pt-16 lg:pt-24 pb-12">
-                <Link href="/blog" className="inline-flex items-center gap-2 text-gray-500 hover:text-[#204ecf] font-bold text-sm mb-12 transition-colors group">
+                <Link
+                    href="/blog"
+                    className="inline-flex items-center gap-2 text-gray-500 hover:text-[#204ecf] font-bold text-sm mb-12 transition-colors group"
+                >
                     <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                     Back to Insights
                 </Link>
@@ -77,8 +89,12 @@ export default function BlogPostDetail() {
                             <User className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase font-bold tracking-widest text-gray-400 not-italic">Written By</p>
-                            <p className="text-sm font-bold text-gray-900 not-italic">{post.author}</p>
+                            <p className="text-[10px] uppercase font-bold tracking-widest text-gray-400 not-italic">
+                                Written By
+                            </p>
+                            <p className="text-sm font-bold text-gray-900 not-italic">
+                                {post.author}
+                            </p>
                         </div>
                     </div>
 
@@ -87,12 +103,16 @@ export default function BlogPostDetail() {
                             <Calendar className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase font-bold tracking-widest text-gray-400 not-italic">Published On</p>
+                            <p className="text-[10px] uppercase font-bold tracking-widest text-gray-400 not-italic">
+                                Published On
+                            </p>
                             <p className="text-sm font-bold text-gray-900 not-italic">
-                                {new Date(post.createdAt || (post as any).date || '').toLocaleDateString('en-US', {
+                                {new Date(
+                                    post.createdAt || (post as any).date || ''
+                                ).toLocaleDateString('en-US', {
                                     month: 'long',
                                     day: 'numeric',
-                                    year: 'numeric'
+                                    year: 'numeric',
                                 })}
                             </p>
                         </div>
@@ -103,11 +123,7 @@ export default function BlogPostDetail() {
             {/* Featured Image */}
             <div className="max-w-6xl mx-auto px-4 mb-20">
                 <div className="aspect-[21/9] rounded-[40px] overflow-hidden shadow-2xl relative">
-                    <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-full object-cover"
-                    />
+                    <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
             </div>
@@ -137,19 +153,38 @@ export default function BlogPostDetail() {
                 <article className="prose prose-lg lg:prose-xl max-w-none text-gray-600 leading-relaxed font-medium blog-content">
                     <ReactMarkdown
                         components={{
-                            h1: ({ children }) => <h2 className="text-3xl font-black text-[#1a1a2e] mt-12 mb-6 tracking-tight">{children}</h2>,
-                            h2: ({ children }) => <h2 className="text-2xl font-black text-[#1a1a2e] mt-10 mb-5 tracking-tight">{children}</h2>,
-                            h3: ({ children }) => <h3 className="text-xl font-black text-[#1a1a2e] mt-8 mb-4 tracking-tight">{children}</h3>,
+                            h1: ({ children }) => (
+                                <h2 className="text-3xl font-black text-[#1a1a2e] mt-12 mb-6 tracking-tight">
+                                    {children}
+                                </h2>
+                            ),
+                            h2: ({ children }) => (
+                                <h2 className="text-2xl font-black text-[#1a1a2e] mt-10 mb-5 tracking-tight">
+                                    {children}
+                                </h2>
+                            ),
+                            h3: ({ children }) => (
+                                <h3 className="text-xl font-black text-[#1a1a2e] mt-8 mb-4 tracking-tight">
+                                    {children}
+                                </h3>
+                            ),
                             p: ({ children }) => <p className="mb-6 leading-relaxed">{children}</p>,
-                            ul: ({ children }) => <ul className="list-disc pl-6 mb-8 space-y-4">{children}</ul>,
-                            ol: ({ children }) => <ol className="list-decimal pl-6 mb-8 space-y-4">{children}</ol>,
+                            ul: ({ children }) => (
+                                <ul className="list-disc pl-6 mb-8 space-y-4">{children}</ul>
+                            ),
+                            ol: ({ children }) => (
+                                <ol className="list-decimal pl-6 mb-8 space-y-4">{children}</ol>
+                            ),
                             blockquote: ({ children }) => (
                                 <blockquote className="border-l-4 border-[#204ecf] pl-6 py-2 my-10 bg-[#f0f4ff]/50 rounded-r-2xl italic text-gray-900 font-bold text-xl">
                                     {children}
                                 </blockquote>
                             ),
                             a: ({ href, children }) => (
-                                <a href={href} className="text-[#204ecf] font-bold border-b-2 border-transparent hover:border-[#204ecf] transition-all">
+                                <a
+                                    href={href}
+                                    className="text-[#204ecf] font-bold border-b-2 border-transparent hover:border-[#204ecf] transition-all"
+                                >
                                     {children}
                                 </a>
                             ),
@@ -167,20 +202,36 @@ export default function BlogPostDetail() {
                         </div>
                         <div>
                             <p className="text-sm font-black text-gray-900">{post.author}</p>
-                            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Thought Leader at TalentX</p>
+                            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                                Thought Leader at TalentX
+                            </p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mr-2">Share this story</span>
+                        <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mr-2">
+                            Share this story
+                        </span>
                         <div className="flex gap-2">
-                            <Button variant="outline" size="icon" className="rounded-full shadow-sm hover:text-[#204ecf]">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="rounded-full shadow-sm hover:text-[#204ecf]"
+                            >
                                 <Facebook className="w-4 h-4" />
                             </Button>
-                            <Button variant="outline" size="icon" className="rounded-full shadow-sm hover:text-[#204ecf]">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="rounded-full shadow-sm hover:text-[#204ecf]"
+                            >
                                 <Twitter className="w-4 h-4" />
                             </Button>
-                            <Button variant="outline" size="icon" className="rounded-full shadow-sm hover:text-[#204ecf]">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="rounded-full shadow-sm hover:text-[#204ecf]"
+                            >
                                 <Linkedin className="w-4 h-4" />
                             </Button>
                         </div>

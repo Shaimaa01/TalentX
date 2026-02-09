@@ -7,19 +7,20 @@ dotenv.config();
 import http from "http";
 import cookieParser from "cookie-parser";
 
-
 import * as Router from "./interface/routes/indexRouter";
 
-import { maintenanceMiddleware} from "./interface/middleware/MaintenanceMiddleware";
+import { maintenanceMiddleware } from "./interface/middleware/MaintenanceMiddleware";
 
 import { setupWebSocketServer } from "./infrastructure/websocket/WebSocketServer";
+
+import { errorMiddleware } from "./interface/middleware/ErrorMiddleware";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",").map((o) =>
-      o.trim().replace(/^["']|["']$/g, ""),
+      o.trim().replace(/^["']|["']$/g, "")
     )
   : ["http://localhost:3000", "http://localhost:3001"];
 
@@ -27,7 +28,7 @@ app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
-  }),
+  })
 );
 app.use(express.json());
 app.use(cookieParser());
@@ -57,7 +58,9 @@ const cmsController = container.resolve("cmsController");
 const auditLogController = container.resolve("auditLogController");
 const contractController = container.resolve("contractController");
 const disputeController = container.resolve("disputeController");
-const workVerificationController = container.resolve("workVerificationController");
+const workVerificationController = container.resolve(
+  "workVerificationController"
+);
 const systemSettingController = container.resolve("systemSettingController");
 
 const systemSettingService = container.resolve("systemSettingService");
@@ -68,11 +71,10 @@ const userRepo = container.resolve("userRepo");
 // (Placed after DI so services are available)
 app.use(maintenanceMiddleware(systemSettingService));
 
-
 // --- Routes ---
 app.use(
   "/api/applications",
-  Router.createApplicationRoutes(applicationController),
+  Router.createApplicationRoutes(applicationController)
 );
 app.use("/api/auth", Router.createAuthRoutes(authController));
 app.use("/api/users", Router.createUserRoutes(userController));
@@ -82,35 +84,37 @@ app.use("/api/projects", Router.createProjectRoutes(projectController));
 app.use("/api/tasks", Router.createTaskRoutes(taskController));
 app.use(
   "/api/hire-requests",
-  Router.createHireRequestRoutes(hireRequestController),
+  Router.createHireRequestRoutes(hireRequestController)
 );
 app.use("/api/teams", Router.createTeamRoutes(teamController));
 app.use("/api/messages", Router.createMessageRoutes(messageController));
 app.use(
   "/api/notifications",
-  Router.createNotificationRoutes(notificationController),
+  Router.createNotificationRoutes(notificationController)
 );
 app.use("/api/cms", Router.createCMSRoutes(cmsController));
 app.use(
   "/api/admin/audit-logs",
-  Router.createAuditLogRoutes(auditLogController),
+  Router.createAuditLogRoutes(auditLogController)
 );
 app.use("/api/contracts", Router.createContractRoutes(contractController));
 app.use("/api/disputes", Router.createDisputeRoutes(disputeController));
 app.use(
   "/api/work-verification",
-  Router.setupWorkVerificationRoutes(workVerificationController),
+  Router.setupWorkVerificationRoutes(workVerificationController)
 );
 app.use(
   "/api/settings",
-  Router.createSystemSettingRoutes(systemSettingController),
+  Router.createSystemSettingRoutes(systemSettingController)
 );
 
 // Legacy compatibility for notifications
 app.use(
   "/api/applications/notifications",
-  Router.createNotificationRoutes(notificationController),
+  Router.createNotificationRoutes(notificationController)
 );
+
+app.use(errorMiddleware);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok", architecture: "Layered Clean Architecture" });

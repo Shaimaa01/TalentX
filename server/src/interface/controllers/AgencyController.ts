@@ -43,7 +43,10 @@ export class AgencyController {
                 return res.status(400).json({ errors: (validationResult.error as any).errors });
             }
 
-            const updatedAgency = await this.agencyService.updateAgency(req.params.id, validationResult.data);
+            const updatedAgency = await this.agencyService.updateAgency(
+                req.params.id,
+                validationResult.data
+            );
             res.json(updatedAgency);
         } catch (error: any) {
             res.status(500).json({ message: error.message || 'Error updating agency' });

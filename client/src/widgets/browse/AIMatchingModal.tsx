@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, X, Sparkles, Phone, Video, Mic, MicOff, VideoOff } from 'lucide-react';
 import { talentXApi } from '@/shared/api/talentXApi';
@@ -25,17 +25,23 @@ interface AIMatchingModalProps {
     mode?: 'talent' | 'team' | 'agency';
 }
 
-export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AIMatchingModalProps) {
+export default function AIMatchingModal({
+    isOpen,
+    onClose,
+    mode = 'talent',
+}: AIMatchingModalProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [callType, setCallType] = useState<'audio' | 'video' | null>(null);
-    const [callStatus, setCallStatus] = useState<'initiating' | 'connected' | 'ended'>('initiating');
+    const [callStatus, setCallStatus] = useState<'initiating' | 'connected' | 'ended'>(
+        'initiating'
+    );
     const [callDuration, setCallDuration] = useState(0);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
@@ -44,8 +50,8 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                 {
                     id: '1',
                     sender: 'ai',
-                    content: `Hello! I'm your AI Concierge. Tell me what kind of ${mode} you're looking for, and I'll find the perfect match.`
-                }
+                    content: `Hello! I'm your AI Concierge. Tell me what kind of ${mode} you're looking for, and I'll find the perfect match.`,
+                },
             ]);
             scrollToBottom();
         }
@@ -59,29 +65,31 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
         let interval: NodeJS.Timeout;
         if (callType && callStatus === 'connected') {
             interval = setInterval(() => {
-                setCallDuration(prev => prev + 1);
+                setCallDuration((prev) => prev + 1);
 
                 // Simulate live suggestions in chat during call
                 if (callDuration === 5) {
-                    getMatches("developer").then(matches => {
+                    getMatches('developer').then((matches) => {
                         const aiMessage: Message = {
                             id: Date.now().toString(),
                             sender: 'ai',
-                            content: "I've found a great developer for you based on our conversation so far.",
-                            matches: matches.slice(0, 1)
+                            content:
+                                "I've found a great developer for you based on our conversation so far.",
+                            matches: matches.slice(0, 1),
                         };
-                        setMessages(prev => [...prev, aiMessage]);
+                        setMessages((prev) => [...prev, aiMessage]);
                     });
                 }
                 if (callDuration === 12) {
-                    getMatches("designer").then(matches => {
+                    getMatches('designer').then((matches) => {
                         const aiMessage: Message = {
                             id: Date.now().toString(),
                             sender: 'ai',
-                            content: "I also found a designer who might be a good fit for the UI/UX part.",
-                            matches: matches.slice(0, 1)
+                            content:
+                                'I also found a designer who might be a good fit for the UI/UX part.',
+                            matches: matches.slice(0, 1),
                         };
-                        setMessages(prev => [...prev, aiMessage]);
+                        setMessages((prev) => [...prev, aiMessage]);
                     });
                 }
             }, 1000);
@@ -118,9 +126,12 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
             const title = e.title || e.specialization || '';
             const skills = e.skills || e.services || [];
 
-            return name.toLowerCase().includes(query.toLowerCase()) ||
+            return (
+                name.toLowerCase().includes(query.toLowerCase()) ||
                 title.toLowerCase().includes(query.toLowerCase()) ||
-                (Array.isArray(skills) && skills.some((s: string) => query.toLowerCase().includes(s.toLowerCase())));
+                (Array.isArray(skills) &&
+                    skills.some((s: string) => query.toLowerCase().includes(s.toLowerCase())))
+            );
         });
     };
 
@@ -133,23 +144,24 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
         const callMessage: Message = {
             id: Date.now().toString(),
             sender: 'user',
-            content: `[Completed ${callType === 'audio' ? 'Audio' : 'Video'} Call]`
+            content: `[Completed ${callType === 'audio' ? 'Audio' : 'Video'} Call]`,
         };
-        setMessages(prev => [...prev, callMessage]);
+        setMessages((prev) => [...prev, callMessage]);
         setIsTyping(true);
 
         // Simulate AI processing after call
         setTimeout(async () => {
-            const matches = await getMatches("developer"); // Mock context from call
+            const matches = await getMatches('developer'); // Mock context from call
             const displayMatches = matches.slice(0, 2);
 
             const aiMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 sender: 'ai',
-                content: "Thanks for explaining your requirements over the call. Based on our conversation, I've found these candidates that seem like a great fit:",
-                matches: displayMatches
+                content:
+                    "Thanks for explaining your requirements over the call. Based on our conversation, I've found these candidates that seem like a great fit:",
+                matches: displayMatches,
             };
-            setMessages(prev => [...prev, aiMessage]);
+            setMessages((prev) => [...prev, aiMessage]);
             setIsTyping(false);
         }, 2000);
     };
@@ -161,10 +173,10 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
         const userMessage: Message = {
             id: Date.now().toString(),
             sender: 'user',
-            content: inputValue
+            content: inputValue,
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        setMessages((prev) => [...prev, userMessage]);
         setInputValue('');
         setIsTyping(true);
 
@@ -172,27 +184,30 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
         setTimeout(async () => {
             const matches = await getMatches(userMessage.content);
 
-            let aiResponseContent = "";
+            let aiResponseContent = '';
             if (matches.length > 0) {
                 aiResponseContent = `I found ${matches.length} ${mode}(s) that match your requirements. Here are the top matches:`;
             } else {
-                aiResponseContent = "I couldn't find an exact match right now, but I can help you broaden your search. Could you specify more details?";
+                aiResponseContent =
+                    "I couldn't find an exact match right now, but I can help you broaden your search. Could you specify more details?";
             }
 
             const aiMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 sender: 'ai',
                 content: aiResponseContent,
-                matches: matches.length > 0 ? matches.slice(0, 2) : undefined
+                matches: matches.length > 0 ? matches.slice(0, 2) : undefined,
             };
 
-            setMessages(prev => [...prev, aiMessage]);
+            setMessages((prev) => [...prev, aiMessage]);
             setIsTyping(false);
         }, 1500);
     };
 
-    const getEntityName = (entity: any) => entity.full_name || entity.team_name || entity.agency_name;
-    const getEntityTitle = (entity: any) => entity.title || entity.specialization || (entity.services ? entity.services[0] : '');
+    const getEntityName = (entity: any) =>
+        entity.full_name || entity.team_name || entity.agency_name;
+    const getEntityTitle = (entity: any) =>
+        entity.title || entity.specialization || (entity.services ? entity.services[0] : '');
     const getEntityImage = (entity: any) => entity.image_url;
     const getEntityRate = (entity: any) => entity.hourly_rate || entity.hourly_rate_range;
     const getEntityProfileLink = (entity: any) => {
@@ -239,7 +254,12 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                         >
                             <Video className="w-5 h-5" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/10">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={onClose}
+                            className="text-white hover:bg-white/10"
+                        >
                             <X className="w-5 h-5" />
                         </Button>
                     </div>
@@ -268,9 +288,13 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                                     </div>
 
                                     <div className="text-center">
-                                        <h3 className="text-xl font-bold mb-1">TalentX AI Concierge</h3>
+                                        <h3 className="text-xl font-bold mb-1">
+                                            TalentX AI Concierge
+                                        </h3>
                                         <p className="text-xs text-gray-400">
-                                            {callStatus === 'initiating' ? 'Connecting...' : 'Listening to your requirements...'}
+                                            {callStatus === 'initiating'
+                                                ? 'Connecting...'
+                                                : 'Listening to your requirements...'}
                                         </p>
                                     </div>
 
@@ -284,7 +308,7 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                                                     transition={{
                                                         repeat: Infinity,
                                                         duration: 1,
-                                                        delay: i * 0.1
+                                                        delay: i * 0.1,
                                                     }}
                                                 />
                                             ))}
@@ -292,11 +316,19 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                                     )}
 
                                     <div className="flex items-center gap-4 mt-4">
-                                        <Button variant="outline" size="icon" className="w-10 h-10 rounded-full border-gray-600 hover:bg-gray-800 text-white">
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            className="w-10 h-10 rounded-full border-gray-600 hover:bg-gray-800 text-white"
+                                        >
                                             <Mic className="w-4 h-4" />
                                         </Button>
                                         {callType === 'video' && (
-                                            <Button variant="outline" size="icon" className="w-10 h-10 rounded-full border-gray-600 hover:bg-gray-800 text-white">
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                className="w-10 h-10 rounded-full border-gray-600 hover:bg-gray-800 text-white"
+                                            >
                                                 <VideoOff className="w-4 h-4" />
                                             </Button>
                                         )}
@@ -317,16 +349,33 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                         <div className="flex-1 overflow-y-auto p-6">
                             <div className="space-y-6">
                                 {messages.map((msg) => (
-                                    <div key={msg.id} className={`flex flex-col gap-2 ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                                        <div className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.sender === 'ai' ? 'bg-[#00c853]' : 'bg-[#204ecf]'
-                                                }`}>
-                                                {msg.sender === 'ai' ? <Bot className="w-5 h-5 text-white" /> : <User className="w-5 h-5 text-white" />}
+                                    <div
+                                        key={msg.id}
+                                        className={`flex flex-col gap-2 ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
+                                    >
+                                        <div
+                                            className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
+                                        >
+                                            <div
+                                                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                                    msg.sender === 'ai'
+                                                        ? 'bg-[#00c853]'
+                                                        : 'bg-[#204ecf]'
+                                                }`}
+                                            >
+                                                {msg.sender === 'ai' ? (
+                                                    <Bot className="w-5 h-5 text-white" />
+                                                ) : (
+                                                    <User className="w-5 h-5 text-white" />
+                                                )}
                                             </div>
-                                            <div className={`p-3 rounded-2xl text-sm ${msg.sender === 'ai'
-                                                ? 'bg-white text-gray-800 rounded-tl-none border border-gray-200 shadow-sm'
-                                                : 'bg-[#204ecf] text-white rounded-tr-none shadow-sm'
-                                                }`}>
+                                            <div
+                                                className={`p-3 rounded-2xl text-sm ${
+                                                    msg.sender === 'ai'
+                                                        ? 'bg-white text-gray-800 rounded-tl-none border border-gray-200 shadow-sm'
+                                                        : 'bg-[#204ecf] text-white rounded-tr-none shadow-sm'
+                                                }`}
+                                            >
                                                 {msg.content}
                                             </div>
                                         </div>
@@ -335,17 +384,36 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                                         {msg.matches && (
                                             <div className="ml-11 grid gap-3 w-full max-w-[85%]">
                                                 {msg.matches.map((entity: any) => (
-                                                    <div key={entity.id} className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex gap-3 items-center hover:border-[#204ecf] transition-colors cursor-pointer group">
-                                                        <img src={getEntityImage(entity)} className="w-12 h-12 rounded-full object-cover" alt={getEntityName(entity)} />
+                                                    <div
+                                                        key={entity.id}
+                                                        className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex gap-3 items-center hover:border-[#204ecf] transition-colors cursor-pointer group"
+                                                    >
+                                                        <img
+                                                            src={getEntityImage(entity)}
+                                                            className="w-12 h-12 rounded-full object-cover"
+                                                            alt={getEntityName(entity)}
+                                                        />
                                                         <div className="flex-1 min-w-0">
-                                                            <h4 className="font-bold text-[#1a1a2e] text-sm truncate">{getEntityName(entity)}</h4>
-                                                            <p className="text-xs text-gray-500 truncate">{getEntityTitle(entity)}</p>
+                                                            <h4 className="font-bold text-[#1a1a2e] text-sm truncate">
+                                                                {getEntityName(entity)}
+                                                            </h4>
+                                                            <p className="text-xs text-gray-500 truncate">
+                                                                {getEntityTitle(entity)}
+                                                            </p>
                                                             <div className="flex items-center gap-1 mt-1">
-                                                                <span className="text-xs font-bold text-[#00c853]">${getEntityRate(entity)}/hr</span>
+                                                                <span className="text-xs font-bold text-[#00c853]">
+                                                                    ${getEntityRate(entity)}/hr
+                                                                </span>
                                                             </div>
                                                         </div>
                                                         <Link href={getEntityProfileLink(entity)}>
-                                                            <Button size="sm" variant="outline" className="text-xs h-8 group-hover:bg-[#204ecf] group-hover:text-white transition-colors">View</Button>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                className="text-xs h-8 group-hover:bg-[#204ecf] group-hover:text-white transition-colors"
+                                                            >
+                                                                View
+                                                            </Button>
                                                         </Link>
                                                     </div>
                                                 ))}
@@ -359,9 +427,18 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                                             <Bot className="w-5 h-5 text-white" />
                                         </div>
                                         <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-200 shadow-sm flex items-center gap-1">
-                                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                            <span
+                                                className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                                                style={{ animationDelay: '0ms' }}
+                                            ></span>
+                                            <span
+                                                className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                                                style={{ animationDelay: '150ms' }}
+                                            ></span>
+                                            <span
+                                                className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                                                style={{ animationDelay: '300ms' }}
+                                            ></span>
                                         </div>
                                     </div>
                                 )}
@@ -379,7 +456,11 @@ export default function AIMatchingModal({ isOpen, onClose, mode = 'talent' }: AI
                                     className="flex-1 bg-gray-50 border-gray-200 focus:bg-white transition-all"
                                     autoFocus
                                 />
-                                <Button type="submit" disabled={!inputValue.trim() || isTyping} className="bg-[#204ecf] hover:bg-[#1a3da8] shadow-lg shadow-blue-200">
+                                <Button
+                                    type="submit"
+                                    disabled={!inputValue.trim() || isTyping}
+                                    className="bg-[#204ecf] hover:bg-[#1a3da8] shadow-lg shadow-blue-200"
+                                >
                                     <Send className="w-4 h-4" />
                                 </Button>
                             </form>

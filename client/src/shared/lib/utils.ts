@@ -1,16 +1,20 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
+    return twMerge(clsx(inputs));
 }
 
 export function createPageUrl(page: string): string {
     if (page === 'Home') return '/';
-    // Handle query params if present (e.g. BrowseTalent?category=...)
-    const [path, query] = page.split('?');
+
+    // Handle query params and fragments
+    const [pagePath, query] = page.split('?');
+    const [path, fragment] = pagePath.split('#');
+
     // Convert PascalCase to kebab-case
-    const kebabPath = path.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+    const kebabPath =
+        path === 'Home' ? '' : path.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 
     // Manual overrides for special cases
     const overrides: Record<string, string> = {
@@ -18,6 +22,6 @@ export function createPageUrl(page: string): string {
         'why-talent-x': '/why-talentx',
     };
 
-    const finalPath = overrides[kebabPath] || '/' + kebabPath;
-    return finalPath + (query ? `?${query}` : '');
+    const finalPath = overrides[kebabPath] || (kebabPath ? '/' + kebabPath : '/');
+    return finalPath + (fragment ? `#${fragment}` : '') + (query ? `?${query}` : '');
 }

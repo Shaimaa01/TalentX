@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Extend Express Request
 declare global {
@@ -21,7 +21,7 @@ export interface AuthRequest extends Request {
         id: string;
         email: string;
         role: string;
-    }
+    };
 }
 
 export class JWTService {
@@ -43,8 +43,8 @@ export class JWTService {
             return req.cookies.access_token;
         }
         // Bearer fallback
-        if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
-            return req.headers.authorization.split(" ")[1];
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+            return req.headers.authorization.split(' ')[1];
         }
         return null;
     }
@@ -53,12 +53,12 @@ export class JWTService {
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     const token = JWTService.extractToken(req);
     if (!token) {
-        return res.status(401).json({ message: "Access denied. No token provided." });
+        return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
 
     const decoded = JWTService.decodeToken(token);
     if (!decoded) {
-        return res.status(401).json({ message: "Invalid or expired token" });
+        return res.status(401).json({ message: 'Invalid or expired token' });
     }
 
     req.user = decoded as any;
@@ -68,7 +68,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 export const requireRole = (roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
         if (!req.user || !roles.includes(req.user.role)) {
-            return res.status(403).json({ message: "Forbidden: Insufficient permissions" });
+            return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
         }
         next();
     };

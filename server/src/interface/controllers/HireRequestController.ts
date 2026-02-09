@@ -38,7 +38,9 @@ export class HireRequestController {
             const request = await this.hireRequestService.updateStatus(id, status);
             res.json(request);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error updating hire request status' });
+            res.status(500).json({
+                message: error.message || 'Error updating hire request status',
+            });
         }
     };
 }

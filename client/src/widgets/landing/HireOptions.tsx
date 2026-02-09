@@ -2,58 +2,61 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from "@/shared/components/ui/button";
+import { Button } from '@/shared/components/ui/button';
 import { User, Users, Building2, CheckCircle2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { createPageUrl } from '@/shared/lib/utils';
 
 const hiringOptions = [
     {
-        title: "Individual Talent",
-        description: "Scale your internal capabilities with elite subject matter experts and specialized contractors.",
+        title: 'Individual Talent',
+        description:
+            'Scale your internal capabilities with elite subject matter experts and specialized contractors.',
         icon: User,
-        color: "#204ecf",
-        lightColor: "rgba(32, 78, 207, 0.05)",
+        color: '#204ecf',
+        lightColor: 'rgba(32, 78, 207, 0.05)',
         features: [
-            "Top 3% Technical Assessment",
-            "Flexible Hourly or Fixed Rates",
-            "Rapid Onboarding (48-72h)",
-            "Integrated Time Tracking"
+            'Top 3% Technical Assessment',
+            'Flexible Hourly or Fixed Rates',
+            'Rapid Onboarding (48-72h)',
+            'Integrated Time Tracking',
         ],
         link: createPageUrl('BrowseTalent'),
-        buttonLabel: "Hire Individual"
+        buttonLabel: 'Hire Individual',
     },
     {
-        title: "Managed Teams",
-        description: "Deploy pre-vetted, high-performance teams with established delivery workflows and history.",
+        title: 'Managed Teams',
+        description:
+            'Deploy pre-vetted, high-performance teams with established delivery workflows and history.',
         icon: Users,
-        color: "#00cc83",
-        lightColor: "rgba(0, 204, 131, 0.05)",
+        color: '#00cc83',
+        lightColor: 'rgba(0, 204, 131, 0.05)',
         features: [
-            "Cohesive Delivery Units",
-            "Tech Lead & PM Included",
-            "Outcome-Based Billing",
-            "Full Lifecycle Ownership"
+            'Cohesive Delivery Units',
+            'Tech Lead & PM Included',
+            'Outcome-Based Billing',
+            'Full Lifecycle Ownership',
         ],
         link: createPageUrl('BrowseTeams'),
-        buttonLabel: "Deploy Team",
-        featured: true
+        buttonLabel: 'Deploy Team',
+        featured: true,
     },
     {
-        title: "Certified Agencies",
-        description: "Partner with industry-leading agencies for end-to-end strategic projects and institutional support.",
+        title: 'Certified Agencies',
+        description:
+            'Partner with industry-leading agencies for end-to-end strategic projects and institutional support.',
         icon: Building2,
-        color: "#7c3aed",
-        lightColor: "rgba(124, 58, 237, 0.05)",
+        color: '#7c3aed',
+        lightColor: 'rgba(124, 58, 237, 0.05)',
         features: [
-            "End-to-End Project Execution",
-            "Service Level Guarantees",
-            "Scalable Resource Pools",
-            "Enterprise-Grade Compliance"
+            'End-to-End Project Execution',
+            'Service Level Guarantees',
+            'Scalable Resource Pools',
+            'Enterprise-Grade Compliance',
         ],
         link: createPageUrl('BrowseAgencies'),
-        buttonLabel: "Partner with Agency"
-    }
+        buttonLabel: 'Partner with Agency',
+    },
 ];
 
 export default function HireOptions() {
@@ -76,10 +79,12 @@ export default function HireOptions() {
                             Deployment Models
                         </span>
                         <h2 className="text-4xl sm:text-5xl font-bold text-[#1a1a2e] mb-6 leading-[1.1]">
-                            Flexible Hiring for <span className="text-[#204ecf]">Startups, SMEs & Enterprises</span>
+                            Flexible Hiring for{' '}
+                            <span className="text-[#204ecf]">Startups, SMEs & Enterprises</span>
                         </h2>
                         <p className="text-xl text-gray-500 leading-relaxed">
-                            Select the engagement model that perfectly aligns with your technical requirements and operational velocity.
+                            Select the engagement model that perfectly aligns with your technical
+                            requirements and operational velocity.
                         </p>
                     </motion.div>
 
@@ -89,7 +94,10 @@ export default function HireOptions() {
                         viewport={{ once: true }}
                     >
                         <Link href="/global-map">
-                            <Button variant="outline" className="h-14 px-8 border-gray-200 text-[#1a1a2e] bg-white hover:bg-gray-50 rounded-xl transition-all shadow-sm group">
+                            <Button
+                                variant="outline"
+                                className="h-14 px-8 border-gray-200 text-[#1a1a2e] bg-white hover:bg-gray-50 rounded-xl transition-all shadow-sm group"
+                            >
                                 Explore Talent Map
                                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Button>
@@ -105,10 +113,11 @@ export default function HireOptions() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1, duration: 0.5 }}
-                            className={`relative group bg-white p-8 sm:p-10 rounded-lg border transition-all duration-500 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] hover:translate-y-[-4px] text-left ${option.featured
-                                ? 'border-[#204ecf]/20 ring-1 ring-[#204ecf]/5'
-                                : 'border-gray-100 hover:border-gray-200'
-                                }`}
+                            className={`relative group bg-white p-8 sm:p-10 rounded-lg border transition-all duration-500 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] hover:translate-y-[-4px] text-left ${
+                                option.featured
+                                    ? 'border-[#204ecf]/20 ring-1 ring-[#204ecf]/5'
+                                    : 'border-gray-100 hover:border-gray-200'
+                            }`}
                         >
                             {option.featured && (
                                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#204ecf] text-white text-[10px] font-bold uppercase tracking-widest py-1.5 px-4 rounded-full shadow-lg shadow-blue-200">
@@ -124,7 +133,7 @@ export default function HireOptions() {
                                     transition={{
                                         duration: 4,
                                         repeat: Infinity,
-                                        ease: "easeInOut"
+                                        ease: 'easeInOut',
                                     }}
                                     className="flex items-center justify-center w-full h-full"
                                 >
@@ -144,7 +153,10 @@ export default function HireOptions() {
 
                             <ul className="space-y-4 mb-10">
                                 {option.features.map((feature: string, fIdx: number) => (
-                                    <li key={fIdx} className="flex items-center text-sm font-medium text-gray-700">
+                                    <li
+                                        key={fIdx}
+                                        className="flex items-center text-sm font-medium text-gray-700"
+                                    >
                                         <CheckCircle2 className="w-5 h-5 mr-3 flex-shrink-0 text-[#00cc83]" />
                                         {feature}
                                     </li>
@@ -153,10 +165,11 @@ export default function HireOptions() {
 
                             <Link href={option.link} className="block mt-auto">
                                 <Button
-                                    className={`w-full h-10 rounded-full text-base font-bold cursor-pointer transition-all duration-300 ${option.featured
-                                        ? 'bg-[#1a1a2e] text-white hover:bg-[#00cc83] hover:text-white'
-                                        : 'bg-[#1a1a2e] text-white hover:bg-[#00cc83] hover:text-white'
-                                        }`}
+                                    className={`w-full h-10 rounded-full text-base font-bold cursor-pointer transition-all duration-300 ${
+                                        option.featured
+                                            ? 'bg-[#1a1a2e] text-white hover:bg-[#00cc83] hover:text-white'
+                                            : 'bg-[#1a1a2e] text-white hover:bg-[#00cc83] hover:text-white'
+                                    }`}
                                 >
                                     {option.buttonLabel}
                                 </Button>

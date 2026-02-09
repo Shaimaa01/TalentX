@@ -1,4 +1,3 @@
-
 import { Contract } from '@prisma/client';
 
 export interface IContractRepository {

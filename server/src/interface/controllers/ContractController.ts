@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import { ContractService } from '../../application/services/ContractService';
 
@@ -20,7 +19,9 @@ export class ContractController {
 
     getContractsByProject = async (req: Request, res: Response) => {
         try {
-            const contracts = await this.contractService.getContractsByProject(req.params.projectId);
+            const contracts = await this.contractService.getContractsByProject(
+                req.params.projectId
+            );
             res.json(contracts);
         } catch (error: any) {
             res.status(500).json({ error: error.message });
@@ -33,7 +34,11 @@ export class ContractController {
             if (!signature) {
                 return res.status(400).json({ error: 'Signature is required' });
             }
-            const contract = await this.contractService.signContract(req.params.id, req.user!.id, signature);
+            const contract = await this.contractService.signContract(
+                req.params.id,
+                req.user!.id,
+                signature
+            );
             res.json(contract);
         } catch (error: any) {
             res.status(400).json({ error: error.message });

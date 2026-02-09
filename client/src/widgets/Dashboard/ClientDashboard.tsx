@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { User, Project } from '@/shared/types';
-import { Button } from "@/shared/components/ui/button";
-import { Plus, Bell, LogOut, Briefcase, MessageSquare, Users, Settings, Search, X, BarChart } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
+import {
+    Plus,
+    Bell,
+    LogOut,
+    Briefcase,
+    MessageSquare,
+    Users,
+    Settings,
+    Search,
+    X,
+    BarChart,
+} from 'lucide-react';
 import Link from 'next/link';
 import { createPageUrl } from '@/shared/lib/utils';
 import ProjectList from './ProjectList';
@@ -23,7 +34,16 @@ interface ClientDashboardProps {
     ClientOverview: React.ComponentType;
 }
 
-export default function ClientDashboard({ user, onLogout, activeView, setActiveView, MessagesView, HireView, SettingsView, ClientOverview }: ClientDashboardProps) {
+export default function ClientDashboard({
+    user,
+    onLogout,
+    activeView,
+    setActiveView,
+    MessagesView,
+    HireView,
+    SettingsView,
+    ClientOverview,
+}: ClientDashboardProps) {
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
     const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
     const [newProjectName, setNewProjectName] = useState('');
@@ -45,16 +65,18 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
     const { data: projects = [], isLoading } = useQuery({
         queryKey: ['projects', user.id],
         queryFn: async () => {
-            const allProjects = await talentXApi.entities.Project.filter({ client_email: user.email });
-            return allProjects.map(p => ({
+            const allProjects = await talentXApi.entities.Project.filter({
+                client_email: user.email,
+            });
+            return allProjects.map((p) => ({
                 ...p,
                 progress: p.progress || 0,
                 budget_spent: p.budget_spent || 0,
                 total_budget: p.total_budget || 0,
                 next_milestone: p.next_milestone || '',
-                team_members: p.team_members || []
+                team_members: p.team_members || [],
             }));
-        }
+        },
     });
 
     // Create Project Mutation
@@ -64,7 +86,7 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                 name: newProject.name,
                 description: newProject.description,
                 client_email: user.email,
-                clientId: user.id
+                clientId: user.id,
             });
         },
         onSuccess: () => {
@@ -76,12 +98,13 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
         },
         onError: (error: any) => {
             console.error('Project creation failed:', error);
-            const message = error.response?.data?.message || error.response?.data?.error || 'Failed to create project';
+            const message =
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                'Failed to create project';
             toast.error(message);
-        }
+        },
     });
-
-
 
     // Update Project Mutation
     const updateProjectMutation = useMutation({
@@ -102,7 +125,7 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
             console.error('Project update failed:', error);
             const message = error.response?.data?.message || 'Failed to update project';
             toast.error(message);
-        }
+        },
     });
 
     // Delete Project Mutation
@@ -118,7 +141,7 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
             console.error('Project deletion failed:', error);
             const message = error.response?.data?.message || 'Failed to delete project';
             toast.error(message);
-        }
+        },
     });
 
     const handleCreateOrUpdateProject = (e: React.FormEvent) => {
@@ -128,12 +151,12 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
         if (isEditMode && editingProjectId) {
             updateProjectMutation.mutate({
                 name: newProjectName,
-                description: newProjectDescription
+                description: newProjectDescription,
             });
         } else {
             createProjectMutation.mutate({
                 name: newProjectName,
-                description: newProjectDescription
+                description: newProjectDescription,
             });
         }
     };
@@ -155,37 +178,51 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
     const { data: unreadCounts } = useQuery({
         queryKey: ['unread-counts'],
         queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
-        refetchInterval: 10000
+        refetchInterval: 10000,
     });
 
-    const selectedProject = projects.find(p => p.id === selectedProjectId);
+    const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
     return (
         <div className="min-h-screen bg-[#f5f7fa] flex">
             {/* Sidebar */}
             <aside className="w-64 bg-white border-r border-gray-200 hidden lg:flex flex-col fixed h-full z-20">
-
                 <nav className="p-4 space-y-2 flex-1">
                     <button
-                        onClick={() => { setActiveView('overview'); setSelectedProjectId(null); }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeView === 'overview' ? 'bg-[#204ecf]/10 text-[#204ecf]' : 'text-gray-600 hover:bg-gray-50'
-                            }`}
+                        onClick={() => {
+                            setActiveView('overview');
+                            setSelectedProjectId(null);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                            activeView === 'overview'
+                                ? 'bg-[#204ecf]/10 text-[#204ecf]'
+                                : 'text-gray-600 hover:bg-gray-50'
+                        }`}
                     >
                         <BarChart className="w-5 h-5" />
                         Dashboard
                     </button>
                     <button
-                        onClick={() => { setActiveView('projects'); setSelectedProjectId(null); }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeView === 'projects' ? 'bg-[#204ecf]/10 text-[#204ecf]' : 'text-gray-600 hover:bg-gray-50'
-                            }`}
+                        onClick={() => {
+                            setActiveView('projects');
+                            setSelectedProjectId(null);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                            activeView === 'projects'
+                                ? 'bg-[#204ecf]/10 text-[#204ecf]'
+                                : 'text-gray-600 hover:bg-gray-50'
+                        }`}
                     >
                         <Briefcase className="w-5 h-5" />
                         Projects
                     </button>
                     <button
                         onClick={() => setActiveView('messages')}
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeView === 'messages' ? 'bg-[#204ecf]/10 text-[#204ecf]' : 'text-gray-600 hover:bg-gray-50'
-                            }`}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                            activeView === 'messages'
+                                ? 'bg-[#204ecf]/10 text-[#204ecf]'
+                                : 'text-gray-600 hover:bg-gray-50'
+                        }`}
                     >
                         <div className="flex items-center gap-3">
                             <MessageSquare className="w-5 h-5" />
@@ -199,16 +236,22 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                     </button>
                     <button
                         onClick={() => setActiveView('hire')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeView === 'hire' ? 'bg-[#204ecf]/10 text-[#204ecf]' : 'text-gray-600 hover:bg-gray-50'
-                            }`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                            activeView === 'hire'
+                                ? 'bg-[#204ecf]/10 text-[#204ecf]'
+                                : 'text-gray-600 hover:bg-gray-50'
+                        }`}
                     >
                         <Users className="w-5 h-5" />
                         Hire Talent
                     </button>
                     <button
                         onClick={() => setActiveView('settings')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeView === 'settings' ? 'bg-[#204ecf]/10 text-[#204ecf]' : 'text-gray-600 hover:bg-gray-50'
-                            }`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                            activeView === 'settings'
+                                ? 'bg-[#204ecf]/10 text-[#204ecf]'
+                                : 'text-gray-600 hover:bg-gray-50'
+                        }`}
                     >
                         <Settings className="w-5 h-5" />
                         Settings
@@ -217,12 +260,21 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
 
                 <div className="p-4 border-t border-gray-200">
                     <div className="flex items-center gap-3 px-4 py-3">
-                        <img src={user.avatar_url} alt={user.full_name} className="w-8 h-8 rounded-full" />
+                        <img
+                            src={user.avatar_url}
+                            alt={user.full_name}
+                            className="w-8 h-8 rounded-full"
+                        />
                         <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold text-[#1a1a2e] truncate">{user.full_name}</div>
+                            <div className="text-sm font-bold text-[#1a1a2e] truncate">
+                                {user.full_name}
+                            </div>
                             <div className="text-xs text-gray-500 truncate">{user.email}</div>
                         </div>
-                        <button onClick={onLogout} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                        <button
+                            onClick={onLogout}
+                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                        >
                             <LogOut className="w-4 h-4" />
                         </button>
                     </div>
@@ -231,11 +283,10 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
 
             {/* Main Content */}
             <main className="flex-1 lg:ml-64 min-h-screen flex flex-col pt-8">
-
                 <div className="p-4 sm:p-8 flex-1 overflow-y-auto">
                     {activeView === 'overview' && <ClientOverview />}
-                    {activeView === 'projects' && (
-                        selectedProjectId && selectedProject ? (
+                    {activeView === 'projects' &&
+                        (selectedProjectId && selectedProject ? (
                             <ProjectDetail
                                 user={user}
                                 project={selectedProject}
@@ -244,7 +295,9 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                         ) : (
                             <div className="space-y-6">
                                 <div className="flex justify-between items-center mb-2">
-                                    <h2 className="text-2xl font-bold text-[#1a1a2e]">All Projects</h2>
+                                    <h2 className="text-2xl font-bold text-[#1a1a2e]">
+                                        All Projects
+                                    </h2>
                                     <Button
                                         onClick={() => setIsNewProjectModalOpen(true)}
                                         className="bg-[#204ecf] hover:bg-[#1a3da8] text-white rounded-xl"
@@ -260,8 +313,7 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                                     onCreate={() => setIsNewProjectModalOpen(true)}
                                 />
                             </div>
-                        )
-                    )}
+                        ))}
 
                     {activeView === 'messages' && <MessagesView user={user} />}
                     {activeView === 'settings' && <SettingsView />}
@@ -269,7 +321,9 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                         <div>
                             <div className="mb-8">
                                 <h1 className="text-2xl font-bold text-[#1a1a2e]">Start Hiring</h1>
-                                <p className="text-gray-500">Choose how you want to build your team</p>
+                                <p className="text-gray-500">
+                                    Choose how you want to build your team
+                                </p>
                             </div>
                             <HireView />
                         </div>
@@ -282,14 +336,26 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
                         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                            <h3 className="text-xl font-bold text-[#1a1a2e]">{isEditMode ? 'Edit Project' : 'Create New Project'}</h3>
-                            <button onClick={() => { setIsNewProjectModalOpen(false); setIsEditMode(false); setNewProjectName(''); setNewProjectDescription(''); }} className="text-gray-400 hover:text-gray-600">
+                            <h3 className="text-xl font-bold text-[#1a1a2e]">
+                                {isEditMode ? 'Edit Project' : 'Create New Project'}
+                            </h3>
+                            <button
+                                onClick={() => {
+                                    setIsNewProjectModalOpen(false);
+                                    setIsEditMode(false);
+                                    setNewProjectName('');
+                                    setNewProjectDescription('');
+                                }}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
                         <form onSubmit={handleCreateOrUpdateProject} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Project Name
+                                </label>
                                 <input
                                     type="text"
                                     required
@@ -300,7 +366,9 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Description
+                                </label>
                                 <textarea
                                     rows={4}
                                     value={newProjectDescription}
@@ -312,13 +380,19 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
                             <div className="pt-4">
                                 <Button
                                     type="submit"
-                                    disabled={createProjectMutation.isPending || updateProjectMutation.isPending}
+                                    disabled={
+                                        createProjectMutation.isPending ||
+                                        updateProjectMutation.isPending
+                                    }
                                     className="w-full bg-[#204ecf] hover:bg-[#1a3da8] text-white py-6 rounded-xl font-bold shadow-lg shadow-blue-200 transition-all"
                                 >
                                     {isEditMode
-                                        ? (updateProjectMutation.isPending ? 'Updating...' : 'Update Project')
-                                        : (createProjectMutation.isPending ? 'Creating...' : 'Create Project')
-                                    }
+                                        ? updateProjectMutation.isPending
+                                            ? 'Updating...'
+                                            : 'Update Project'
+                                        : createProjectMutation.isPending
+                                          ? 'Creating...'
+                                          : 'Create Project'}
                                 </Button>
                             </div>
                         </form>

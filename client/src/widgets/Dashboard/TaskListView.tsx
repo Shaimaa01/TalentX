@@ -1,7 +1,7 @@
 import React from 'react';
 import { Task } from '@/shared/types';
 import { Clock, AlertCircle, CheckCircle, Circle, MoreHorizontal } from 'lucide-react';
-import { Button } from "@/shared/components/ui/button";
+import { Button } from '@/shared/components/ui/button';
 
 interface TaskListViewProps {
     tasks: Task[];
@@ -12,7 +12,7 @@ const statusIcons = {
     todo: { icon: Circle, color: 'text-gray-400', bg: 'bg-gray-50' },
     in_progress: { icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50' },
     review: { icon: AlertCircle, color: 'text-yellow-500', bg: 'bg-yellow-50' },
-    done: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' }
+    done: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' },
 };
 
 const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onTaskClick }) => {
@@ -94,7 +94,11 @@ const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onTaskClick }) => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                     {tasks.map((task) => {
-                        const { icon: StatusIcon, color: statusColor, bg: statusBg } = statusIcons[task.status];
+                        const {
+                            icon: StatusIcon,
+                            color: statusColor,
+                            bg: statusBg,
+                        } = statusIcons[task.status];
                         return (
                             <tr
                                 key={task.id}
@@ -103,47 +107,74 @@ const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onTaskClick }) => {
                             >
                                 <td className="px-6 py-4">
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-[#1a1a2e] group-hover:text-[#204ecf] transition-colors line-clamp-1">{task.title}</span>
-                                        <span className="text-xs text-gray-400 line-clamp-1 mt-0.5">{task.description || 'No description'}</span>
+                                        <span className="text-sm font-bold text-[#1a1a2e] group-hover:text-[#204ecf] transition-colors line-clamp-1">
+                                            {task.title}
+                                        </span>
+                                        <span className="text-xs text-gray-400 line-clamp-1 mt-0.5">
+                                            {task.description || 'No description'}
+                                        </span>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-lg ${statusBg}`}>
+                                    <div
+                                        className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-lg ${statusBg}`}
+                                    >
                                         <StatusIcon className={`w-3.5 h-3.5 ${statusColor}`} />
-                                        <span className={`text-xs font-bold capitalize ${statusColor}`}>
+                                        <span
+                                            className={`text-xs font-bold capitalize ${statusColor}`}
+                                        >
                                             {task.status.replace('_', ' ')}
                                         </span>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${task.priority === 'high' ? 'bg-red-50 text-red-600' :
-                                            task.priority === 'medium' ? 'bg-yellow-50 text-yellow-600' :
-                                                'bg-blue-50 text-blue-600'
-                                        }`}>
+                                    <span
+                                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
+                                            task.priority === 'high'
+                                                ? 'bg-red-50 text-red-600'
+                                                : task.priority === 'medium'
+                                                  ? 'bg-yellow-50 text-yellow-600'
+                                                  : 'bg-blue-50 text-blue-600'
+                                        }`}
+                                    >
                                         {task.priority}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
                                         <img
-                                            src={task.assignee?.avatar_url || `https://ui-avatars.com/api/?name=${task.assignee?.full_name || 'Unassigned'}&background=random`}
+                                            src={
+                                                task.assignee?.avatar_url ||
+                                                `https://ui-avatars.com/api/?name=${task.assignee?.full_name || 'Unassigned'}&background=random`
+                                            }
                                             className="w-6 h-6 rounded-full border border-gray-200"
                                             alt="Assignee"
                                         />
-                                        <span className="text-xs font-medium text-gray-600">{task.assignee?.full_name || 'Unassigned'}</span>
+                                        <span className="text-xs font-medium text-gray-600">
+                                            {task.assignee?.full_name || 'Unassigned'}
+                                        </span>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
-                                        {task.due_date ? new Date(task.due_date).toLocaleDateString(undefined, {
-                                            month: 'short',
-                                            day: 'numeric',
-                                            year: 'numeric'
-                                        }) : 'No date'}
+                                        {task.due_date
+                                            ? new Date(task.due_date).toLocaleDateString(
+                                                  undefined,
+                                                  {
+                                                      month: 'short',
+                                                      day: 'numeric',
+                                                      year: 'numeric',
+                                                  }
+                                              )
+                                            : 'No date'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-right">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 group-hover:text-gray-600">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-gray-400 group-hover:text-gray-600"
+                                    >
                                         <MoreHorizontal className="w-4 h-4" />
                                     </Button>
                                 </td>

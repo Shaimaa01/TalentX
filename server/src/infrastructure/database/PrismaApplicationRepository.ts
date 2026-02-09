@@ -17,7 +17,7 @@ export class PrismaApplicationRepository implements IApplicationRepository {
             data: {
                 ...data,
                 skills: data.skills || null, // handle optional -> nullable
-            } as any // flexible casting for now, ideally we use Prisma types
+            } as any, // flexible casting for now, ideally we use Prisma types
         });
         return created as unknown as Application;
     }
@@ -36,7 +36,7 @@ export class PrismaApplicationRepository implements IApplicationRepository {
     async updateStatus(id: string, status: Application['status']): Promise<Application> {
         const updated = await this.prisma.application.update({
             where: { id },
-            data: { status }
+            data: { status },
         });
         return updated as unknown as Application;
     }

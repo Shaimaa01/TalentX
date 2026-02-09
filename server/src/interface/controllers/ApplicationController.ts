@@ -18,8 +18,8 @@ export class ApplicationController {
 
             if (!validationResult.success) {
                 return res.status(400).json({
-                    message: "Validation Error",
-                    errors: (validationResult.error as any).errors
+                    message: 'Validation Error',
+                    errors: (validationResult.error as any).errors,
                 });
             }
 
@@ -31,13 +31,12 @@ export class ApplicationController {
 
             res.status(201).json({
                 message: 'Application submitted successfully',
-                applicationId: application.id
+                applicationId: application.id,
             });
-
         } catch (error: any) {
             console.error('Submit Application Error:', error);
             res.status(500).json({
-                message: error.message || 'Internal server error'
+                message: error.message || 'Internal server error',
             });
         }
     };
@@ -47,7 +46,7 @@ export class ApplicationController {
             const applications = await this.applicationService.getAllApplications();
 
             // Transform for frontend if needed (keeping existing shape logic)
-            const formattedApps = applications.map(app => ({
+            const formattedApps = applications.map((app) => ({
                 id: app.id,
                 userId: null,
                 type: app.role,
@@ -76,7 +75,7 @@ export class ApplicationController {
         } catch (error) {
             res.status(500).json({ message: 'Internal server error' });
         }
-    }
+    };
 
     updateStatus = async (req: Request, res: Response) => {
         const { id } = req.params;
@@ -88,7 +87,7 @@ export class ApplicationController {
             console.error('Update Status Error:', error);
             res.status(500).json({ message: error.message || 'Internal server error' });
         }
-    }
+    };
 
     getSheetUrl = async (req: Request, res: Response) => {
         const sheetId = process.env.GOOGLE_SHEET_ID;

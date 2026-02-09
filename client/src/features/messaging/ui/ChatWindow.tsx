@@ -15,7 +15,7 @@ export const ChatWindow = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
@@ -43,8 +43,15 @@ export const ChatWindow = () => {
                     <div>
                         <h3 className="font-bold text-gray-900">TalentX Support</h3>
                         <div className="flex items-center gap-2">
-                            <div className={cn("w-2 h-2 rounded-full", isConnected ? "bg-green-500" : "bg-red-500")} />
-                            <span className="text-xs text-gray-500">{isConnected ? 'Online' : 'Disconnected'}</span>
+                            <div
+                                className={cn(
+                                    'w-2 h-2 rounded-full',
+                                    isConnected ? 'bg-green-500' : 'bg-red-500'
+                                )}
+                            />
+                            <span className="text-xs text-gray-500">
+                                {isConnected ? 'Online' : 'Disconnected'}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -61,16 +68,29 @@ export const ChatWindow = () => {
                 {messages.map((msg, index) => {
                     const isMe = msg.senderId === user?.id;
                     return (
-                        <div key={index} className={cn("flex", isMe ? "justify-end" : "justify-start")}>
-                            <div className={cn(
-                                "max-w-[80%] rounded-2xl px-4 py-3 text-sm",
-                                isMe
-                                    ? "bg-blue-600 text-white rounded-br-none"
-                                    : "bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm"
-                            )}>
+                        <div
+                            key={index}
+                            className={cn('flex', isMe ? 'justify-end' : 'justify-start')}
+                        >
+                            <div
+                                className={cn(
+                                    'max-w-[80%] rounded-2xl px-4 py-3 text-sm',
+                                    isMe
+                                        ? 'bg-blue-600 text-white rounded-br-none'
+                                        : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'
+                                )}
+                            >
                                 <p>{msg.content}</p>
-                                <span className={cn("text-[10px] block mt-1 opacity-70", isMe ? "text-blue-100" : "text-gray-400")}>
-                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <span
+                                    className={cn(
+                                        'text-[10px] block mt-1 opacity-70',
+                                        isMe ? 'text-blue-100' : 'text-gray-400'
+                                    )}
+                                >
+                                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    })}
                                 </span>
                             </div>
                         </div>
@@ -80,7 +100,10 @@ export const ChatWindow = () => {
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSend} className="p-4 border-t border-gray-100 bg-white rounded-b-xl">
+            <form
+                onSubmit={handleSend}
+                className="p-4 border-t border-gray-100 bg-white rounded-b-xl"
+            >
                 <div className="flex gap-2">
                     <Input
                         value={inputValue}

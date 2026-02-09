@@ -21,13 +21,13 @@ export class ApplicationService {
         notificationRepo,
         userRepo,
         storageGateway,
-        sheetGateway
+        sheetGateway,
     }: {
-        applicationRepo: IApplicationRepository,
-        notificationRepo: INotificationRepository,
-        userRepo: IUserRepository,
-        storageGateway: IStorageGateway,
-        sheetGateway: ISheetGateway
+        applicationRepo: IApplicationRepository;
+        notificationRepo: INotificationRepository;
+        userRepo: IUserRepository;
+        storageGateway: IStorageGateway;
+        sheetGateway: ISheetGateway;
     }) {
         this.applicationRepo = applicationRepo;
         this.notificationRepo = notificationRepo;
@@ -36,13 +36,16 @@ export class ApplicationService {
         this.sheetGateway = sheetGateway;
     }
 
-    async submitApplication(dto: CreateApplicationDTO, file?: Express.Multer.File): Promise<Application> {
+    async submitApplication(
+        dto: CreateApplicationDTO,
+        file?: Express.Multer.File
+    ): Promise<Application> {
         // 1. Upload Resume
         let resume_url = '';
         if (file) {
             resume_url = await this.storageGateway.uploadFile(file);
         } else {
-            throw new Error("Resume file is required");
+            throw new Error('Resume file is required');
         }
 
         // 2. Prepare Data for Persistence
@@ -55,19 +58,22 @@ export class ApplicationService {
             status: 'pending',
 
             // Talent Mapping
-            title: dto.role === 'talent' ? (dto.title || 'Freelancer') : null,
-            category: dto.role === 'talent' ? (dto.category || 'developer') : null,
-            experience_years: dto.role === 'talent' && dto.experience ? parseInt(dto.experience) : null,
+            title: dto.role === 'talent' ? dto.title || 'Freelancer' : null,
+            category: dto.role === 'talent' ? dto.category || 'developer' : null,
+            experience_years:
+                dto.role === 'talent' && dto.experience ? parseInt(dto.experience) : null,
             linkedin: dto.role === 'talent' ? dto.linkedin || null : null,
             portfolio: dto.role === 'talent' ? dto.portfolio || null : null,
             skills: dto.role === 'talent' ? JSON.stringify([]) : null, // Default empty
 
             // Agency Mapping
-            agency_name: dto.role === 'agency' ? (dto.agency_name || `${dto.full_name}'s Agency`) : null,
+            agency_name:
+                dto.role === 'agency' ? dto.agency_name || `${dto.full_name}'s Agency` : null,
             team_size: dto.role === 'agency' && dto.team_size ? parseInt(dto.team_size) : null,
             company_website: dto.role === 'agency' ? dto.company_website || null : null,
             linkedin_company_page: dto.role === 'agency' ? dto.linkedin_company_page || null : null,
-            founded_year: dto.role === 'agency' && dto.founded_year ? parseInt(dto.founded_year) : null,
+            founded_year:
+                dto.role === 'agency' && dto.founded_year ? parseInt(dto.founded_year) : null,
         };
 
         // 3. Save to Repo
@@ -79,7 +85,7 @@ export class ApplicationService {
         try {
             await this.sheetGateway.appendApplication({ ...entityData, ...dto }); // Pass merged data to match sheet expectations
         } catch (e) {
-            console.error("Sheet Sync Failed", e);
+            console.error('Sheet Sync Failed', e);
             // Don't fail the request
         }
 
@@ -91,13 +97,16 @@ export class ApplicationService {
                 data: JSON.stringify({ applicationId: application.id, role: dto.role }),
             });
         } catch (e) {
-            console.error("Notification Failed", e);
+            console.error('Notification Failed', e);
         }
 
         return application;
     }
 
-    async updateStatus(id: string, status: 'interview_invited' | 'rejected' | 'accepted'): Promise<Application> {
+    async updateStatus(
+        id: string,
+        status: 'interview_invited' | 'rejected' | 'accepted'
+    ): Promise<Application> {
         const application = await this.applicationRepo.updateStatus(id, status);
 
         if (status === 'accepted') {

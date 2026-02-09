@@ -16,19 +16,22 @@ export class PrismaTeamRepository implements ITeamRepository {
     async findById(id: string): Promise<any | null> {
         return this.prisma.team.findUnique({
             where: { id },
-            include: { members: { include: { talent: { include: { user: true } } } } }
+            include: { members: { include: { talent: { include: { user: true } } } } },
         });
     }
 
     async findTalentsBySkills(skills: string[], limit: number): Promise<any[]> {
-        const whereClause = skills.length > 0 ? {
-            OR: skills.map((skill: string) => ({
-                skills: {
-                    contains: skill,
-                    mode: 'insensitive',
-                },
-            })),
-        } : {};
+        const whereClause =
+            skills.length > 0
+                ? {
+                      OR: skills.map((skill: string) => ({
+                          skills: {
+                              contains: skill,
+                              mode: 'insensitive',
+                          },
+                      })),
+                  }
+                : {};
 
         return this.prisma.talent.findMany({
             where: whereClause as any,
@@ -40,7 +43,7 @@ export class PrismaTeamRepository implements ITeamRepository {
                     },
                 },
             },
-            take: limit
+            take: limit,
         });
     }
 

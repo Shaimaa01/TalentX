@@ -6,21 +6,24 @@ import { Toaster } from 'sonner';
 import SocketProvider from './SocketProvider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-    const [queryClient] = useState(() => new QueryClient({
-        defaultOptions: {
-            queries: {
-                staleTime: 60 * 1000,
-                retry: 1,
-            }
-        }
-    }));
+    const [queryClient] = useState(
+        () =>
+            new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        staleTime: 60 * 1000,
+                        retry: 1,
+                    },
+                },
+            })
+    );
 
     return (
         <QueryClientProvider client={queryClient}>
             <SocketProvider>
                 {children}
             </SocketProvider>
-            <Toaster position="top-right" />
+            <Toaster position="top-right" richColors closeButton duration={4000} />
         </QueryClientProvider>
     );
 }

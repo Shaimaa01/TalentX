@@ -13,7 +13,7 @@ export class PrismaProjectRepository implements IProjectRepository {
         team: true,
         assignedAgency: { include: { user: true } },
         memberships: { include: { talent: { include: { user: true } } } },
-        tasks: true // Included for getProject but maybe not lists? Legacy included it for getProject only mostly
+        tasks: true, // Included for getProject but maybe not lists? Legacy included it for getProject only mostly
     };
 
     async create(data: any): Promise<any> {
@@ -31,7 +31,7 @@ export class PrismaProjectRepository implements IProjectRepository {
     async findById(id: string): Promise<any | null> {
         return this.prisma.project.findUnique({
             where: { id },
-            include: this.defaultInclude as any
+            include: this.defaultInclude as any,
         });
     }
 
@@ -44,10 +44,7 @@ export class PrismaProjectRepository implements IProjectRepository {
             const talent = await this.prisma.talent.findUnique({ where: { userId } as any });
             if (!talent) return [];
             whereClause = {
-                OR: [
-                    { talentId: talent.id },
-                    { memberships: { some: { talentId: talent.id } } }
-                ]
+                OR: [{ talentId: talent.id }, { memberships: { some: { talentId: talent.id } } }],
             };
         } else if (role === 'agency') {
             const agency = await this.prisma.agency.findUnique({ where: { userId } as any });
@@ -59,21 +56,21 @@ export class PrismaProjectRepository implements IProjectRepository {
 
         return this.prisma.project.findMany({
             where: whereClause,
-            include: this.defaultInclude as any // Legacy cast to any for complex includes
+            include: this.defaultInclude as any, // Legacy cast to any for complex includes
         });
     }
 
     async findAll(filters: any): Promise<any[]> {
         return this.prisma.project.findMany({
             where: filters,
-            include: this.defaultInclude as any
+            include: this.defaultInclude as any,
         });
     }
 
     async findByIdForPayment(projectId: string, talentId: string, clientId: string): Promise<any | null> {
         return this.prisma.project.findUnique({
             where: { id: projectId },
-            include: { memberships: { where: { talentId } } }
+            include: { memberships: { where: { talentId } } },
         });
     }
 

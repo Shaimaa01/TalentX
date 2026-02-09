@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from 'react';
 // Removed tanstack query, use simple fetch for now as I don't have provider set up easily or just useState
-import { talentXApi } from "@/shared/api/talentXApi";
-import { Button } from "@/shared/components/ui/button";
+import { talentXApi } from '@/shared/api/talentXApi';
+import { Button } from '@/shared/components/ui/button';
 import {
     Star,
     MapPin,
@@ -17,20 +17,20 @@ import {
     Clock,
     Sparkles,
     X,
-} from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createPageUrl } from "@/shared/lib/utils";
-import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+} from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { createPageUrl } from '@/shared/lib/utils';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 import AuthGuard from '@/features/auth/ui/AuthGuard';
-import { Talent } from "@/shared/types";
+import { Talent } from '@/shared/types';
 
 function TalentProfileContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const talentId = searchParams.get("id");
+    const talentId = searchParams.get('id');
     const [talent, setTalent] = useState<(Talent & { id: string }) | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [userProjects, setUserProjects] = useState<any[]>([]);
@@ -59,16 +59,21 @@ function TalentProfileContent() {
             try {
                 const user = await talentXApi.auth.me();
                 if (user && user.email) {
-                    const projects = await talentXApi.entities.Project.filter({ client_email: user.email });
+                    const projects = await talentXApi.entities.Project.filter({
+                        client_email: user.email,
+                    });
                     setUserProjects(projects);
                 }
 
                 if (talentId) {
-                    const talentProjects = await talentXApi.entities.Project.filter({ talentId, status: 'completed' });
-                    setReviews(talentProjects.filter(p => p.clientReview));
+                    const talentProjects = await talentXApi.entities.Project.filter({
+                        talentId,
+                        status: 'completed',
+                    });
+                    setReviews(talentProjects.filter((p) => p.clientReview));
                 }
             } catch (error) {
-                console.log("Could not fetch additional data", error);
+                console.log('Could not fetch additional data', error);
             }
         };
         fetchData();
@@ -76,10 +81,10 @@ function TalentProfileContent() {
 
     const [isHireModalOpen, setIsHireModalOpen] = useState(false);
     const [hireData, setHireData] = useState({
-        rateType: "hourly",
+        rateType: 'hourly',
         rateAmount: 0,
-        projectId: "",
-        projectName: "",
+        projectId: '',
+        projectName: '',
     });
 
     useEffect(() => {
@@ -97,19 +102,19 @@ function TalentProfileContent() {
             // Check subscription
             const subscriptions = await talentXApi.entities.Subscription.filter({
                 user_email: user.email,
-                status: "active",
+                status: 'active',
             });
 
             if (subscriptions.length === 0) {
-                toast.error("Please subscribe to hire talent");
-                router.push(createPageUrl("Pricing"));
+                toast.error('Please subscribe to hire talent');
+                router.push(createPageUrl('Pricing'));
                 return;
             }
 
             const finalProjectId = hireData.projectId;
 
-            if (!finalProjectId || finalProjectId === "new") {
-                toast.error("Please select a project");
+            if (!finalProjectId || finalProjectId === 'new') {
+                toast.error('Please select a project');
                 setIsLoading(false);
                 return;
             }
@@ -118,10 +123,10 @@ function TalentProfileContent() {
             await talentXApi.entities.HireRequest.create({
                 client_name: user.full_name,
                 client_email: user.email,
-                hire_type: "talent",
+                hire_type: 'talent',
                 category: talent.category,
                 matched_talent_id: talent.id,
-                status: "pending",
+                status: 'pending',
                 // Add rate and project details to metadata if supported,
                 // but better yet, we'll implement a proper membership creation in backend
                 data: JSON.stringify({
@@ -131,14 +136,14 @@ function TalentProfileContent() {
                 }),
             });
 
-            toast.success("Hire request submitted successfully!");
+            toast.success('Hire request submitted successfully!');
             setIsHireModalOpen(false);
-            router.push(createPageUrl("Dashboard"));
+            router.push(createPageUrl('Dashboard'));
         } catch (error: unknown) {
-            console.error("Hire request failed:", error);
+            console.error('Hire request failed:', error);
             const message =
-                (error as { response?: { data?: { message?: string } } })?.response
-                    ?.data?.message || "Failed to submit hire request";
+                (error as { response?: { data?: { message?: string } } })?.response?.data
+                    ?.message || 'Failed to submit hire request';
             toast.error(message);
         } finally {
             setIsLoading(false);
@@ -156,11 +161,9 @@ function TalentProfileContent() {
         );
     }
 
-    const roundedRating = talent.rating
-        ? parseFloat(talent.rating.toString()).toFixed(1)
-        : null;
+    const roundedRating = talent.rating ? parseFloat(talent.rating.toString()).toFixed(1) : null;
     const previousCompanies =
-        typeof talent.previous_companies === "string"
+        typeof talent.previous_companies === 'string'
             ? JSON.parse(talent.previous_companies)
             : talent.previous_companies || [];
 
@@ -173,7 +176,7 @@ function TalentProfileContent() {
                 className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8"
             >
                 <Link
-                    href={createPageUrl("BrowseTalent")}
+                    href={createPageUrl('BrowseTalent')}
                     className="inline-flex items-center gap-2 text-gray-600 hover:text-[#204ecf] transition-colors font-medium group"
                 >
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -209,7 +212,7 @@ function TalentProfileContent() {
                                             unoptimized
                                             className="w-[120px] h-[120px] rounded-2xl border-[3px] border-gray-200 shadow-lg object-cover"
                                         />
-                                        {talent.availability === "available" && (
+                                        {talent.availability === 'available' && (
                                             <div
                                                 className="absolute bottom-0 right-0 w-6 h-6 bg-[#00c853] border-[3px] border-white rounded-full shadow-md"
                                                 title="Available Now"
@@ -242,7 +245,9 @@ function TalentProfileContent() {
                                             {talent.location && (
                                                 <div className="flex items-center gap-2">
                                                     <MapPin className="w-4 h-4 text-gray-400" />
-                                                    <span className="font-medium">{talent.location}</span>
+                                                    <span className="font-medium">
+                                                        {talent.location}
+                                                    </span>
                                                 </div>
                                             )}
                                             {talent.experience_years && (
@@ -318,36 +323,60 @@ function TalentProfileContent() {
                                 className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/80 p-8"
                             >
                                 <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-bold text-[#1a1a2e]">Client Reviews</h2>
+                                    <h2 className="text-2xl font-bold text-[#1a1a2e]">
+                                        Client Reviews
+                                    </h2>
                                     <div className="flex items-center gap-2">
                                         <div className="flex gap-0.5">
                                             {[1, 2, 3, 4, 5].map((s) => (
-                                                <Star key={s} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                                <Star
+                                                    key={s}
+                                                    className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                                                />
                                             ))}
                                         </div>
-                                        <span className="text-sm font-bold text-gray-900">{reviews.length} completed projects</span>
+                                        <span className="text-sm font-bold text-gray-900">
+                                            {reviews.length} completed projects
+                                        </span>
                                     </div>
                                 </div>
                                 <div className="space-y-6">
                                     {reviews.map((rev, i) => (
-                                        <div key={rev.id} className="p-6 rounded-2xl bg-gray-50/50 border border-gray-100 relative group transition-all hover:bg-white hover:shadow-md hover:border-blue-100">
+                                        <div
+                                            key={rev.id}
+                                            className="p-6 rounded-2xl bg-gray-50/50 border border-gray-100 relative group transition-all hover:bg-white hover:shadow-md hover:border-blue-100"
+                                        >
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
-                                                    <h4 className="font-bold text-[#1a1a2e] group-hover:text-[#204ecf] transition-colors">{rev.name}</h4>
+                                                    <h4 className="font-bold text-[#1a1a2e] group-hover:text-[#204ecf] transition-colors">
+                                                        {rev.name}
+                                                    </h4>
                                                     <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                                                         <span>Project Completed</span>
                                                         <span>•</span>
-                                                        <span>{new Date(rev.start_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short' })}</span>
+                                                        <span>
+                                                            {new Date(
+                                                                rev.start_date
+                                                            ).toLocaleDateString(undefined, {
+                                                                year: 'numeric',
+                                                                month: 'short',
+                                                            })}
+                                                        </span>
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-0.5">
                                                     {[1, 2, 3, 4, 5].map((s) => (
-                                                        <Star key={s} className={`w-3 h-3 ${s <= (rev.clientRating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                                                        <Star
+                                                            key={s}
+                                                            className={`w-3 h-3 ${s <= (rev.clientRating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`}
+                                                        />
                                                     ))}
                                                 </div>
                                             </div>
                                             <div className="relative">
-                                                <div className="text-3xl text-blue-200/40 absolute -left-1 -top-2 font-serif">"</div>
+                                                <div className="text-3xl text-blue-200/40 absolute -left-1 -top-2 font-serif">
+                                                    "
+                                                </div>
                                                 <p className="text-gray-600 text-sm italic leading-relaxed pl-4">
                                                     {rev.clientReview}
                                                 </p>
@@ -389,8 +418,8 @@ function TalentProfileContent() {
                                                     Senior Role • 2020 - Present
                                                 </p>
                                                 <p className="text-sm text-gray-600 leading-relaxed">
-                                                    Led key initiatives and delivered critical projects
-                                                    contributing to company growth.
+                                                    Led key initiatives and delivered critical
+                                                    projects contributing to company growth.
                                                 </p>
                                             </div>
                                         </motion.div>
@@ -432,9 +461,7 @@ function TalentProfileContent() {
                             transition={{ delay: 0.4, duration: 0.5 }}
                             className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/80 p-6"
                         >
-                            <h3 className="font-bold text-xl text-[#1a1a2e] mb-5">
-                                Performance
-                            </h3>
+                            <h3 className="font-bold text-xl text-[#1a1a2e] mb-5">Performance</h3>
                             <div className="space-y-3">
                                 <motion.div
                                     whileHover={{ scale: 1.02, x: 4 }}
@@ -449,7 +476,7 @@ function TalentProfileContent() {
                                         </span>
                                     </div>
                                     <span className="font-bold text-lg text-yellow-700">
-                                        {roundedRating || "5.0"}/5.0
+                                        {roundedRating || '5.0'}/5.0
                                     </span>
                                 </motion.div>
 
@@ -544,21 +571,39 @@ function TalentProfileContent() {
                             <div className="p-6 space-y-6">
                                 {/* Rate Selection */}
                                 <div className="space-y-3">
-                                    <label className="block text-sm font-bold text-gray-700">Hiring Rate</label>
+                                    <label className="block text-sm font-bold text-gray-700">
+                                        Hiring Rate
+                                    </label>
                                     <div className="grid grid-cols-2 gap-3">
                                         <button
-                                            onClick={() => setHireData({ ...hireData, rateType: 'hourly', rateAmount: talent.hourly_rate || 0 })}
+                                            onClick={() =>
+                                                setHireData({
+                                                    ...hireData,
+                                                    rateType: 'hourly',
+                                                    rateAmount: talent.hourly_rate || 0,
+                                                })
+                                            }
                                             className={`py-3 px-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${hireData.rateType === 'hourly' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 text-gray-500 hover:border-gray-200'}`}
                                         >
                                             <span className="font-bold">Hourly</span>
-                                            <span className="text-xs">${talent.hourly_rate || 0}/hr</span>
+                                            <span className="text-xs">
+                                                ${talent.hourly_rate || 0}/hr
+                                            </span>
                                         </button>
                                         <button
-                                            onClick={() => setHireData({ ...hireData, rateType: 'monthly', rateAmount: (talent.hourly_rate || 0) * 160 })}
+                                            onClick={() =>
+                                                setHireData({
+                                                    ...hireData,
+                                                    rateType: 'monthly',
+                                                    rateAmount: (talent.hourly_rate || 0) * 160,
+                                                })
+                                            }
                                             className={`py-3 px-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${hireData.rateType === 'monthly' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 text-gray-500 hover:border-gray-200'}`}
                                         >
                                             <span className="font-bold">Monthly</span>
-                                            <span className="text-xs">${(talent.hourly_rate || 0) * 160}/mo</span>
+                                            <span className="text-xs">
+                                                ${(talent.hourly_rate || 0) * 160}/mo
+                                            </span>
                                         </button>
                                     </div>
                                 </div>
@@ -597,7 +642,7 @@ function TalentProfileContent() {
                                             {isLoading ? (
                                                 <Loader2 className="w-5 h-5 animate-spin" />
                                             ) : (
-                                                "Confirm Hiring"
+                                                'Confirm Hiring'
                                             )}
                                         </Button>
                                     </motion.div>
@@ -618,7 +663,13 @@ function TalentProfileContent() {
 export default function TalentProfile() {
     return (
         <AuthGuard>
-            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#204ecf]" /></div>}>
+            <Suspense
+                fallback={
+                    <div className="min-h-screen flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 animate-spin text-[#204ecf]" />
+                    </div>
+                }
+            >
                 <TalentProfileContent />
             </Suspense>
         </AuthGuard>

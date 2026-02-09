@@ -15,17 +15,17 @@ export default function Blog() {
             const posts = await talentXApi.entities.CMS.BlogPost.list();
             // Map API structure to component expectation
             return posts
-                .filter(p => p.published)
-                .map(p => ({
+                .filter((p) => p.published)
+                .map((p) => ({
                     ...p,
                     date: p.createdAt || new Date().toISOString(),
-                    readTime: p.readTime || '5 min'
+                    readTime: p.readTime || '5 min',
                 }));
-        }
+        },
     });
 
-    const featuredPost = blogPosts?.find(p => p.featured) || blogPosts?.[0];
-    const remainingPosts = blogPosts?.filter(p => p.id !== featuredPost?.id) || [];
+    const featuredPost = blogPosts?.find((p) => p.featured) || blogPosts?.[0];
+    const remainingPosts = blogPosts?.filter((p) => p.id !== featuredPost?.id) || [];
 
     return (
         <main className="min-h-screen bg-[#fafbfc] selection:bg-[#204ecf] selection:text-white">
@@ -46,29 +46,39 @@ export default function Blog() {
                 <div className="mt-24">
                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-gray-200 pb-8">
                         <div>
-                            <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">Latest Insights</h2>
-                            <p className="text-gray-500">Dive deeper into the topics that matter to your business.</p>
+                            <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">
+                                Latest Insights
+                            </h2>
+                            <p className="text-gray-500">
+                                Dive deeper into the topics that matter to your business.
+                            </p>
                         </div>
 
                         <div className="flex flex-wrap gap-3">
-                            {['All', 'Hiring', 'Future of Work', 'Strategy', 'Engineering'].map((cat) => (
-                                <button
-                                    key={cat}
-                                    className={`px-5 py-2.5 rounded-xl text-[14px] font-bold transition-all ${cat === 'All'
-                                        ? 'bg-[#204ecf] text-white shadow-lg shadow-[#204ecf]/20'
-                                        : 'bg-white text-gray-600 border border-gray-100 hover:border-[#204ecf]/30 hover:text-[#204ecf]'
+                            {['All', 'Hiring', 'Future of Work', 'Strategy', 'Engineering'].map(
+                                (cat) => (
+                                    <button
+                                        key={cat}
+                                        className={`px-5 py-2.5 rounded-xl text-[14px] font-bold transition-all ${
+                                            cat === 'All'
+                                                ? 'bg-[#204ecf] text-white shadow-lg shadow-[#204ecf]/20'
+                                                : 'bg-white text-gray-600 border border-gray-100 hover:border-[#204ecf]/30 hover:text-[#204ecf]'
                                         }`}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
+                                    >
+                                        {cat}
+                                    </button>
+                                )
+                            )}
                         </div>
                     </div>
 
                     {isLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className="h-[400px] rounded-2xl bg-white animate-pulse" />
+                            {[1, 2, 3].map((i) => (
+                                <div
+                                    key={i}
+                                    className="h-[400px] rounded-2xl bg-white animate-pulse"
+                                />
                             ))}
                         </div>
                     ) : remainingPosts.length > 0 ? (
@@ -79,7 +89,9 @@ export default function Blog() {
                         </div>
                     ) : !featuredPost ? (
                         <div className="py-20 text-center">
-                            <p className="text-xl text-gray-400 font-medium italic">No blog posts found. Check back later!</p>
+                            <p className="text-xl text-gray-400 font-medium italic">
+                                No blog posts found. Check back later!
+                            </p>
                         </div>
                     ) : null}
 

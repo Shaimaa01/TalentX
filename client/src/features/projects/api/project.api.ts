@@ -1,5 +1,5 @@
-import { apiClient } from "@/shared/api/client";
-import { Project } from "@/entities/project/model/types";
+import { apiClient } from '@/shared/api/client';
+import { Project } from '@/entities/project/model/types';
 
 export const projectApi = {
     getAll: async (): Promise<Project[]> => {
@@ -24,5 +24,5 @@ export const projectApi = {
 
     delete: async (id: string): Promise<void> => {
         await apiClient.delete(`/projects/${id}`);
-    }
+    },
 };

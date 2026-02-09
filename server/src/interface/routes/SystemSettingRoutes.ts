@@ -9,9 +9,24 @@ export const createSystemSettingRoutes = (controller: SystemSettingController) =
     router.get('/maintenance', controller.getMaintenanceMode);
 
     // Protected routes to change settings
-    router.post('/maintenance', authenticateToken, requireRole(['admin']), controller.setMaintenanceMode);
-    router.post('/commission', authenticateToken, requireRole(['admin']), controller.setPlatformCommission);
-    router.post('/vetting', authenticateToken, requireRole(['admin']), controller.setAutomaticVetting);
+    router.post(
+        '/maintenance',
+        authenticateToken,
+        requireRole(['admin']),
+        controller.setMaintenanceMode
+    );
+    router.post(
+        '/commission',
+        authenticateToken,
+        requireRole(['admin']),
+        controller.setPlatformCommission
+    );
+    router.post(
+        '/vetting',
+        authenticateToken,
+        requireRole(['admin']),
+        controller.setAutomaticVetting
+    );
     router.get('/all', authenticateToken, requireRole(['admin']), controller.getAllSettings);
 
     return router;

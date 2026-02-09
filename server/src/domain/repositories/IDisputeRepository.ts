@@ -1,4 +1,3 @@
-
 import { Dispute } from '@prisma/client';
 
 export interface IDisputeRepository {

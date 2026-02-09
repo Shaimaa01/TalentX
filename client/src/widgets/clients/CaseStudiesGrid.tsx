@@ -6,77 +6,77 @@ import { ExternalLink } from 'lucide-react';
 
 const caseStudies = [
     {
-        title: "Corpay",
-        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
-        logo: "CORPAY",
-        color: "from-blue-900/40"
+        title: 'Corpay',
+        image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop',
+        logo: 'CORPAY',
+        color: 'from-blue-900/40',
     },
     {
-        title: "Bridgestone",
-        image: "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop",
-        logo: "BRIDGESTONE",
-        color: "from-red-900/40"
+        title: 'Bridgestone',
+        image: 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop',
+        logo: 'BRIDGESTONE',
+        color: 'from-red-900/40',
     },
     {
-        title: "Big Sur AI",
-        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop",
-        logo: "BIG SUR AI",
-        color: "from-green-900/40"
+        title: 'Big Sur AI',
+        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop',
+        logo: 'BIG SUR AI',
+        color: 'from-green-900/40',
     },
     {
-        title: "Kamylon",
-        image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2070&auto=format&fit=crop",
-        logo: "KAMYLON",
-        color: "from-purple-900/40"
+        title: 'Kamylon',
+        image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2070&auto=format&fit=crop',
+        logo: 'KAMYLON',
+        color: 'from-purple-900/40',
     },
     {
-        title: "Precision Drilling",
-        image: "https://images.unsplash.com/photo-1516937622178-745583720b28?q=80&w=2070&auto=format&fit=crop",
-        logo: "PRECISION DRILLING",
-        color: "from-yellow-900/40"
+        title: 'Precision Drilling',
+        image: 'https://images.unsplash.com/photo-1516937622178-745583720b28?q=80&w=2070&auto=format&fit=crop',
+        logo: 'PRECISION DRILLING',
+        color: 'from-yellow-900/40',
     },
     {
-        title: "Zoetis",
-        image: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=2070&auto=format&fit=crop",
-        logo: "ZOETIS",
-        color: "from-teal-900/40"
+        title: 'Zoetis',
+        image: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=2070&auto=format&fit=crop',
+        logo: 'ZOETIS',
+        color: 'from-teal-900/40',
     },
     {
-        title: "Kraft Heinz",
-        image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
-        logo: "KRAFT HEINZ",
-        color: "from-red-800/40"
+        title: 'Kraft Heinz',
+        image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop',
+        logo: 'KRAFT HEINZ',
+        color: 'from-red-800/40',
     },
     {
-        title: "Duolingo",
-        image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop",
-        logo: "DUOLINGO",
-        color: "from-green-600/40"
+        title: 'Duolingo',
+        image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop',
+        logo: 'DUOLINGO',
+        color: 'from-green-600/40',
     },
     {
-        title: "Shopify",
-        image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop",
-        logo: "SHOPIFY",
-        color: "from-green-800/40"
+        title: 'Shopify',
+        image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop',
+        logo: 'SHOPIFY',
+        color: 'from-green-800/40',
     },
     {
-        title: "Calm",
-        image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2070&auto=format&fit=crop",
-        logo: "CALM",
-        color: "from-blue-400/40"
+        title: 'Calm',
+        image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2070&auto=format&fit=crop',
+        logo: 'CALM',
+        color: 'from-blue-400/40',
     },
     {
-        title: "USC",
-        image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop",
-        logo: "USC",
-        color: "from-yellow-700/40"
+        title: 'USC',
+        image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop',
+        logo: 'USC',
+        color: 'from-yellow-700/40',
     },
     {
-        title: "Toyota",
-        image: "https://images.unsplash.com/photo-1590362891175-379e4f210086?q=80&w=2070&auto=format&fit=crop",
-        logo: "TOYOTA",
-        color: "from-red-600/40"
-    }
+        title: 'Toyota',
+        image: 'https://images.unsplash.com/photo-1590362891175-379e4f210086?q=80&w=2070&auto=format&fit=crop',
+        logo: 'TOYOTA',
+        color: 'from-red-600/40',
+    },
 ];
 
 export default function CaseStudiesGrid() {
@@ -109,9 +109,9 @@ export default function CaseStudiesGrid() {
                         transition={{
                             x: {
                                 repeat: Infinity,
-                                repeatType: "loop",
+                                repeatType: 'loop',
                                 duration: 40,
-                                ease: "linear",
+                                ease: 'linear',
                             },
                         }}
                         className="flex gap-8 px-4"
@@ -133,9 +133,9 @@ export default function CaseStudiesGrid() {
                         transition={{
                             x: {
                                 repeat: Infinity,
-                                repeatType: "loop",
+                                repeatType: 'loop',
                                 duration: 45,
-                                ease: "linear",
+                                ease: 'linear',
                             },
                         }}
                         className="flex gap-8 px-4"
@@ -152,7 +152,7 @@ export default function CaseStudiesGrid() {
     );
 }
 
-function CaseStudyCard({ study, index }: { study: any, index: number }) {
+function CaseStudyCard({ study, index }: { study: any; index: number }) {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -169,7 +169,9 @@ function CaseStudyCard({ study, index }: { study: any, index: number }) {
             />
 
             {/* Gradient Overlays */}
-            <div className={`absolute inset-0 bg-gradient-to-b ${study.color} to-transparent opacity-40 group-hover:opacity-0 transition-opacity duration-700`} />
+            <div
+                className={`absolute inset-0 bg-gradient-to-b ${study.color} to-transparent opacity-40 group-hover:opacity-0 transition-opacity duration-700`}
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-95" />
 
             {/* Logo Area */}

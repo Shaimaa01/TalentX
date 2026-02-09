@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from "@/shared/components/ui/button";
+import { Button } from '@/shared/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
@@ -32,12 +32,13 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
                 {pages.map((page) => (
                     <Button
                         key={page}
-                        variant={currentPage === page ? "default" : "outline"}
+                        variant={currentPage === page ? 'default' : 'outline'}
                         onClick={() => onPageChange(page)}
-                        className={`w-10 h-10 rounded-lg ${currentPage === page
-                            ? "bg-primary text-white shadow-md shadow-primary/20"
-                            : "border-gray-200 text-gray-600 hover:bg-gray-50"
-                            }`}
+                        className={`w-10 h-10 rounded-lg ${
+                            currentPage === page
+                                ? 'bg-primary text-white shadow-md shadow-primary/20'
+                                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
                     >
                         {page}
                     </Button>

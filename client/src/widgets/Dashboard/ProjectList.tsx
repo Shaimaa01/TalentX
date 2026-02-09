@@ -1,14 +1,23 @@
 import React from 'react';
 import { Project, User } from '@/shared/types';
-import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { Calendar, DollarSign, Users, ChevronRight, MoreVertical, Briefcase, Edit, Trash2 } from 'lucide-react';
+} from '@/shared/components/ui/dropdown-menu';
+import {
+    Calendar,
+    DollarSign,
+    Users,
+    ChevronRight,
+    MoreVertical,
+    Briefcase,
+    Edit,
+    Trash2,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ProjectListProps {
@@ -19,7 +28,13 @@ interface ProjectListProps {
     onCreate?: () => void;
 }
 
-export default function ProjectList({ projects, onSelectProject, onEdit, onDelete, onCreate }: ProjectListProps) {
+export default function ProjectList({
+    projects,
+    onSelectProject,
+    onEdit,
+    onDelete,
+    onCreate,
+}: ProjectListProps) {
     if (projects.length === 0) {
         return (
             <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
@@ -27,8 +42,12 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
                     <Briefcase className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">No projects yet</h3>
-                <p className="text-gray-500 max-w-sm mx-auto mb-6">Start your first project by hiring talent or a team.</p>
-                <Button onClick={onCreate} className="bg-[#204ecf] hover:bg-[#1a3da8] text-white">Create Project</Button>
+                <p className="text-gray-500 max-w-sm mx-auto mb-6">
+                    Start your first project by hiring talent or a team.
+                </p>
+                <Button onClick={onCreate} className="bg-[#204ecf] hover:bg-[#1a3da8] text-white">
+                    Create Project
+                </Button>
             </div>
         );
     }
@@ -48,10 +67,15 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
                     >
                         <CardHeader className="p-6 pb-4 flex flex-row items-start justify-between space-y-0">
                             <div>
-                                <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-3 ${project.status === 'active' ? 'bg-green-100 text-green-800' :
-                                    project.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                                        'bg-yellow-100 text-yellow-800'
-                                    }`}>
+                                <div
+                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-3 ${
+                                        project.status === 'active'
+                                            ? 'bg-green-100 text-green-800'
+                                            : project.status === 'completed'
+                                              ? 'bg-blue-100 text-blue-800'
+                                              : 'bg-yellow-100 text-yellow-800'
+                                    }`}
+                                >
                                     {project.status.replace('_', ' ')}
                                 </div>
                                 <h3 className="font-bold text-lg text-[#1a1a2e] group-hover:text-[#204ecf] transition-colors">
@@ -60,15 +84,30 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
                             </div>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600 -mr-2 -mt-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-gray-400 hover:text-gray-600 -mr-2 -mt-2"
+                                    >
                                         <MoreVertical className="w-4 h-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit?.(project); }}>
+                                    <DropdownMenuItem
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onEdit?.(project);
+                                        }}
+                                    >
                                         <Edit className="w-4 h-4 mr-2" /> Edit
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem className="text-red-600" onClick={(e) => { e.stopPropagation(); onDelete?.(project.id); }}>
+                                    <DropdownMenuItem
+                                        className="text-red-600"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDelete?.(project.id);
+                                        }}
+                                    >
                                         <Trash2 className="w-4 h-4 mr-2" /> Delete
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -83,7 +122,9 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
                                 <div>
                                     <div className="flex justify-between text-xs mb-2">
                                         <span className="text-gray-500 font-medium">Progress</span>
-                                        <span className="text-[#1a1a2e] font-bold">{project.progress || 0}%</span>
+                                        <span className="text-[#1a1a2e] font-bold">
+                                            {project.progress || 0}%
+                                        </span>
                                     </div>
                                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                                         <div
@@ -97,18 +138,27 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
                                     <div className="flex items-center gap-2">
                                         <Calendar className="w-4 h-4 text-gray-400" />
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-400 uppercase font-bold">Deadline</span>
+                                            <span className="text-[10px] text-gray-400 uppercase font-bold">
+                                                Deadline
+                                            </span>
                                             <span className="text-xs font-medium text-gray-700">
-                                                {project.next_milestone ? new Date(project.next_milestone).toLocaleDateString() : 'TBD'}
+                                                {project.next_milestone
+                                                    ? new Date(
+                                                          project.next_milestone
+                                                      ).toLocaleDateString()
+                                                    : 'TBD'}
                                             </span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <DollarSign className="w-4 h-4 text-gray-400" />
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] text-gray-400 uppercase font-bold">Budget</span>
+                                            <span className="text-[10px] text-gray-400 uppercase font-bold">
+                                                Budget
+                                            </span>
                                             <span className="text-xs font-medium text-gray-700">
-                                                ${project.budget_spent?.toLocaleString() || 0} / ${project.total_budget?.toLocaleString() || '0'}
+                                                ${project.budget_spent?.toLocaleString() || 0} / $
+                                                {project.total_budget?.toLocaleString() || '0'}
                                             </span>
                                         </div>
                                     </div>
@@ -120,14 +170,22 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
                                 <div className="flex items-center gap-2">
                                     <div className="relative">
                                         <img
-                                            src={project.assigned_to.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.assigned_to.name)}&background=random`}
+                                            src={
+                                                project.assigned_to.image_url ||
+                                                `https://ui-avatars.com/api/?name=${encodeURIComponent(project.assigned_to.name)}&background=random`
+                                            }
                                             alt={project.assigned_to.name}
                                             className="w-8 h-8 rounded-full border border-gray-100 object-cover"
                                         />
-                                        <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 border-white rounded-full ${project.assigned_to.type === 'agency' ? 'bg-purple-500' :
-                                            project.assigned_to.type === 'team' ? 'bg-blue-500' :
-                                                'bg-[#00c853]'
-                                            }`} />
+                                        <div
+                                            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 border-white rounded-full ${
+                                                project.assigned_to.type === 'agency'
+                                                    ? 'bg-purple-500'
+                                                    : project.assigned_to.type === 'team'
+                                                      ? 'bg-blue-500'
+                                                      : 'bg-[#00c853]'
+                                            }`}
+                                        />
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight leading-none mb-0.5">
@@ -156,4 +214,3 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
         </div>
     );
 }
-

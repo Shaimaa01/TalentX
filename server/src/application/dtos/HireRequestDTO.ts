@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const CreateHireRequestSchema = z.object({
-    client_name: z.string().min(1, "Client Name is required"),
-    client_email: z.string().email("Invalid email"),
+    client_name: z.string().min(1, 'Client Name is required'),
+    client_email: z.string().email('Invalid email'),
     company_name: z.string().optional(),
     hire_type: z.string(), // 'individual' | 'team' | 'agency' etc.
     category: z.string().optional(),

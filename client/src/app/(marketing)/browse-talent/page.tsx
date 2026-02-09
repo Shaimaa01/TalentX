@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Card, CardContent, CardFooter } from '@/shared/components/ui/card';
 import {
     Search,
     Filter,
@@ -15,26 +15,24 @@ import {
     ChevronRight,
     Sparkles,
     Loader2,
-} from "lucide-react";
-import { talentXApi } from "@/shared/api/talentXApi";
-import { Talent } from "@/shared/types";
-import Link from "next/link";
-import Image from "next/image";
-import { createPageUrl } from "@/shared/lib/utils";
-import { motion } from "framer-motion";
-import AIMatchingModal from "@/widgets/browse/AIMatchingModal";
+} from 'lucide-react';
+import { talentXApi } from '@/shared/api/talentXApi';
+import { Talent } from '@/shared/types';
+import Link from 'next/link';
+import Image from 'next/image';
+import { createPageUrl } from '@/shared/lib/utils';
+import { motion } from 'framer-motion';
+import AIMatchingModal from '@/widgets/browse/AIMatchingModal';
 
-import { Pagination } from "@/shared/components/ui/pagination";
-import { Suspense } from "react";
+import { Pagination } from '@/shared/components/ui/pagination';
+import { Suspense } from 'react';
 
 function BrowseTalentContent() {
     const searchParams = useSearchParams();
     const [talents, setTalents] = useState<(Talent & { id: string })[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState(
-        searchParams.get("category") || "all"
-    );
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
     const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
     // Pagination state
@@ -42,19 +40,19 @@ function BrowseTalentContent() {
     const itemsPerPage = 8;
 
     useEffect(() => {
-        const categoryFromUrl = searchParams.get("category");
-        const searchTermFromUrl = searchParams.get("searchTerm");
+        const categoryFromUrl = searchParams.get('category');
+        const searchTermFromUrl = searchParams.get('searchTerm');
 
         if (categoryFromUrl) {
             setSelectedCategory(categoryFromUrl);
         } else {
-            setSelectedCategory("all");
+            setSelectedCategory('all');
         }
 
         if (searchTermFromUrl) {
             setSearchTerm(searchTermFromUrl);
         } else {
-            setSearchTerm("");
+            setSearchTerm('');
         }
     }, [searchParams]);
 
@@ -65,7 +63,7 @@ function BrowseTalentContent() {
                 const result = await talentXApi.entities.Talent.list();
                 let filtered = result as (Talent & { id: string })[];
 
-                if (selectedCategory !== "all") {
+                if (selectedCategory !== 'all') {
                     filtered = filtered.filter((t) => t.category === selectedCategory);
                 }
 
@@ -82,7 +80,7 @@ function BrowseTalentContent() {
                 setTalents(filtered);
                 setCurrentPage(1); // Reset to first page on filter change
             } catch (error) {
-                console.error("Failed to fetch talents:", error);
+                console.error('Failed to fetch talents:', error);
             } finally {
                 setLoading(false);
             }
@@ -99,21 +97,18 @@ function BrowseTalentContent() {
     );
 
     const categories = [
-        { id: "all", label: "All Talent" },
-        { id: "developer", label: "Developers" },
-        { id: "designer", label: "Designers" },
-        { id: "marketing", label: "Marketing" },
-        { id: "finance", label: "Finance" },
-        { id: "product_manager", label: "Product Managers" },
-        { id: "project_manager", label: "Project Managers" },
+        { id: 'all', label: 'All Talent' },
+        { id: 'developer', label: 'Developers' },
+        { id: 'designer', label: 'Designers' },
+        { id: 'marketing', label: 'Marketing' },
+        { id: 'finance', label: 'Finance' },
+        { id: 'product_manager', label: 'Product Managers' },
+        { id: 'project_manager', label: 'Project Managers' },
     ];
 
     return (
         <div className="min-h-screen bg-linear-to-b from-white via-gray-50/40 to-gray-100/60 pt-12 pb-16">
-            <AIMatchingModal
-                isOpen={isAIModalOpen}
-                onClose={() => setIsAIModalOpen(false)}
-            />
+            <AIMatchingModal isOpen={isAIModalOpen} onClose={() => setIsAIModalOpen(false)} />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
                 {/* Header */}
                 <motion.div
@@ -141,10 +136,10 @@ function BrowseTalentContent() {
                         <motion.div
                             initial={{ rotate: 0 }}
                             animate={{ rotate: 360 }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
                             style={{
                                 background:
-                                    "conic-gradient(from 0deg, transparent 80%, #204ecf 100%)",
+                                    'conic-gradient(from 0deg, transparent 80%, #204ecf 100%)',
                             }}
                             className="absolute inset-[-200%] aspect-square"
                         />
@@ -194,10 +189,11 @@ function BrowseTalentContent() {
                                         key={cat.id}
                                         onClick={() => setSelectedCategory(cat.id)}
                                         whileHover={{ x: 2 }}
-                                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${selectedCategory === cat.id
-                                            ? "bg-[#204ecf] text-white shadow-lg shadow-[#204ecf]/25"
-                                            : "text-gray-700 hover:bg-gray-50/80 hover:text-[#204ecf]"
-                                            }`}
+                                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                                            selectedCategory === cat.id
+                                                ? 'bg-[#204ecf] text-white shadow-lg shadow-[#204ecf]/25'
+                                                : 'text-gray-700 hover:bg-gray-50/80 hover:text-[#204ecf]'
+                                        }`}
                                     >
                                         {cat.label}
                                     </motion.button>
@@ -239,7 +235,9 @@ function BrowseTalentContent() {
                                                 whileHover={{ y: -4 }}
                                             >
                                                 <Link
-                                                    href={createPageUrl(`talent-profile?id=${talent.id}`)}
+                                                    href={createPageUrl(
+                                                        `talent-profile?id=${talent.id}`
+                                                    )}
                                                 >
                                                     <Card className="h-full bg-white/95 backdrop-blur-sm hover:shadow-2xl hover:shadow-[#204ecf]/5 transition-all duration-500 border border-gray-200/80 group cursor-pointer overflow-hidden flex flex-col hover:border-[#204ecf]/30">
                                                         <CardContent className="pt-4 pb-4 px-6 flex-1">
@@ -269,7 +267,8 @@ function BrowseTalentContent() {
                                                                         {talent.full_name}
                                                                     </h3>
                                                                     <p className="text-sm text-gray-500 font-medium mt-0.5">
-                                                                        {talent.location || "Remote"}
+                                                                        {talent.location ||
+                                                                            'Remote'}
                                                                     </p>
                                                                 </div>
 
@@ -293,19 +292,24 @@ function BrowseTalentContent() {
 
                                                             {/* Skills */}
                                                             <div className="flex flex-wrap gap-2 mb-4">
-                                                                {talent.skills?.slice(0, 3).map((skill) => (
-                                                                    <span
-                                                                        key={skill}
-                                                                        className="px-2.5 py-1 bg-gray-50 text-gray-600 text-xs rounded-md font-medium border border-gray-100"
-                                                                    >
-                                                                        {skill}
-                                                                    </span>
-                                                                ))}
-                                                                {talent.skills && talent.skills.length > 3 && (
-                                                                    <span className="px-2.5 py-1 bg-gray-50 text-gray-400 text-xs rounded-md font-medium border border-gray-100">
-                                                                        +{talent.skills.length - 3}
-                                                                    </span>
-                                                                )}
+                                                                {talent.skills
+                                                                    ?.slice(0, 3)
+                                                                    .map((skill) => (
+                                                                        <span
+                                                                            key={skill}
+                                                                            className="px-2.5 py-1 bg-gray-50 text-gray-600 text-xs rounded-md font-medium border border-gray-100"
+                                                                        >
+                                                                            {skill}
+                                                                        </span>
+                                                                    ))}
+                                                                {talent.skills &&
+                                                                    talent.skills.length > 3 && (
+                                                                        <span className="px-2.5 py-1 bg-gray-50 text-gray-400 text-xs rounded-md font-medium border border-gray-100">
+                                                                            +
+                                                                            {talent.skills.length -
+                                                                                3}
+                                                                        </span>
+                                                                    )}
                                                             </div>
 
                                                             {/* Additional Info */}
@@ -313,13 +317,16 @@ function BrowseTalentContent() {
                                                                 <div className="flex items-center gap-3">
                                                                     <Briefcase className="w-4 h-4 text-gray-400" />
                                                                     <span>
-                                                                        {talent.experience_years || 0}+ years exp.
+                                                                        {talent.experience_years ||
+                                                                            0}
+                                                                        + years exp.
                                                                     </span>
                                                                 </div>
                                                                 <div className="flex items-center gap-3">
                                                                     <DollarSign className="w-4 h-4 text-gray-400" />
                                                                     <span className="font-semibold text-[#1a1a2e]">
-                                                                        ${talent.hourly_rate || 0}/hr
+                                                                        ${talent.hourly_rate || 0}
+                                                                        /hr
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -331,7 +338,7 @@ function BrowseTalentContent() {
                                                                 Available Now
                                                             </span>
                                                             <span className="text-xs font-bold text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                                                                View Profile{" "}
+                                                                View Profile{' '}
                                                                 <ChevronRight className="w-3.5 h-3.5" />
                                                             </span>
                                                         </CardFooter>

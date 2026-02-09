@@ -6,10 +6,12 @@ export const UpdateAgencySchema = z.object({
     description: z.string().optional(),
     services: z.union([z.string(), z.array(z.string())]).optional(),
     industry_focus: z.union([z.string(), z.array(z.string())]).optional(),
-    coordinates: z.object({
-        lat: z.number(),
-        lng: z.number()
-    }).optional(),
+    coordinates: z
+        .object({
+            lat: z.number(),
+            lng: z.number(),
+        })
+        .optional(),
 });
 
 export type UpdateAgencyDTO = z.infer<typeof UpdateAgencySchema>;

@@ -13,7 +13,10 @@ export const useWebSocket = (url: string) => {
 
     const connect = useCallback(() => {
         // Don't connect if already connecting or open
-        if (ws.current?.readyState === WebSocket.OPEN || ws.current?.readyState === WebSocket.CONNECTING) {
+        if (
+            ws.current?.readyState === WebSocket.OPEN ||
+            ws.current?.readyState === WebSocket.CONNECTING
+        ) {
             return;
         }
 

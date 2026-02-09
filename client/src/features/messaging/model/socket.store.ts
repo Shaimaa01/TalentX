@@ -65,12 +65,14 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     sendMessage: (receiverId: string, content: string, isSupport = false) => {
         const { socket } = get();
         if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({
-                type: 'message',
-                receiver_id: receiverId,
-                content,
-                isSupport
-            }));
+            socket.send(
+                JSON.stringify({
+                    type: 'message',
+                    receiver_id: receiverId,
+                    content,
+                    isSupport,
+                })
+            );
         } else {
             toast.error('Connection lost. Please refresh.');
         }
@@ -78,5 +80,5 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     addMessage: (message: Message) => {
         set((state) => ({ messages: [...state.messages, message] }));
-    }
+    },
 }));

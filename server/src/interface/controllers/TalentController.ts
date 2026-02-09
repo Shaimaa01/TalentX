@@ -43,7 +43,10 @@ export class TalentController {
                 return res.status(400).json({ errors: (validationResult.error as any).errors });
             }
 
-            const updatedTalent = await this.talentService.updateTalent(req.params.id, validationResult.data);
+            const updatedTalent = await this.talentService.updateTalent(
+                req.params.id,
+                validationResult.data
+            );
             res.json(updatedTalent);
         } catch (error: any) {
             res.status(500).json({ message: error.message || 'Error updating talent' });

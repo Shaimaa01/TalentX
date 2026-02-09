@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Task } from '@/shared/types';
-import { Button } from "@/shared/components/ui/button";
+import { Button } from '@/shared/components/ui/button';
 import { Circle, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {

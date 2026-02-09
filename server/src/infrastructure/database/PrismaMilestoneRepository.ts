@@ -19,21 +19,21 @@ export class PrismaMilestoneRepository implements IMilestoneRepository {
     async findByProjectId(projectId: string): Promise<Milestone[]> {
         return this.prisma.milestone.findMany({
             where: { projectId },
-            orderBy: { createdAt: 'asc' }
+            orderBy: { createdAt: 'asc' },
         });
     }
 
     async updateStatus(id: string, status: string): Promise<Milestone> {
         return this.prisma.milestone.update({
             where: { id },
-            data: { status }
+            data: { status },
         });
     }
 
     async update(id: string, data: any): Promise<Milestone> {
         return this.prisma.milestone.update({
             where: { id },
-            data
+            data,
         });
     }
 

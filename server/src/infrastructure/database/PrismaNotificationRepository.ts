@@ -12,25 +12,25 @@ export class PrismaNotificationRepository implements INotificationRepository {
             data: {
                 type: data.type,
                 content: data.content,
-                userId: data.userId || "system", // Ensure userId is present or nullable in schema? Schema likely allow null or requires it.
+                userId: data.userId || 'system', // Ensure userId is present or nullable in schema? Schema likely allow null or requires it.
                 // Assuming schema matches.
                 data: data.data || null,
-                isRead: false
-            }
+                isRead: false,
+            },
         });
     }
 
     async findByUserId(userId: string): Promise<any[]> {
         return this.prisma.notification.findMany({
             where: { userId },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
 
     async markAsRead(id: string): Promise<void> {
         await this.prisma.notification.update({
             where: { id },
-            data: { isRead: true }
+            data: { isRead: true },
         });
     }
 }

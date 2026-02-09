@@ -10,7 +10,7 @@ import {
     MessageSquare,
     Settings,
     LogOut,
-    Menu
+    Menu,
 } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/model/auth.store';
 import { Button } from '@/shared/components/ui/button';
@@ -33,16 +33,22 @@ export function Sidebar() {
         <>
             {/* Mobile Trigger */}
             <div className="lg:hidden fixed top-4 left-4 z-50">
-                <Button variant="outline" size="icon" onClick={() => setIsMobileOpen(!isMobileOpen)}>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setIsMobileOpen(!isMobileOpen)}
+                >
                     <Menu className="h-6 w-6" />
                 </Button>
             </div>
 
             {/* Sidebar Container */}
-            <div className={cn(
-                "fixed inset-y-0 left-0 z-40 w-64 bg-[#1a1a2e] text-white transform transition-transform duration-200 ease-in-out lg:translate-x-0",
-                isMobileOpen ? "translate-x-0" : "-translate-x-full"
-            )}>
+            <div
+                className={cn(
+                    'fixed inset-y-0 left-0 z-40 w-64 bg-[#1a1a2e] text-white transform transition-transform duration-200 ease-in-out lg:translate-x-0',
+                    isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+                )}
+            >
                 <div className="flex flex-col h-full">
                     {/* Logo */}
                     <div className="h-16 flex items-center px-6 border-b border-gray-800">
@@ -62,13 +68,20 @@ export function Sidebar() {
                                     key={item.name}
                                     href={item.href}
                                     className={cn(
-                                        "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group",
+                                        'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group',
                                         isActive
-                                            ? "bg-blue-600 text-white"
-                                            : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                                            ? 'bg-blue-600 text-white'
+                                            : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                                     )}
                                 >
-                                    <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-white" : "text-gray-400 group-hover:text-white")} />
+                                    <Icon
+                                        className={cn(
+                                            'mr-3 h-5 w-5',
+                                            isActive
+                                                ? 'text-white'
+                                                : 'text-gray-400 group-hover:text-white'
+                                        )}
+                                    />
                                     {item.name}
                                 </Link>
                             );

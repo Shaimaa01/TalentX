@@ -15,10 +15,9 @@ This repository contains proprietary and confidential information. Access is gra
 
 ### Governance
 
--   **License**: Proprietary (Incrosoft). Refer to the [LICENSE](./LICENSE) file for formal licensing terms.
--   **Security**: Please report any security vulnerabilities directly to the security team as per internal protocols.
+- **License**: Proprietary (Incrosoft). Refer to the [LICENSE](./LICENSE) file for formal licensing terms.
+- **Security**: Please report any security vulnerabilities directly to the security team as per internal protocols.
 
 ---
 
 © 2026 Incrosoft. All rights reserved.
-

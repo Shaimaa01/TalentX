@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { Settings, Clock, ShieldAlert } from 'lucide-react';
@@ -23,14 +23,17 @@ const MaintenancePage = () => {
                         Under Maintenance
                     </h1>
                     <p className="text-gray-500 text-lg leading-relaxed">
-                        We're currently updating TalentX to provide you with a even better experience. We'll be back shortly!
+                        We're currently updating TalentX to provide you with a even better
+                        experience. We'll be back shortly!
                     </p>
                 </div>
 
                 <div className="bg-gray-50 rounded-3xl p-6 flex items-center justify-center gap-4 border border-gray-100">
                     <Clock className="w-6 h-6 text-blue-500" />
                     <div className="text-left">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Estimated Recovery</p>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                            Estimated Recovery
+                        </p>
                         <p className="text-lg font-bold text-[#1a1a2e]">Approximately 2 hours</p>
                     </div>
                 </div>

@@ -32,8 +32,10 @@ export class GoogleSheetGateway implements ISheetGateway {
                     applicationData.full_name,
                     applicationData.email,
                     // Smart Role/Title Column: usage of specific title for talent, or 'Agency' for agency role
-                    applicationData.role === 'agency' ? 'Agency' : (applicationData.title || 'N/A'),
-                    applicationData.experience_years ? applicationData.experience_years.toString() : 'N/A', // Experience
+                    applicationData.role === 'agency' ? 'Agency' : applicationData.title || 'N/A',
+                    applicationData.experience_years
+                        ? applicationData.experience_years.toString()
+                        : 'N/A', // Experience
                     applicationData.linkedin || 'N/A', // LinkedIn
                     applicationData.portfolio || 'N/A', // Portfolio
                     applicationData.agency_name || 'N/A',
@@ -42,8 +44,8 @@ export class GoogleSheetGateway implements ISheetGateway {
                     applicationData.linkedin_company_page || 'N/A',
                     applicationData.founded_year ? applicationData.founded_year.toString() : 'N/A',
                     applicationData.resume_url,
-                    'pending'
-                ]
+                    'pending',
+                ],
             ];
 
             console.log(`Attempting to append to Google Sheet ID: ${sheetId}`);
@@ -58,7 +60,6 @@ export class GoogleSheetGateway implements ISheetGateway {
             });
 
             console.log('✅ Successfully synced to Google Sheet');
-
         } catch (error: any) {
             console.error('❌ Google Sheet Sync Error:', error.message);
             if (error.response) {

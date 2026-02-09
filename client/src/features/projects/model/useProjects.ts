@@ -28,7 +28,7 @@ export const useCreateProject = () => {
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || 'Failed to create project');
-        }
+        },
     });
 };
 
@@ -42,6 +42,6 @@ export const useDeleteProject = () => {
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || 'Failed to delete project');
-        }
+        },
     });
 };

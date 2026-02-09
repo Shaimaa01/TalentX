@@ -16,7 +16,7 @@ export const ProfileSettings = () => {
         title: '',
         location: '',
         hourly_rate: '',
-        bio: ''
+        bio: '',
     });
 
     useEffect(() => {
@@ -25,7 +25,7 @@ export const ProfileSettings = () => {
                 title: profile.title || '',
                 location: profile.location || '',
                 hourly_rate: profile.hourly_rate?.toString() || '',
-                bio: profile.bio || ''
+                bio: profile.bio || '',
             });
         }
     }, [profile]);
@@ -40,8 +40,8 @@ export const ProfileSettings = () => {
                 title: formData.title,
                 location: formData.location,
                 hourly_rate: parseFloat(formData.hourly_rate),
-                bio: formData.bio
-            }
+                bio: formData.bio,
+            },
         });
     };
 
@@ -52,7 +52,9 @@ export const ProfileSettings = () => {
         return (
             <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm text-center">
                 <h2 className="text-xl font-bold text-gray-900 mb-2">Account Settings</h2>
-                <p className="text-gray-500">Profile editing is currently only available for Talents and Agencies.</p>
+                <p className="text-gray-500">
+                    Profile editing is currently only available for Talents and Agencies.
+                </p>
             </div>
         );
     }
@@ -72,37 +74,49 @@ export const ProfileSettings = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Professional Title</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Professional Title
+                        </label>
                         <div className="relative">
                             <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <Input
                                 value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, title: e.target.value })
+                                }
                                 placeholder="e.g. Senior React Developer"
                                 className="pl-10"
                             />
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Location
+                        </label>
                         <div className="relative">
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <Input
                                 value={formData.location}
-                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, location: e.target.value })
+                                }
                                 placeholder="e.g. New York, USA"
                                 className="pl-10"
                             />
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Hourly Rate ($)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Hourly Rate ($)
+                        </label>
                         <div className="relative">
                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <Input
                                 type="number"
                                 value={formData.hourly_rate}
-                                onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, hourly_rate: e.target.value })
+                                }
                                 placeholder="0.00"
                                 className="pl-10"
                             />

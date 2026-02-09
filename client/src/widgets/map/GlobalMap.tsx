@@ -12,7 +12,7 @@ interface GlobalMapProps {
     className?: string;
 }
 
-export default function GlobalMap({ talents, teams, agencies, className = "" }: GlobalMapProps) {
+export default function GlobalMap({ talents, teams, agencies, className = '' }: GlobalMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const pointerInteracting = useRef<number | null>(null);
     const pointerInteractionMovement = useRef(0);
@@ -31,7 +31,7 @@ export default function GlobalMap({ talents, teams, agencies, className = "" }: 
         let width = 0;
 
         const onResize = () => {
-            if (canvasRef.current && (width !== canvasRef.current.offsetWidth)) {
+            if (canvasRef.current && width !== canvasRef.current.offsetWidth) {
                 width = canvasRef.current.offsetWidth;
             }
         };
@@ -41,28 +41,55 @@ export default function GlobalMap({ talents, teams, agencies, className = "" }: 
         if (!canvasRef.current) return;
 
         // Define TalentX HQ (e.g., San Francisco) - The "Master Dot"
-        const talentXHQ = { location: [37.7749, -122.4194] as [number, number], size: 0.2, color: [1, 0.2, 0.2] as [number, number, number] }; // Bigger Red Dot
+        const talentXHQ = {
+            location: [37.7749, -122.4194] as [number, number],
+            size: 0.2,
+            color: [1, 0.2, 0.2] as [number, number, number],
+        }; // Bigger Red Dot
 
         // Prepare markers
         const otherMarkers = [
-            ...talents.filter(t => t.coordinates).map(t => ({ location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number], size: 0.05, color: [0.2, 0.5, 1] as [number, number, number] })),
-            ...teams.filter(t => t.coordinates).map(t => ({ location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number], size: 0.08, color: [0.6, 0.2, 1] as [number, number, number] })),
-            ...agencies.filter(t => t.coordinates).map(t => ({ location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number], size: 0.08, color: [0.2, 0.8, 0.4] as [number, number, number] }))
+            ...talents
+                .filter((t) => t.coordinates)
+                .map((t) => ({
+                    location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number],
+                    size: 0.05,
+                    color: [0.2, 0.5, 1] as [number, number, number],
+                })),
+            ...teams
+                .filter((t) => t.coordinates)
+                .map((t) => ({
+                    location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number],
+                    size: 0.08,
+                    color: [0.6, 0.2, 1] as [number, number, number],
+                })),
+            ...agencies
+                .filter((t) => t.coordinates)
+                .map((t) => ({
+                    location: [t.coordinates!.lat, t.coordinates!.lng] as [number, number],
+                    size: 0.08,
+                    color: [0.2, 0.8, 0.4] as [number, number, number],
+                })),
         ];
 
         // Define connections: From HQ to all others
-        const connections: { start: [number, number], end: [number, number], progress: number, speed: number }[] = [];
+        const connections: {
+            start: [number, number];
+            end: [number, number];
+            progress: number;
+            speed: number;
+        }[] = [];
 
         // Create connections to a subset of markers to avoid clutter
         const maxConnections = 40;
         const targetMarkers = otherMarkers.sort(() => 0.5 - Math.random()).slice(0, maxConnections);
 
-        targetMarkers.forEach(target => {
+        targetMarkers.forEach((target) => {
             connections.push({
                 start: talentXHQ.location,
                 end: target.location,
                 progress: Math.random(),
-                speed: 0.003 + Math.random() * 0.005
+                speed: 0.003 + Math.random() * 0.005,
             });
         });
 
@@ -89,18 +116,18 @@ export default function GlobalMap({ talents, teams, agencies, className = "" }: 
                 state.height = width * 2;
 
                 // Animate markers
-                const currentMarkers = otherMarkers.map(m => ({
+                const currentMarkers = otherMarkers.map((m) => ({
                     ...m,
-                    size: m.size * (0.8 + 0.4 * Math.sin(Date.now() / 200 + m.location[0] * 10))
+                    size: m.size * (0.8 + 0.4 * Math.sin(Date.now() / 200 + m.location[0] * 10)),
                 }));
 
                 // Add Master Dot with distinct "heartbeat" pulse
                 currentMarkers.push({
                     ...talentXHQ,
-                    size: talentXHQ.size * (1 + 0.3 * Math.sin(Date.now() / 500))
+                    size: talentXHQ.size * (1 + 0.3 * Math.sin(Date.now() / 500)),
                 });
 
-                connections.forEach(conn => {
+                connections.forEach((conn) => {
                     conn.progress += conn.speed;
                     if (conn.progress > 1) conn.progress = 0;
 
@@ -111,25 +138,31 @@ export default function GlobalMap({ talents, teams, agencies, className = "" }: 
                     currentMarkers.push({
                         location: [lat, lng],
                         size: 0.03,
-                        color: [1, 1, 1]
+                        color: [1, 1, 1],
                     });
 
                     // Trail
                     for (let i = 1; i <= 3; i++) {
-                        const trailProgress = conn.progress - (i * 0.02);
+                        const trailProgress = conn.progress - i * 0.02;
                         if (trailProgress > 0) {
-                            const tLat = conn.start[0] + (conn.end[0] - conn.start[0]) * trailProgress;
-                            const tLng = conn.start[1] + (conn.end[1] - conn.start[1]) * trailProgress;
+                            const tLat =
+                                conn.start[0] + (conn.end[0] - conn.start[0]) * trailProgress;
+                            const tLng =
+                                conn.start[1] + (conn.end[1] - conn.start[1]) * trailProgress;
                             currentMarkers.push({
                                 location: [tLat, tLng],
                                 size: 0.03 * (1 - i / 4),
-                                color: [1, 1, 1]
+                                color: [1, 1, 1],
                             });
                         }
                     }
                 });
 
-                state.markers = currentMarkers.map(m => ({ location: m.location, size: m.size, color: m.color }));
+                state.markers = currentMarkers.map((m) => ({
+                    location: m.location,
+                    size: m.size,
+                    color: m.color,
+                }));
             },
         });
 
@@ -140,12 +173,21 @@ export default function GlobalMap({ talents, teams, agencies, className = "" }: 
     }, [talents, teams, agencies, r]);
 
     return (
-        <div className={`relative flex items-center justify-center bg-[#050510] overflow-hidden rounded-xl border border-white/10 shadow-2xl ${className || 'w-full h-[500px]'}`}>
+        <div
+            className={`relative flex items-center justify-center bg-[#050510] overflow-hidden rounded-xl border border-white/10 shadow-2xl ${className || 'w-full h-[500px]'}`}
+        >
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050510]/20 to-[#050510] z-10 pointer-events-none" />
 
             <canvas
                 ref={canvasRef}
-                style={{ width: '100%', height: '100%', maxWidth: '500px', aspectRatio: '1', position: 'relative', zIndex: 1 }}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    maxWidth: '500px',
+                    aspectRatio: '1',
+                    position: 'relative',
+                    zIndex: 1,
+                }}
                 onPointerDown={(e) => {
                     pointerInteracting.current = e.clientX - pointerInteractionMovement.current;
                     canvasRef.current!.style.cursor = 'grabbing';

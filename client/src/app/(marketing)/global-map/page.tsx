@@ -10,7 +10,11 @@ import Link from 'next/link';
 // Dynamically import the map component to avoid SSR issues
 const GlobalMap = dynamic(() => import('@/widgets/map/GlobalMap'), {
     ssr: false,
-    loading: () => <div className="w-full h-[600px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center text-gray-400">Loading Map...</div>
+    loading: () => (
+        <div className="w-full h-[600px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center text-gray-400">
+            Loading Map...
+        </div>
+    ),
 });
 
 export default function GlobalMapPage() {
@@ -28,7 +32,7 @@ export default function GlobalMapPage() {
                 setTeams([]);
                 setAgencies([]);
             } catch (error) {
-                console.error("Failed to fetch map data", error);
+                console.error('Failed to fetch map data', error);
             } finally {
                 setLoading(false);
             }
@@ -54,9 +58,12 @@ export default function GlobalMapPage() {
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">Explore Our Global Network</h2>
+                    <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">
+                        Explore Our Global Network
+                    </h2>
                     <p className="text-gray-500">
-                        Visualize where our top talents, specialized teams, and partner agencies are located around the world.
+                        Visualize where our top talents, specialized teams, and partner agencies are
+                        located around the world.
                     </p>
                 </div>
 
@@ -78,7 +85,12 @@ export default function GlobalMapPage() {
 
                 {/* Map */}
                 <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <GlobalMap talents={talents} teams={teams} agencies={agencies} className="w-full h-[600px] rounded-none border-none shadow-none" />
+                    <GlobalMap
+                        talents={talents}
+                        teams={teams}
+                        agencies={agencies}
+                        className="w-full h-[600px] rounded-none border-none shadow-none"
+                    />
                 </div>
             </main>
         </div>

@@ -10,7 +10,7 @@ export class PrismaTaskRepository implements ITaskRepository {
     async create(data: any): Promise<any> {
         return this.prisma.task.create({
             data,
-            include: { project: true }
+            include: { project: true },
         });
     }
 
@@ -18,7 +18,7 @@ export class PrismaTaskRepository implements ITaskRepository {
         return this.prisma.task.update({
             where: { id },
             data,
-            include: { project: true }
+            include: { project: true },
         });
     }
 
@@ -29,7 +29,7 @@ export class PrismaTaskRepository implements ITaskRepository {
     async findById(id: string): Promise<any | null> {
         return this.prisma.task.findUnique({
             where: { id },
-            include: { project: true }
+            include: { project: true },
         });
     }
 

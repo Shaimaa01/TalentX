@@ -4,8 +4,5 @@
         "rootDir": "..",
         "noEmit": true
     },
-    "include": [
-        ".",
-        "../src/shared/types/**/*"
-    ]
+    "include": [".", "../src/shared/types/**/*"]
 }

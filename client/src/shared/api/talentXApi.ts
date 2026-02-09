@@ -8,7 +8,7 @@ export const talentXApi = {
         login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
             const response = await apiClient.post('/auth/login', {
                 email,
-                password
+                password,
             });
 
             const { user, token } = response.data;
@@ -46,7 +46,7 @@ export const talentXApi = {
                 localStorage.removeItem('talentx_user');
                 localStorage.removeItem('talentx_token');
             }
-        }
+        },
     },
     entities: {
         Talent: {
@@ -61,7 +61,7 @@ export const talentXApi = {
             update: async (id: string, data: Partial<Talent>): Promise<Talent & { id: string }> => {
                 const response = await apiClient.patch(`/talents/${id}`, data);
                 return response.data;
-            }
+            },
         },
         Agency: {
             list: async (): Promise<(Agency & { id: string })[]> => {
@@ -75,7 +75,7 @@ export const talentXApi = {
             update: async (id: string, data: Partial<Agency>): Promise<Agency & { id: string }> => {
                 const response = await apiClient.patch(`/agencies/${id}`, data);
                 return response.data;
-            }
+            },
         },
         Team: {
             list: async (): Promise<(Team & { id: string })[]> => {
@@ -104,17 +104,19 @@ export const talentXApi = {
                 };
                 const response = await apiClient.post('/teams/hire', backendData);
                 return response.data;
-            }
+            },
         },
         Subscription: {
             filter: async (query: any): Promise<Subscription[]> => {
                 // Subscriptions are not fully implemented in backend yet, return mock
-                return [{
-                    user_email: 'demo@example.com',
-                    status: 'active'
-                }];
+                return [
+                    {
+                        user_email: 'demo@example.com',
+                        status: 'active',
+                    },
+                ];
             },
-            create: async (data: any) => ({ id: 'sub_123', ...data })
+            create: async (data: any) => ({ id: 'sub_123', ...data }),
         },
         HireRequest: {
             list: async (): Promise<HireRequest[]> => {
@@ -128,7 +130,7 @@ export const talentXApi = {
             updateStatus: async (id: string, status: string) => {
                 const response = await apiClient.patch(`/hire-requests/${id}/status`, { status });
                 return response.data;
-            }
+            },
         },
         Project: {
             list: async (): Promise<Project[]> => {
@@ -147,7 +149,11 @@ export const talentXApi = {
                 const response = await apiClient.patch(`/projects/${id}`, data);
                 return response.data;
             },
-            recordPayment: async (data: { projectId: string; talentId: string; amount: number }) => {
+            recordPayment: async (data: {
+                projectId: string;
+                talentId: string;
+                amount: number;
+            }) => {
                 const response = await apiClient.post('/projects/pay', data);
                 return response.data;
             },
@@ -162,7 +168,7 @@ export const talentXApi = {
             releasePayment: async (id: string) => {
                 const response = await apiClient.post(`/projects/${id}/release-payment`);
                 return response.data;
-            }
+            },
         },
         Task: {
             list: async (): Promise<Task[]> => {
@@ -184,7 +190,7 @@ export const talentXApi = {
             delete: async (id: string) => {
                 const response = await apiClient.delete(`/tasks/${id}`);
                 return response.data;
-            }
+            },
         },
         Message: {
             list: async (query?: any): Promise<Message[]> => {
@@ -202,7 +208,7 @@ export const talentXApi = {
             markRead: async (data: { isSupport: boolean; threadUserId?: string }) => {
                 const response = await apiClient.post('/messages/read', data);
                 return response.data;
-            }
+            },
         },
         User: {
             list: async (): Promise<User[]> => {
@@ -228,7 +234,7 @@ export const talentXApi = {
             toggleStatus: async (id: string, status: 'active' | 'disabled') => {
                 const response = await apiClient.patch(`/users/${id}`, { status });
                 return response.data;
-            }
+            },
         },
         Notification: {
             list: async (userId?: string): Promise<any[]> => {
@@ -238,7 +244,7 @@ export const talentXApi = {
             markRead: async (id: string) => {
                 const response = await apiClient.patch(`/notifications/${id}/read`);
                 return response.data;
-            }
+            },
         },
         Application: {
             list: async (): Promise<any[]> => {
@@ -260,7 +266,7 @@ export const talentXApi = {
             getSheetUrl: async () => {
                 const response = await apiClient.get('/applications/sheet-url');
                 return response.data;
-            }
+            },
         },
         Admin: {
             getAnalytics: async () => {
@@ -274,53 +280,72 @@ export const talentXApi = {
                             { month: 'Feb', value: 92000 },
                             { month: 'Mar', value: 105000 },
                             { month: 'Apr', value: 112000 },
-                            { month: 'May', value: 124500 }
-                        ]
+                            { month: 'May', value: 124500 },
+                        ],
                     },
                     users: {
                         total: 450,
                         growth: 24,
-                        distribution: { talent: 300, agency: 50, client: 100 }
+                        distribution: { talent: 300, agency: 50, client: 100 },
                     },
                     projects: {
                         total: 82,
                         active: 45,
-                        completed: 37
-                    }
+                        completed: 37,
+                    },
                 };
             },
-            getAuditLogs: async (filters?: { entityType?: string; startDate?: string; endDate?: string }): Promise<AuditLog[]> => {
+            getAuditLogs: async (filters?: {
+                entityType?: string;
+                startDate?: string;
+                endDate?: string;
+            }): Promise<AuditLog[]> => {
                 const response = await apiClient.get('/admin/audit-logs', { params: filters });
                 return response.data;
-            }
+            },
         },
         CMS: {
             FAQ: {
                 list: async (): Promise<FAQ[]> => (await apiClient.get('/cms/faqs')).data,
-                create: async (data: Partial<FAQ>) => (await apiClient.post('/cms/faqs', data)).data,
-                update: async (id: string, data: Partial<FAQ>) => (await apiClient.patch(`/cms/faqs/${id}`, data)).data,
-                delete: async (id: string) => (await apiClient.delete(`/cms/faqs/${id}`)).data
+                create: async (data: Partial<FAQ>) =>
+                    (await apiClient.post('/cms/faqs', data)).data,
+                update: async (id: string, data: Partial<FAQ>) =>
+                    (await apiClient.patch(`/cms/faqs/${id}`, data)).data,
+                delete: async (id: string) => (await apiClient.delete(`/cms/faqs/${id}`)).data,
             },
             Testimonial: {
-                list: async (): Promise<Testimonial[]> => (await apiClient.get('/cms/testimonials')).data,
-                create: async (data: Partial<Testimonial>) => (await apiClient.post('/cms/testimonials', data)).data,
-                update: async (id: string, data: Partial<Testimonial>) => (await apiClient.patch(`/cms/testimonials/${id}`, data)).data,
-                delete: async (id: string) => (await apiClient.delete(`/cms/testimonials/${id}`)).data
+                list: async (): Promise<Testimonial[]> =>
+                    (await apiClient.get('/cms/testimonials')).data,
+                create: async (data: Partial<Testimonial>) =>
+                    (await apiClient.post('/cms/testimonials', data)).data,
+                update: async (id: string, data: Partial<Testimonial>) =>
+                    (await apiClient.patch(`/cms/testimonials/${id}`, data)).data,
+                delete: async (id: string) =>
+                    (await apiClient.delete(`/cms/testimonials/${id}`)).data,
             },
             CaseStudy: {
-                list: async (): Promise<CaseStudy[]> => (await apiClient.get('/cms/case-studies')).data,
-                create: async (data: Partial<CaseStudy>) => (await apiClient.post('/cms/case-studies', data)).data,
-                update: async (id: string, data: Partial<CaseStudy>) => (await apiClient.patch(`/cms/case-studies/${id}`, data)).data,
-                delete: async (id: string) => (await apiClient.delete(`/cms/case-studies/${id}`)).data
+                list: async (): Promise<CaseStudy[]> =>
+                    (await apiClient.get('/cms/case-studies')).data,
+                create: async (data: Partial<CaseStudy>) =>
+                    (await apiClient.post('/cms/case-studies', data)).data,
+                update: async (id: string, data: Partial<CaseStudy>) =>
+                    (await apiClient.patch(`/cms/case-studies/${id}`, data)).data,
+                delete: async (id: string) =>
+                    (await apiClient.delete(`/cms/case-studies/${id}`)).data,
             },
             BlogPost: {
-                list: async (): Promise<BlogPost[]> => (await apiClient.get('/cms/blog-posts')).data,
-                getBySlug: async (slug: string): Promise<BlogPost> => (await apiClient.get(`/cms/blog-posts/slug/${slug}`)).data,
-                create: async (data: Partial<BlogPost>) => (await apiClient.post('/cms/blog-posts', data)).data,
-                update: async (id: string, data: Partial<BlogPost>) => (await apiClient.patch(`/cms/blog-posts/${id}`, data)).data,
-                delete: async (id: string) => (await apiClient.delete(`/cms/blog-posts/${id}`)).data
-            }
-        }
+                list: async (): Promise<BlogPost[]> =>
+                    (await apiClient.get('/cms/blog-posts')).data,
+                getBySlug: async (slug: string): Promise<BlogPost> =>
+                    (await apiClient.get(`/cms/blog-posts/slug/${slug}`)).data,
+                create: async (data: Partial<BlogPost>) =>
+                    (await apiClient.post('/cms/blog-posts', data)).data,
+                update: async (id: string, data: Partial<BlogPost>) =>
+                    (await apiClient.patch(`/cms/blog-posts/${id}`, data)).data,
+                delete: async (id: string) =>
+                    (await apiClient.delete(`/cms/blog-posts/${id}`)).data,
+            },
+        },
     },
     Legal: {
         Contracts: {
@@ -335,7 +360,7 @@ export const talentXApi = {
             sign: async (id: string, signature: string) => {
                 const response = await apiClient.post(`/contracts/${id}/sign`, { signature });
                 return response.data;
-            }
+            },
         },
         Disputes: {
             listByProject: async (projectId: string): Promise<any[]> => {
@@ -354,8 +379,8 @@ export const talentXApi = {
             resolve: async (id: string, data: { resolution: string; status: string }) => {
                 const response = await apiClient.post(`/disputes/${id}/resolve`, data);
                 return response.data;
-            }
-        }
+            },
+        },
     },
     integrations: {
         Core: {
@@ -364,55 +389,76 @@ export const talentXApi = {
                     return {
                         teams: [
                             {
-                                team_name: "The A-Team",
-                                talent_ids: ["1", "2", "3"],
-                                rationale: "Perfect blend of frontend, backend, and design skills.",
-                                hourly_rate: 250
-                            }
-                        ]
+                                team_name: 'The A-Team',
+                                talent_ids: ['1', '2', '3'],
+                                rationale: 'Perfect blend of frontend, backend, and design skills.',
+                                hourly_rate: 250,
+                            },
+                        ],
                     };
                 }
                 return { matches: [] };
-            }
-        }
+            },
+        },
     },
     WorkVerification: {
         TimeLogs: {
             listByProject: async (projectId: string): Promise<any[]> => {
-                const response = await apiClient.get(`/work-verification/time-logs/project/${projectId}`);
+                const response = await apiClient.get(
+                    `/work-verification/time-logs/project/${projectId}`
+                );
                 return response.data;
             },
-            log: async (data: { projectId: string; hours: number; description: string; date: string }) => {
+            log: async (data: {
+                projectId: string;
+                hours: number;
+                description: string;
+                date: string;
+            }) => {
                 const response = await apiClient.post('/work-verification/time-logs', data);
                 return response.data;
             },
             approve: async (id: string) => {
-                const response = await apiClient.patch(`/work-verification/time-logs/${id}/approve`);
+                const response = await apiClient.patch(
+                    `/work-verification/time-logs/${id}/approve`
+                );
                 return response.data;
             },
             reject: async (id: string) => {
                 const response = await apiClient.patch(`/work-verification/time-logs/${id}/reject`);
                 return response.data;
-            }
+            },
         },
         Milestones: {
             listByProject: async (projectId: string): Promise<any[]> => {
-                const response = await apiClient.get(`/work-verification/milestones/project/${projectId}`);
+                const response = await apiClient.get(
+                    `/work-verification/milestones/project/${projectId}`
+                );
                 return response.data;
             },
-            create: async (data: { projectId: string; title: string; description: string; amount: number; due_date?: string }) => {
+            create: async (data: {
+                projectId: string;
+                title: string;
+                description: string;
+                amount: number;
+                due_date?: string;
+            }) => {
                 const response = await apiClient.post('/work-verification/milestones', data);
                 return response.data;
             },
             requestApproval: async (id: string) => {
-                const response = await apiClient.patch(`/work-verification/milestones/${id}/request-approval`);
+                const response = await apiClient.patch(
+                    `/work-verification/milestones/${id}/request-approval`
+                );
                 return response.data;
             },
             approve: async (id: string) => {
-                const response = await apiClient.patch(`/work-verification/milestones/${id}/approve`);
+                const response = await apiClient.patch(
+                    `/work-verification/milestones/${id}/approve`
+                );
                 return response.data;
-            }
-        }
+            },
+        },
     },
     Settings: {
         getMaintenanceMode: async () => {
@@ -434,6 +480,6 @@ export const talentXApi = {
         getAll: async () => {
             const response = await apiClient.get('/settings/all');
             return response.data;
-        }
-    }
+        },
+    },
 };

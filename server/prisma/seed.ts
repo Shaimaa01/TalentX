@@ -40,10 +40,52 @@ async function main() {
     });
 
     // Helper for random roles and categories
-    const roles = ['Product Designer', 'React Developer', 'Node.js Developer', 'UX Researcher', 'DevOps Engineer', 'Data Scientist', 'Marketing Specialist', 'Product Manager', 'Project Manager', 'Financial Analyst'];
-    const categories = ['designer', 'developer', 'developer', 'designer', 'developer', 'developer', 'marketing', 'product_manager', 'project_manager', 'finance'];
-    const skillsList = [['Figma', 'UI/UX'], ['React', 'Next.js'], ['Node.js', 'Express'], ['User Research', 'Usability Testing'], ['AWS', 'Docker'], ['Python', 'Pandas'], ['SEO', 'Content Marketing'], ['Agile', 'Jira'], ['Scrum', 'Planning'], ['Excel', 'Financial Modeling']];
-    const locations = ['San Francisco, CA', 'New York, NY', 'London, UK', 'Berlin, DE', 'Toronto, CA', 'Singapore', 'Sydney, AU', 'Bangalore, IN'];
+    const roles = [
+        'Product Designer',
+        'React Developer',
+        'Node.js Developer',
+        'UX Researcher',
+        'DevOps Engineer',
+        'Data Scientist',
+        'Marketing Specialist',
+        'Product Manager',
+        'Project Manager',
+        'Financial Analyst',
+    ];
+    const categories = [
+        'designer',
+        'developer',
+        'developer',
+        'designer',
+        'developer',
+        'developer',
+        'marketing',
+        'product_manager',
+        'project_manager',
+        'finance',
+    ];
+    const skillsList = [
+        ['Figma', 'UI/UX'],
+        ['React', 'Next.js'],
+        ['Node.js', 'Express'],
+        ['User Research', 'Usability Testing'],
+        ['AWS', 'Docker'],
+        ['Python', 'Pandas'],
+        ['SEO', 'Content Marketing'],
+        ['Agile', 'Jira'],
+        ['Scrum', 'Planning'],
+        ['Excel', 'Financial Modeling'],
+    ];
+    const locations = [
+        'San Francisco, CA',
+        'New York, NY',
+        'London, UK',
+        'Berlin, DE',
+        'Toronto, CA',
+        'Singapore',
+        'Sydney, AU',
+        'Bangalore, IN',
+    ];
 
     // Create 30 Talents
     const talents = [];

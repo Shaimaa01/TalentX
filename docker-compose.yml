@@ -1,35 +1,35 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_DB: ${POSTGRES_DB:-talentx}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    db:
+        image: postgres:15-alpine
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+            POSTGRES_DB: ${POSTGRES_DB:-talentx}
+        ports:
+            - '5432:5432'
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
 
-  server:
-    build: ./server
-    ports:
-      - "8000:8000"
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-talentx}?schema=public
-      JWT_SECRET: ${JWT_SECRET:-secret}
-    depends_on:
-      - db
+    server:
+        build: ./server
+        ports:
+            - '8000:8000'
+        environment:
+            DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-talentx}?schema=public
+            JWT_SECRET: ${JWT_SECRET:-secret}
+        depends_on:
+            - db
 
-  client:
-    build: ./client
-    ports:
-      - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: http://server:8000/api
-    depends_on:
-      - server
+    client:
+        build: ./client
+        ports:
+            - '3000:3000'
+        environment:
+            NEXT_PUBLIC_API_URL: http://server:8000/api
+        depends_on:
+            - server
 
 volumes:
-  postgres_data:
+    postgres_data:

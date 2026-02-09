@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { ContractController } from '../controllers/ContractController';
 import { authenticateToken } from '../middleware/AuthMiddleware';

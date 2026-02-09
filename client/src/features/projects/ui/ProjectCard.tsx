@@ -13,13 +13,20 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
             <div className="p-6 flex-1">
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-2 ${project.status === 'active' ? 'bg-green-100 text-green-800' :
-                                project.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                                    'bg-yellow-100 text-yellow-800'
-                            }`}>
+                        <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-2 ${
+                                project.status === 'active'
+                                    ? 'bg-green-100 text-green-800'
+                                    : project.status === 'completed'
+                                      ? 'bg-blue-100 text-blue-800'
+                                      : 'bg-yellow-100 text-yellow-800'
+                            }`}
+                        >
                             {project.status?.replace('_', ' ')}
                         </span>
-                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{project.name}</h3>
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                            {project.name}
+                        </h3>
                     </div>
                 </div>
 
@@ -31,7 +38,9 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
                     <div>
                         <div className="flex justify-between text-xs mb-2">
                             <span className="text-gray-500 font-medium">Progress</span>
-                            <span className="text-gray-900 font-bold">{project.progress || 0}%</span>
+                            <span className="text-gray-900 font-bold">
+                                {project.progress || 0}%
+                            </span>
                         </div>
                         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                             <div
@@ -45,18 +54,25 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
                         <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-gray-400" />
                             <div className="flex flex-col">
-                                <span className="text-[10px] text-gray-400 uppercase font-bold">Deadline</span>
+                                <span className="text-[10px] text-gray-400 uppercase font-bold">
+                                    Deadline
+                                </span>
                                 <span className="text-xs font-medium text-gray-700">
-                                    {project.next_milestone ? new Date(project.next_milestone).toLocaleDateString() : 'TBD'}
+                                    {project.next_milestone
+                                        ? new Date(project.next_milestone).toLocaleDateString()
+                                        : 'TBD'}
                                 </span>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
                             <DollarSign className="w-4 h-4 text-gray-400" />
                             <div className="flex flex-col">
-                                <span className="text-[10px] text-gray-400 uppercase font-bold">Budget</span>
+                                <span className="text-[10px] text-gray-400 uppercase font-bold">
+                                    Budget
+                                </span>
                                 <span className="text-xs font-medium text-gray-700">
-                                    ${project.budget_spent?.toLocaleString()} / ${project.total_budget?.toLocaleString()}
+                                    ${project.budget_spent?.toLocaleString()} / $
+                                    {project.total_budget?.toLocaleString()}
                                 </span>
                             </div>
                         </div>
@@ -86,7 +102,10 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
                     </div>
                 )}
 
-                <Link href={`/projects/${project.id}`} className="flex items-center gap-1 text-blue-600 font-bold text-xs hover:underline">
+                <Link
+                    href={`/projects/${project.id}`}
+                    className="flex items-center gap-1 text-blue-600 font-bold text-xs hover:underline"
+                >
                     View Details <ChevronRight className="w-4 h-4" />
                 </Link>
             </div>

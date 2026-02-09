@@ -5,20 +5,23 @@ import { motion } from 'framer-motion';
 
 const steps = [
     {
-        step: "1",
-        title: "Talk to One of Our Industry Experts",
-        description: "An expert on our team will work with you to understand your goals, technical needs, and team dynamics."
+        step: '1',
+        title: 'Talk to One of Our Industry Experts',
+        description:
+            'An expert on our team will work with you to understand your goals, technical needs, and team dynamics.',
     },
     {
-        step: "2",
-        title: "Work With Hand-Selected Talent",
-        description: "Within days, we'll introduce you to the right talent for your project. Average time to match is under 24 hours."
+        step: '2',
+        title: 'Work With Hand-Selected Talent',
+        description:
+            "Within days, we'll introduce you to the right talent for your project. Average time to match is under 24 hours.",
     },
     {
-        step: "3",
-        title: "The Right Fit, Guaranteed",
-        description: "Work with your new team member on a trial basis (pay only if satisfied), ensuring you hire the right people for the job."
-    }
+        step: '3',
+        title: 'The Right Fit, Guaranteed',
+        description:
+            'Work with your new team member on a trial basis (pay only if satisfied), ensuring you hire the right people for the job.',
+    },
 ];
 
 export default function HiringProcess() {
@@ -35,8 +38,9 @@ export default function HiringProcess() {
                     <h2 className="text-4xl md:text-5xl font-bold text-[#1a1a2e]">
                         Simple Hiring Process
                     </h2>
-                    <p className="text-lg text-gray-600 mt-4">Get matched with pre-vetted talent in days, not months. Our streamlined process gets you working faster.
-
+                    <p className="text-lg text-gray-600 mt-4">
+                        Get matched with pre-vetted talent in days, not months. Our streamlined
+                        process gets you working faster.
                     </p>
                 </motion.div>
 
@@ -62,7 +66,9 @@ export default function HiringProcess() {
 
                                     {/* Step Number Bubble */}
                                     <div className="w-15 h-15 rounded-full border border-blue-200 bg-white flex items-center justify-center relative z-10">
-                                        <span className="text-3xl font-light text-[#4a6cf7]">{item.step}</span>
+                                        <span className="text-3xl font-light text-[#4a6cf7]">
+                                            {item.step}
+                                        </span>
                                     </div>
                                 </div>
 

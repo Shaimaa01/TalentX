@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from "@/shared/components/ui/button";
+import { Button } from '@/shared/components/ui/button';
 import { CheckCircle, ArrowRight, Grid, Zap, Shield, Rocket, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { createPageUrl } from '@/shared/lib/utils';
@@ -22,7 +22,8 @@ export default function ApplyAgencyPage() {
                         className="max-w-3xl"
                     >
                         <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                            Scale Your Agency with <span className="text-[#00cc83]">Top Clients</span>
+                            Scale Your Agency with{' '}
+                            <span className="text-[#00cc83]">Top Clients</span>
                         </h1>
                         <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-2xl">
                             TalentX partners with elite software development and design agencies.
@@ -34,19 +35,26 @@ export default function ApplyAgencyPage() {
                                     Apply as Partner
                                 </Button>
                             </Link>
-                            <Button variant="outline" className="border-white text-white hover:bg-white/10 font-bold py-6 px-10 text-lg rounded-[4px] transition-all">
-                                Partner Benefits
-                            </Button>
+                            <Link href="#benefits">
+                                <Button
+                                    variant="outline"
+                                    className="border-white text-white hover:bg-white/10 font-bold py-6 px-10 text-lg rounded-[4px] transition-all w-full sm:w-auto"
+                                >
+                                    Partner Benefits
+                                </Button>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
             </div>
 
             {/* Benefits Section */}
-            <div className="py-24 bg-white">
+            <div id="benefits" className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-4xl font-bold text-[#1a1a2e] mb-4">Why Agencies Partner with TalentX</h2>
+                        <h2 className="text-4xl font-bold text-[#1a1a2e] mb-4">
+                            Why Agencies Partner with TalentX
+                        </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                             Focus on delivery while we handle sales, billing, and contracts.
                         </p>
@@ -57,18 +65,21 @@ export default function ApplyAgencyPage() {
                             {
                                 icon: Grid,
                                 title: 'Enterprise Projects',
-                                description: 'Access high-value contracts with Fortune 500s that are typically hard to reach.'
+                                description:
+                                    'Access high-value contracts with Fortune 500s that are typically hard to reach.',
                             },
                             {
                                 icon: Shield,
                                 title: 'Guaranteed Payments',
-                                description: 'Never worry about chasing invoices. We ensure timely payments for all your work.'
+                                description:
+                                    'Never worry about chasing invoices. We ensure timely payments for all your work.',
                             },
                             {
                                 icon: Rocket,
                                 title: 'Rapid Growth',
-                                description: 'Fill your bench quickly and scale your operations without increased BD costs.'
-                            }
+                                description:
+                                    'Fill your bench quickly and scale your operations without increased BD costs.',
+                            },
                         ].map((item, i) => (
                             <motion.div
                                 key={i}
@@ -81,7 +92,9 @@ export default function ApplyAgencyPage() {
                                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-sm border border-gray-100">
                                     <item.icon className="w-8 h-8 text-[#204ecf]" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-[#1a1a2e] mb-4">{item.title}</h3>
+                                <h3 className="text-2xl font-bold text-[#1a1a2e] mb-4">
+                                    {item.title}
+                                </h3>
                                 <p className="text-gray-600 leading-relaxed">{item.description}</p>
                             </motion.div>
                         ))}
@@ -104,29 +117,33 @@ export default function ApplyAgencyPage() {
                                     {
                                         step: '01',
                                         title: 'Agency Profile',
-                                        desc: 'Submit your agency portfolio, case studies, and team composition.'
+                                        desc: 'Submit your agency portfolio, case studies, and team composition.',
                                     },
                                     {
                                         step: '02',
                                         title: 'Technical Audit',
-                                        desc: 'We review your code quality and delivery processes.'
+                                        desc: 'We review your code quality and delivery processes.',
                                     },
                                     {
                                         step: '03',
                                         title: 'Partner Interview',
-                                        desc: 'Meet with our partnerships team to align on goals and expectations.'
+                                        desc: 'Meet with our partnerships team to align on goals and expectations.',
                                     },
                                     {
                                         step: '04',
                                         title: 'Onboarding',
-                                        desc: 'Get set up on our platform and start receiving project matching.'
-                                    }
+                                        desc: 'Get set up on our platform and start receiving project matching.',
+                                    },
                                 ].map((step, i) => (
                                     <div key={i} className="flex gap-8 group">
-                                        <div className="font-bold text-4xl text-gray-700 group-hover:text-[#00cc83] transition-colors">{step.step}</div>
+                                        <div className="font-bold text-4xl text-gray-700 group-hover:text-[#00cc83] transition-colors">
+                                            {step.step}
+                                        </div>
                                         <div>
                                             <h4 className="text-xl font-bold mb-2">{step.title}</h4>
-                                            <p className="text-gray-400 leading-relaxed">{step.desc}</p>
+                                            <p className="text-gray-400 leading-relaxed">
+                                                {step.desc}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -143,11 +160,15 @@ export default function ApplyAgencyPage() {
                                 <div className="space-y-6 mb-10">
                                     <div className="flex items-center gap-4 p-5 bg-blue-50/50 rounded-2xl border border-blue-100 flex-1">
                                         <CheckCircle className="w-6 h-6 text-[#204ecf] shrink-0" />
-                                        <span className="font-bold text-gray-800">Pre-vetted enterprise project leads</span>
+                                        <span className="font-bold text-gray-800">
+                                            Pre-vetted enterprise project leads
+                                        </span>
                                     </div>
                                     <div className="flex items-center gap-4 p-5 bg-blue-50/50 rounded-2xl border border-blue-100 flex-1">
                                         <CheckCircle className="w-6 h-6 text-[#204ecf] shrink-0" />
-                                        <span className="font-bold text-gray-800">Professional billing & admin support</span>
+                                        <span className="font-bold text-gray-800">
+                                            Professional billing & admin support
+                                        </span>
                                     </div>
                                 </div>
                                 <Link href="/interview" className="block w-full">
@@ -156,7 +177,9 @@ export default function ApplyAgencyPage() {
                                         <ArrowRight className="w-6 h-6" />
                                     </Button>
                                 </Link>
-                                <p className="text-center text-sm text-gray-400 mt-6 font-medium uppercase tracking-widest">Limited Slots Available</p>
+                                <p className="text-center text-sm text-gray-400 mt-6 font-medium uppercase tracking-widest">
+                                    Limited Slots Available
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -165,7 +188,10 @@ export default function ApplyAgencyPage() {
 
             <section className="py-24 bg-gray-50 border-t border-gray-100">
                 <div className="max-w-4xl mx-auto px-4 text-center">
-                    <h2 className="text-3xl font-bold text-[#1a1a2e] mb-8 italic text-gray-400">"TalentX has been the single most effective growth channel for our agency in the last 24 months."</h2>
+                    <h2 className="text-3xl font-bold text-[#1a1a2e] mb-8 italic text-gray-400">
+                        "TalentX has been the single most effective growth channel for our agency in
+                        the last 24 months."
+                    </h2>
                     <div className="flex items-center justify-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-gray-200"></div>
                         <div className="text-left">

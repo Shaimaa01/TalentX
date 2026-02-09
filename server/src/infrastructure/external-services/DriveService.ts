@@ -22,7 +22,10 @@ export class DriveStorageGateway implements IStorageGateway {
         return this.driveClient;
     }
 
-    async uploadFile(fileObject: Express.Multer.File, folderId: string = process.env.GOOGLE_DRIVE_FOLDER_ID || ''): Promise<string> {
+    async uploadFile(
+        fileObject: Express.Multer.File,
+        folderId: string = process.env.GOOGLE_DRIVE_FOLDER_ID || ''
+    ): Promise<string> {
         try {
             if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
                 console.warn('Google Drive credentials not found. Returning mock URL.');
@@ -53,12 +56,11 @@ export class DriveStorageGateway implements IStorageGateway {
             }
 
             return response.data.webViewLink;
-
         } catch (error: any) {
             console.error('Google Drive Upload Error Details:', {
                 message: error.message,
                 code: error.code,
-                errors: error.errors
+                errors: error.errors,
             });
 
             // Fallback to mock URL

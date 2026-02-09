@@ -1,10 +1,24 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, CheckCircle, ArrowRight, Loader2, Sparkles, Shield, Check, CreditCard, Lock, Building2, Zap } from 'lucide-react';
+import {
+    Send,
+    Bot,
+    User,
+    CheckCircle,
+    ArrowRight,
+    Loader2,
+    Sparkles,
+    Shield,
+    Check,
+    CreditCard,
+    Lock,
+    Building2,
+    Zap,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createPageUrl } from '@/shared/lib/utils';
 import { toast } from 'sonner';
@@ -21,8 +35,9 @@ export default function InterviewPage() {
         {
             id: '1',
             sender: 'ai',
-            content: "Hi there! I'm TalentAI, your dedicated screening assistant. I'll be conducting your initial evaluation today. To get started, could you please tell me your full name?"
-        }
+            content:
+                "Hi there! I'm TalentAI, your dedicated screening assistant. I'll be conducting your initial evaluation today. To get started, could you please tell me your full name?",
+        },
     ]);
     const [inputValue, setInputValue] = useState('');
     const [step, setStep] = useState(0);
@@ -30,7 +45,7 @@ export default function InterviewPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
@@ -38,11 +53,11 @@ export default function InterviewPage() {
     }, [messages, isTyping]);
 
     const questions = [
-        "Great to meet you! What is your primary area of expertise (e.g., React Developer, UX Designer, Project Manager)?",
-        "Impressive. How many years of professional experience do you have in this field?",
+        'Great to meet you! What is your primary area of expertise (e.g., React Developer, UX Designer, Project Manager)?',
+        'Impressive. How many years of professional experience do you have in this field?',
         "Could you briefly describe a challenging project you've worked on recently and your specific contribution?",
-        "What is your target hourly rate (in USD)? This helps us match you with projects within your range.",
-        "Thanks! Finally, please provide a link to your portfolio, GitHub, or LinkedIn profile for our review."
+        'What is your target hourly rate (in USD)? This helps us match you with projects within your range.',
+        'Thanks! Finally, please provide a link to your portfolio, GitHub, or LinkedIn profile for our review.',
     ];
 
     const handleSendMessage = async (e?: React.FormEvent) => {
@@ -52,10 +67,10 @@ export default function InterviewPage() {
         const userMessage: Message = {
             id: Date.now().toString(),
             sender: 'user',
-            content: inputValue
+            content: inputValue,
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        setMessages((prev) => [...prev, userMessage]);
         setInputValue('');
         setIsTyping(true);
 
@@ -67,20 +82,21 @@ export default function InterviewPage() {
                 const aiMessage: Message = {
                     id: (Date.now() + 1).toString(),
                     sender: 'ai',
-                    content: questions[step]
+                    content: questions[step],
                 };
-                setMessages(prev => [...prev, aiMessage]);
-                setStep(prev => prev + 1);
+                setMessages((prev) => [...prev, aiMessage]);
+                setStep((prev) => prev + 1);
             } else {
                 const completionMessage: Message = {
                     id: (Date.now() + 1).toString(),
                     sender: 'ai',
-                    content: "Processing complete! I've analyzed your responses and they align perfectly with our network standards. Our talent success team will finalize your review within 48 hours. Redirecting you to your new dashboard now..."
+                    content:
+                        "Processing complete! I've analyzed your responses and they align perfectly with our network standards. Our talent success team will finalize your review within 48 hours. Redirecting you to your new dashboard now...",
                 };
-                setMessages(prev => [...prev, completionMessage]);
+                setMessages((prev) => [...prev, completionMessage]);
 
                 setTimeout(() => {
-                    toast.success("AI Screening Complete! Welcome to the network.");
+                    toast.success('AI Screening Complete! Welcome to the network.');
                     router.push(createPageUrl('Dashboard'));
                 }, 4000);
             }
@@ -97,17 +113,23 @@ export default function InterviewPage() {
                         <Bot className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                        <span className="font-black text-[#1a1a2e] block text-lg tracking-tight">TalentAI Screening</span>
+                        <span className="font-black text-[#1a1a2e] block text-lg tracking-tight">
+                            TalentAI Screening
+                        </span>
                         <div className="flex items-center gap-1.5">
                             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-green-600">Active Session</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-green-600">
+                                Active Session
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-100">
                         <Sparkles className="w-4 h-4 text-[#204ecf]" />
-                        <span className="text-sm font-bold text-gray-600">AI Integrity Verified</span>
+                        <span className="text-sm font-bold text-gray-600">
+                            AI Integrity Verified
+                        </span>
                     </div>
                 </div>
             </header>
@@ -121,23 +143,34 @@ export default function InterviewPage() {
                                 key={msg.id}
                                 initial={{ opacity: 0, y: 20, scale: 0.98 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                transition={{ duration: 0.4, ease: 'easeOut' }}
                                 className={`flex gap-5 ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
                             >
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md ${msg.sender === 'ai'
-                                    ? 'bg-gradient-to-br from-[#00cc83] to-[#00b372]'
-                                    : 'bg-gradient-to-br from-[#204ecf] to-[#1a3da8]'
-                                    }`}>
-                                    {msg.sender === 'ai' ? <Bot className="w-7 h-7 text-white" /> : <User className="w-7 h-7 text-white" />}
+                                <div
+                                    className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md ${
+                                        msg.sender === 'ai'
+                                            ? 'bg-gradient-to-br from-[#00cc83] to-[#00b372]'
+                                            : 'bg-gradient-to-br from-[#204ecf] to-[#1a3da8]'
+                                    }`}
+                                >
+                                    {msg.sender === 'ai' ? (
+                                        <Bot className="w-7 h-7 text-white" />
+                                    ) : (
+                                        <User className="w-7 h-7 text-white" />
+                                    )}
                                 </div>
-                                <div className={`max-w-[75%] p-6 rounded-3xl shadow-xl shadow-gray-200/50 ${msg.sender === 'ai'
-                                    ? 'bg-white text-gray-800 rounded-tl-none border border-gray-100 flex flex-col gap-2'
-                                    : 'bg-[#204ecf] text-white rounded-tr-none font-medium'
-                                    }`}>
+                                <div
+                                    className={`max-w-[75%] p-6 rounded-3xl shadow-xl shadow-gray-200/50 ${
+                                        msg.sender === 'ai'
+                                            ? 'bg-white text-gray-800 rounded-tl-none border border-gray-100 flex flex-col gap-2'
+                                            : 'bg-[#204ecf] text-white rounded-tr-none font-medium'
+                                    }`}
+                                >
                                     <p className="leading-relaxed text-lg">{msg.content}</p>
                                     {msg.sender === 'ai' && idx === 0 && (
                                         <div className="mt-2 pt-4 border-t border-gray-50 text-[11px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
-                                            <CheckCircle className="w-3 h-3 text-green-500" /> Secure Encryption Active
+                                            <CheckCircle className="w-3 h-3 text-green-500" />{' '}
+                                            Secure Encryption Active
                                         </div>
                                     )}
                                 </div>
@@ -156,9 +189,18 @@ export default function InterviewPage() {
                                 <Bot className="w-7 h-7 text-white" />
                             </div>
                             <div className="bg-white p-6 rounded-3xl rounded-tl-none shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 bg-[#00cc83] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                <span className="w-2.5 h-2.5 bg-[#00cc83] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                <span className="w-2.5 h-2.5 bg-[#00cc83] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                <span
+                                    className="w-2.5 h-2.5 bg-[#00cc83] rounded-full animate-bounce"
+                                    style={{ animationDelay: '0ms' }}
+                                ></span>
+                                <span
+                                    className="w-2.5 h-2.5 bg-[#00cc83] rounded-full animate-bounce"
+                                    style={{ animationDelay: '150ms' }}
+                                ></span>
+                                <span
+                                    className="w-2.5 h-2.5 bg-[#00cc83] rounded-full animate-bounce"
+                                    style={{ animationDelay: '300ms' }}
+                                ></span>
                             </div>
                         </motion.div>
                     )}
@@ -187,9 +229,15 @@ export default function InterviewPage() {
                         </Button>
                     </form>
                     <div className="mt-4 flex items-center justify-center gap-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                        <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Encrypted</span>
-                        <span className="flex items-center gap-1"><Sparkles className="w-3 h-3" /> Proprietary AI</span>
-                        <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Real-time Match</span>
+                        <span className="flex items-center gap-1">
+                            <Shield className="w-3 h-3" /> Encrypted
+                        </span>
+                        <span className="flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" /> Proprietary AI
+                        </span>
+                        <span className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3" /> Real-time Match
+                        </span>
                     </div>
                 </div>
             </div>

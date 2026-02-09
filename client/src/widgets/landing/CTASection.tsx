@@ -28,9 +28,10 @@ export default function CTASection() {
 
                     {/* Benefits integrated into Paragraph */}
                     <p className="text-base md:text-lg text-gray-400 leading-relaxed px-4">
-                        Join thousands of companies who trust TalentX.
-                        Enjoy <span className="text-white font-medium">no hiring fees</span> and a
-                        <span className="text-white font-medium"> risk-free trial period</span> for every hire.
+                        Join thousands of companies who trust TalentX. Enjoy{' '}
+                        <span className="text-white font-medium">no hiring fees</span> and a
+                        <span className="text-white font-medium"> risk-free trial period</span> for
+                        every hire.
                     </p>
 
                     {/* Buttons Layout */}

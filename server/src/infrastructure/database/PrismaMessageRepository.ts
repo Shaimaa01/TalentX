@@ -25,12 +25,9 @@ export class PrismaMessageRepository implements IMessageRepository {
     async findSupportThreads(supportId: string): Promise<any[]> {
         return this.prisma.message.findMany({
             where: { receiverId: supportId },
-            distinct: ["senderId"],
+            distinct: ['senderId'],
             include: { sender: true },
-            orderBy: [
-                { senderId: "asc" },
-                { timestamp: "desc" }
-            ],
+            orderBy: [{ senderId: 'asc' }, { timestamp: 'desc' }],
         });
     }
 
@@ -43,7 +40,7 @@ export class PrismaMessageRepository implements IMessageRepository {
                 ],
             },
             include: { sender: true },
-            orderBy: { timestamp: "asc" },
+            orderBy: { timestamp: 'asc' },
         });
     }
 
@@ -56,11 +53,14 @@ export class PrismaMessageRepository implements IMessageRepository {
                 ],
             },
             include: { sender: true },
-            orderBy: { timestamp: "asc" },
+            orderBy: { timestamp: 'asc' },
         });
     }
 
-    async countUnread(userId: string, supportId: string): Promise<{ general: number, support: number }> {
+    async countUnread(
+        userId: string,
+        supportId: string
+    ): Promise<{ general: number; support: number }> {
         // General: receiver is user, sender NOT support
         const general = await this.prisma.message.count({
             where: {
@@ -68,9 +68,9 @@ export class PrismaMessageRepository implements IMessageRepository {
                 read: false,
                 NOT: [
                     { senderId: supportId },
-                    { receiverId: supportId } // receiver check redundant if receiverId is user? Legacy had it.
-                ]
-            }
+                    { receiverId: supportId }, // receiver check redundant if receiverId is user? Legacy had it.
+                ],
+            },
         });
 
         // Support: receiver is user, sender IS support
@@ -78,15 +78,15 @@ export class PrismaMessageRepository implements IMessageRepository {
             where: {
                 receiverId: userId,
                 read: false,
-                senderId: supportId
-            }
+                senderId: supportId,
+            },
         });
 
         return { general, support };
     }
 
-    async countUnreadForAdmin(supportId: string): Promise<{ general: number, support: number }> {
-        // General for Admin: receiver is admin, sender NOT support? 
+    async countUnreadForAdmin(supportId: string): Promise<{ general: number; support: number }> {
+        // General for Admin: receiver is admin, sender NOT support?
         // Legacy logic for admin unread:
         // supportCount = receiver is supportId, read: false, sender NOT supportId (basically users messaging support)
 
@@ -94,8 +94,8 @@ export class PrismaMessageRepository implements IMessageRepository {
             where: {
                 receiverId: supportId,
                 read: false,
-                senderId: { not: supportId }
-            }
+                senderId: { not: supportId },
+            },
         });
 
         // General for admin? Legacy code implies ONLY support count matters or logic is same?
@@ -104,29 +104,30 @@ export class PrismaMessageRepository implements IMessageRepository {
         // 1. General (legacy line 78): receiverId = userData.id (admin's id). 
         const general = await this.prisma.message.count({
             where: {
-                receiverId: "admin-id-placeholder", // We need admin's real ID passed to method
+                receiverId: 'admin-id-placeholder', // We need admin's real ID passed to method
                 // Wait, legacy passes userData.id.
                 // So we need to accept userId in this method too.
                 // Refactoring interface signature slightly to accommodate both
                 read: false,
                 // ... same exclusions
-            }
+            },
         });
         return { general: 0, support }; // Placeholder, logic moved to service for flexible calling
     }
 
     // Consolidated Unread Count logic to match legacy flexibility
-    async countUnreadLegacy(userId: string, supportId: string, isAdmin: boolean): Promise<{ general: number, support: number }> {
+    async countUnreadLegacy(
+        userId: string,
+        supportId: string,
+        isAdmin: boolean
+    ): Promise<{ general: number; support: number }> {
         const [general, support] = await Promise.all([
             // General messages (exclude support flows)
             this.prisma.message.count({
                 where: {
                     receiverId: userId,
                     read: false,
-                    NOT: [
-                        { senderId: supportId },
-                        { receiverId: supportId },
-                    ],
+                    NOT: [{ senderId: supportId }, { receiverId: supportId }],
                 },
             }),
             // Support messages
@@ -141,21 +142,17 @@ export class PrismaMessageRepository implements IMessageRepository {
         return { general, support };
     }
 
-
     async updateReadStatus(where: any): Promise<void> {
         await this.prisma.message.updateMany({
             where,
-            data: { read: true }
+            data: { read: true },
         });
     }
 
     async deleteOldMessages(olderThan: Date, supportId: string): Promise<number> {
         const result = await this.prisma.message.deleteMany({
             where: {
-                OR: [
-                    { receiverId: supportId },
-                    { senderId: supportId },
-                ],
+                OR: [{ receiverId: supportId }, { senderId: supportId }],
                 timestamp: {
                     lt: olderThan,
                 },

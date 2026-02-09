@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Plus } from 'lucide-react';
-import { Button } from "@/shared/components/ui/button";
+import { Button } from '@/shared/components/ui/button';
 import { Task, User, Project } from '@/shared/types';
 
 interface TaskModalProps {
@@ -15,7 +15,16 @@ interface TaskModalProps {
     readOnly?: boolean;
 }
 
-export default function TaskModal({ task, user, teamMembers, onClose, onSave, onDelete, isSaving, readOnly = false }: TaskModalProps) {
+export default function TaskModal({
+    task,
+    user,
+    teamMembers,
+    onClose,
+    onSave,
+    onDelete,
+    isSaving,
+    readOnly = false,
+}: TaskModalProps) {
     const isEdit = !!task;
     const isReadOnly = readOnly;
 
@@ -30,7 +39,7 @@ export default function TaskModal({ task, user, teamMembers, onClose, onSave, on
         description: task?.description || '',
         assigneeId: task?.assignee?.id || '',
         priority: task?.priority || 'medium',
-        due_date: task?.due_date ? new Date(task.due_date).toISOString().split('T')[0] : ''
+        due_date: task?.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -55,7 +64,10 @@ export default function TaskModal({ task, user, teamMembers, onClose, onSave, on
                             {isReadOnly ? 'Task Details' : isEdit ? 'Edit Task' : 'Create New Task'}
                         </h3>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
                         <Plus className="w-6 h-6 rotate-45" />
                     </button>
                 </div>
@@ -64,54 +76,77 @@ export default function TaskModal({ task, user, teamMembers, onClose, onSave, on
                     <div className="grid md:grid-cols-3 gap-6">
                         <div className="md:col-span-2 space-y-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Task Summary</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Task Summary
+                                </label>
                                 <input
                                     type="text"
                                     required
                                     disabled={isReadOnly}
                                     value={taskData.title}
-                                    onChange={(e) => setTaskData({ ...taskData, title: e.target.value })}
+                                    onChange={(e) =>
+                                        setTaskData({ ...taskData, title: e.target.value })
+                                    }
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] focus:border-transparent outline-none transition-all font-medium disabled:bg-gray-50 bg-white"
                                     placeholder="What needs to be done?"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Description
+                                </label>
                                 <textarea
                                     rows={8}
                                     disabled={isReadOnly}
                                     value={taskData.description}
-                                    onChange={(e) => setTaskData({ ...taskData, description: e.target.value })}
+                                    onChange={(e) =>
+                                        setTaskData({ ...taskData, description: e.target.value })
+                                    }
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] focus:border-transparent outline-none transition-all resize-none text-sm leading-relaxed disabled:bg-gray-50 bg-white"
                                     placeholder="Add a detailed description..."
                                 />
-                                <p className="text-xs text-gray-400 mt-2 text-right">Markdown supported</p>
+                                <p className="text-xs text-gray-400 mt-2 text-right">
+                                    Markdown supported
+                                </p>
                             </div>
                         </div>
 
                         <div className="space-y-4 bg-gray-50 p-4 rounded-xl h-fit border border-gray-100">
                             {user.role !== 'agency' && (
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Assignee</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                                        Assignee
+                                    </label>
                                     <select
                                         disabled={isReadOnly}
                                         value={taskData.assigneeId}
-                                        onChange={(e) => setTaskData({ ...taskData, assigneeId: e.target.value })}
+                                        onChange={(e) =>
+                                            setTaskData({ ...taskData, assigneeId: e.target.value })
+                                        }
                                         className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:ring-2 focus:ring-[#204ecf] outline-none disabled:opacity-70 disabled:bg-gray-100"
                                     >
                                         <option value="">Unassigned</option>
                                         {teamMembers?.map((m: any) => (
-                                            <option key={m.id} value={m.id}>{m.full_name}</option>
+                                            <option key={m.id} value={m.id}>
+                                                {m.full_name}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>
                             )}
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Priority</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                                    Priority
+                                </label>
                                 <select
                                     disabled={isReadOnly}
                                     value={taskData.priority}
-                                    onChange={(e) => setTaskData({ ...taskData, priority: e.target.value as any })}
+                                    onChange={(e) =>
+                                        setTaskData({
+                                            ...taskData,
+                                            priority: e.target.value as any,
+                                        })
+                                    }
                                     className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:ring-2 focus:ring-[#204ecf] outline-none disabled:opacity-70 disabled:bg-gray-100"
                                 >
                                     <option value="low">Low Priority</option>
@@ -120,12 +155,16 @@ export default function TaskModal({ task, user, teamMembers, onClose, onSave, on
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Due Date</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                                    Due Date
+                                </label>
                                 <input
                                     type="date"
                                     disabled={isReadOnly}
                                     value={taskData.due_date}
-                                    onChange={(e) => setTaskData({ ...taskData, due_date: e.target.value })}
+                                    onChange={(e) =>
+                                        setTaskData({ ...taskData, due_date: e.target.value })
+                                    }
                                     className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:ring-2 focus:ring-[#204ecf] outline-none disabled:opacity-70 disabled:bg-gray-100"
                                 />
                             </div>

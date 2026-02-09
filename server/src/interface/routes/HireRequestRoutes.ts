@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { HireRequestController } from '../controllers/HireRequestController';
-// import { authenticateToken } from '../middleware/AuthMiddleware'; 
+// import { authenticateToken } from '../middleware/AuthMiddleware';
 
 export const createHireRequestRoutes = (controller: HireRequestController) => {
     const router = Router();

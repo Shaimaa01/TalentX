@@ -7,7 +7,7 @@ export const useProfile = () => {
     const { user } = useAuthStore();
     return useQuery({
         queryKey: ['profile', user?.id],
-        queryFn: () => user ? profileApi.getMyProfile(user) : null,
+        queryFn: () => (user ? profileApi.getMyProfile(user) : null),
         enabled: !!user,
     });
 };
@@ -17,7 +17,7 @@ export const useUpdateProfile = () => {
     const { user } = useAuthStore();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string, data: any }) =>
+        mutationFn: ({ id, data }: { id: string; data: any }) =>
             profileApi.updateProfile(user?.role || '', id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile'] });
@@ -25,6 +25,6 @@ export const useUpdateProfile = () => {
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || 'Failed to update profile');
-        }
+        },
     });
 };

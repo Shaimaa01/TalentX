@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 import Link from 'next/link';
 import { createPageUrl } from '@/shared/lib/utils';
 import { ArrowLeft, Lock, Mail } from 'lucide-react';
@@ -34,8 +34,6 @@ export default function Login() {
         }
     };
 
-
-
     return (
         <GuestGuard>
             <div className="min-h-screen bg-white flex">
@@ -43,9 +41,12 @@ export default function Login() {
                 <div className="hidden lg:flex lg:w-1/2 bg-[#1a1a2e] relative overflow-hidden items-center justify-center">
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-20"></div>
                     <div className="relative z-10 max-w-md px-8 text-center">
-                        <h2 className="text-4xl font-bold text-white mb-6">Hire the Top 10% of Freelance Talent</h2>
+                        <h2 className="text-4xl font-bold text-white mb-6">
+                            Hire the Top 10% of Freelance Talent
+                        </h2>
                         <p className="text-gray-300 text-lg leading-relaxed">
-                            TalentX connects you with the world's best software developers, designers, and finance experts.
+                            TalentX connects you with the world's best software developers,
+                            designers, and finance experts.
                         </p>
                     </div>
                 </div>
@@ -53,7 +54,10 @@ export default function Login() {
                 {/* Right Side - Form */}
                 <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
                     <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-                        <Link href={createPageUrl('Home')} className="inline-flex items-center text-gray-500 hover:text-[#204ecf] mb-8 transition-colors">
+                        <Link
+                            href={createPageUrl('Home')}
+                            className="inline-flex items-center text-gray-500 hover:text-[#204ecf] mb-8 transition-colors"
+                        >
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Home
                         </Link>
@@ -65,7 +69,9 @@ export default function Login() {
 
                         <form onSubmit={handleLogin} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Email Address
+                                </label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                     <Input
@@ -80,8 +86,13 @@ export default function Login() {
                             </div>
                             <div>
                                 <div className="flex justify-between items-center mb-2">
-                                    <label className="block text-sm font-medium text-gray-700">Password</label>
-                                    <Link href="#" className="text-sm text-[#204ecf] hover:underline font-medium">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Password
+                                    </label>
+                                    <Link
+                                        href="#"
+                                        className="text-sm text-[#204ecf] hover:underline font-medium"
+                                    >
                                         Forgot password?
                                     </Link>
                                 </div>
@@ -118,7 +129,10 @@ export default function Login() {
                         <div className="pt-6 border-t border-gray-100 text-center">
                             <p className="text-gray-600">
                                 Don't have an account?{' '}
-                                <Link href={createPageUrl('Register')} className="text-[#204ecf] hover:underline font-bold">
+                                <Link
+                                    href={createPageUrl('Register')}
+                                    className="text-[#204ecf] hover:underline font-bold"
+                                >
                                     Apply to Join
                                 </Link>
                             </p>

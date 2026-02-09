@@ -24,7 +24,9 @@ export class NotificationController {
             await this.notificationService.markAsRead(req.params.id);
             res.json({ success: true });
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error marking notification as read' });
+            res.status(500).json({
+                message: error.message || 'Error marking notification as read',
+            });
         }
     };
 }

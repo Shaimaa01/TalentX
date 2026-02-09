@@ -6,35 +6,35 @@ import { CreditCard, Activity, Cpu, ShoppingBag, Truck, Box } from 'lucide-react
 
 const verticals = [
     {
-        title: "Fintech & Banking",
+        title: 'Fintech & Banking',
         icon: CreditCard,
-        description: "Secure, scalable payment systems and high-frequency trading platforms."
+        description: 'Secure, scalable payment systems and high-frequency trading platforms.',
     },
     {
-        title: "Healthtech",
+        title: 'Healthtech',
         icon: Activity,
-        description: "HIPAA-compliant platforms, telemedicine, and AI-driven diagnostics."
+        description: 'HIPAA-compliant platforms, telemedicine, and AI-driven diagnostics.',
     },
     {
-        title: "AI & Machine Learning",
+        title: 'AI & Machine Learning',
         icon: Cpu,
-        description: "Neural network architecture and big data processing pipelines."
+        description: 'Neural network architecture and big data processing pipelines.',
     },
     {
-        title: "E-commerce",
+        title: 'E-commerce',
         icon: ShoppingBag,
-        description: "Headless commerce solutions and global marketplace scaling."
+        description: 'Headless commerce solutions and global marketplace scaling.',
     },
     {
-        title: "Logistics & Supply",
+        title: 'Logistics & Supply',
         icon: Truck,
-        description: "Real-time tracking and automated warehouse management systems."
+        description: 'Real-time tracking and automated warehouse management systems.',
     },
     {
-        title: "Enterprise SaaS",
+        title: 'Enterprise SaaS',
         icon: Box,
-        description: "Multi-tenant cloud architectures and complex integration layers."
-    }
+        description: 'Multi-tenant cloud architectures and complex integration layers.',
+    },
 ];
 
 export default function IndustryVerticals() {

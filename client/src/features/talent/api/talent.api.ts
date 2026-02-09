@@ -1,5 +1,5 @@
-import { apiClient } from "@/shared/api/client";
-import { Talent } from "@/entities/talent/model/types";
+import { apiClient } from '@/shared/api/client';
+import { Talent } from '@/entities/talent/model/types';
 
 export interface TalentFilters {
     skill?: string;
@@ -14,9 +14,9 @@ export const talentApi = {
 
         // Data Normalization (if needed)
         // Ensure skills are arrays, etc.
-        return response.data.map(talent => ({
+        return response.data.map((talent) => ({
             ...talent,
-            skills: typeof talent.skills === 'string' ? JSON.parse(talent.skills) : talent.skills
+            skills: typeof talent.skills === 'string' ? JSON.parse(talent.skills) : talent.skills,
         }));
     },
 
@@ -25,7 +25,7 @@ export const talentApi = {
         const talent = response.data;
         return {
             ...talent,
-            skills: typeof talent.skills === 'string' ? JSON.parse(talent.skills) : talent.skills
+            skills: typeof talent.skills === 'string' ? JSON.parse(talent.skills) : talent.skills,
         };
-    }
+    },
 };

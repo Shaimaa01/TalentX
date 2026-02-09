@@ -1,9 +1,9 @@
 'use client';
 
-import { Facebook, Linkedin, X, Youtube, Instagram } from "lucide-react";
-import Link from "next/link";
-import { createPageUrl } from "@/shared/lib/utils";
-import CTASection from "../landing/CTASection";
+import { Facebook, Linkedin, X, Youtube, Instagram } from 'lucide-react';
+import Link from 'next/link';
+import { createPageUrl } from '@/shared/lib/utils';
+import CTASection from '../landing/CTASection';
 
 // Types
 type FooterLink = {
@@ -15,60 +15,59 @@ type FooterLink = {
 
 // Data Structures
 const hireTalentLinks: FooterLink[] = [
-    { label: "Hire AI & ML Engineers", category: "ai_ml" },
-    { label: "Hire Developers", category: "developer" },
-    { label: "Hire Designers", category: "designer" },
-    { label: "Hire Product Managers", category: "product_manager" },
-    { label: "Hire Project Managers", category: "project_manager" },
-    { label: "Hire Marketers", category: "marketing" },
-    { label: "Hire Finance Experts", category: "finance" },
+    { label: 'Hire AI & ML Engineers', url: 'AiMlEngineers' },
+    { label: 'Hire Developers', url: 'Developers' },
+    { label: 'Hire Designers', url: 'Designers' },
+    { label: 'Hire Product Managers', url: 'ProductManagers' },
+    { label: 'Hire Project Managers', url: 'ProjectManagers' },
+    { label: 'Hire Marketers', url: 'MarketingExperts' },
+    { label: 'Hire Finance Experts', url: 'FinanceExperts' },
 ];
 
 const hireTeamLinks: FooterLink[] = [
-    { label: "How it works", url: "Process" },
-    { label: "Our experts", url: "Experts" },
-    { label: "Talent vetting", url: "Vetting" },
-    { label: "Join as talent", url: "Join" },
+    { label: 'How it works', url: 'HowItWorks' },
+    { label: 'Our experts', url: 'Experts' },
+    { label: 'Talent vetting', url: 'Vetting' },
+    { label: 'Join as talent', url: 'ApplyTalent' },
 ];
 
 const hireAgencyLinks: FooterLink[] = [
-    { label: "For agencies", url: "Agencies" },
-    { label: "Partner with us", url: "Partners" },
-    { label: "Enterprise solutions", url: "Enterprise" },
-    { label: "Case studies", url: "CaseStudies" },
+    { label: 'For agencies', url: 'ForAgencies' },
+    { label: 'Partner with us', url: 'Partners' },
+    { label: 'Enterprise solutions', url: 'Enterprise' },
+    { label: 'Case studies', url: 'CaseStudies' },
 ];
 
 const featuredSkills: FooterLink[] = [
-    { label: "AI/ML Engineers", searchTerm: "ai" },
-    { label: "Data Scientists", searchTerm: "data science" },
-    { label: "Python Experts", searchTerm: "python" },
-    { label: "Full-Stack Developers", searchTerm: "full stack" },
-    { label: "DevOps Engineers", searchTerm: "devops" },
-    { label: "Cybersecurity Consultants", searchTerm: "cybersecurity" },
-    { label: "UI/UX Designers", searchTerm: "ux designer" },
-    { label: "Product Managers", searchTerm: "product manager" },
-    { label: "Growth Marketers", searchTerm: "growth marketing" },
-    { label: "Fractional CFOs", searchTerm: "fractional cfo" },
-    { label: "Blockchain Developers", searchTerm: "blockchain" },
-    { label: "React Native Developers", searchTerm: "react native" },
+    { label: 'AI/ML Engineers', url: 'AiMlEngineers' },
+    { label: 'Data Scientists', url: 'Skills/DataScientists' },
+    { label: 'Python Experts', url: 'Skills/PythonExperts' },
+    { label: 'Full-Stack Developers', url: 'Skills/FullStackDevelopers' },
+    { label: 'DevOps Engineers', url: 'Skills/DevOpsEngineers' },
+    { label: 'Cybersecurity Consultants', url: 'Skills/CybersecurityConsultants' },
+    { label: 'UI/UX Designers', url: 'Skills/UiUxDesigners' },
+    { label: 'Product Managers', url: 'ProductManagers' },
+    { label: 'Growth Marketers', url: 'Skills/GrowthMarketers' },
+    { label: 'Fractional CFOs', url: 'Skills/FractionalCfos' },
+    { label: 'Blockchain Developers', url: 'Skills/BlockchainDevelopers' },
+    { label: 'React Native Developers', url: 'Skills/ReactNativeDevelopers' },
 ];
 
 const aboutLinks: FooterLink[] = [
-    { label: "Why TalentX", url: "WhyTalentX" },
-    { label: "Contact Us", url: "Contact" },
-    { label: "Press Center", url: "Press" },
-    { label: "Careers", url: "Careers" },
-    { label: "About Us", url: "AboutUs" },
+    { label: 'Why TalentX', url: 'WhyTalentx' },
+    { label: 'About Us', url: 'About' },
+    { label: 'Contact Us', url: 'Contact' },
+    { label: 'Press', url: 'Press' },
+    { label: 'Careers', url: 'Careers' },
 ];
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     const renderLink = (link: FooterLink) => {
-        let href = "#";
+        let href = '#';
         if (link.url) href = createPageUrl(link.url);
-        else if (link.category)
-            href = createPageUrl(`BrowseTalent?category=${link.category}`);
+        else if (link.category) href = createPageUrl(`BrowseTalent?category=${link.category}`);
         else if (link.searchTerm)
             href = createPageUrl(`BrowseTalent?searchTerm=${link.searchTerm}`);
 
@@ -83,9 +82,7 @@ export default function Footer() {
     };
 
     return (
-        <footer
-            className="relative text-white  py-10 overflow-hidden bg-[radial-gradient(circle_at_50%_100%,#12287a_0%,#010414_90%)] "
-        >
+        <footer className="relative text-white  py-10 overflow-hidden bg-[radial-gradient(circle_at_50%_100%,#12287a_0%,#010414_90%)] ">
             <CTASection />
             <div className="max-w-7xl mx-auto px-6 lg:px-12">
                 {/* Top Section: Links Grid - Balanced 12-column layout */}
@@ -158,10 +155,7 @@ export default function Footer() {
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
                     <div className="flex flex-col md:flex-row items-center gap-6">
                         {/* Logo */}
-                        <Link
-                            href="/"
-                            className="flex items-center gap-2"
-                        >
+                        <Link href="/" className="flex items-center gap-2">
                             <span className="text-xl font-bold tracking-tight text-white">
                                 TalentX
                             </span>
@@ -197,9 +191,7 @@ export default function Footer() {
                                     <span className="text-[10px] text-gray-400">
                                         Download on the
                                     </span>
-                                    <span className="text-xs font-bold text-white">
-                                        App Store
-                                    </span>
+                                    <span className="text-xs font-bold text-white">App Store</span>
                                 </div>
                             </a>
 
@@ -247,27 +239,25 @@ export default function Footer() {
 
                 {/* Very Bottom: Copyright & Legal */}
                 <div className="flex flex-col md:flex-row justify-center items-center gap-6 text-xs text-gray-400">
-                    <span suppressHydrationWarning>
-                        Copyright {currentYear} TalentX, LLC
-                    </span>
+                    <span suppressHydrationWarning>Copyright {currentYear} TalentX, LLC</span>
                     <span className="hidden md:inline">|</span>
                     <Link
-                        href={createPageUrl("Privacy")}
+                        href={createPageUrl('Privacy')}
                         className="hover:text-white transition-colors"
                     >
                         Privacy Policy
                     </Link>
                     <Link
-                        href={createPageUrl("Terms")}
+                        href={createPageUrl('Terms')}
                         className="hover:text-white transition-colors"
                     >
                         Terms of Service
                     </Link>
-                    <Link href="#" className="hover:text-white transition-colors">
+                    <Link
+                        href={createPageUrl('Accessibility')}
+                        className="hover:text-white transition-colors"
+                    >
                         Accessibility
-                    </Link>
-                    <Link href="#" className="hover:text-white transition-colors">
-                        Sitemap
                     </Link>
                 </div>
             </div>

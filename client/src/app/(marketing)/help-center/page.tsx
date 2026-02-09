@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Search, HelpCircle } from 'lucide-react';
-import { Input } from "@/shared/components/ui/input";
+import { Input } from '@/shared/components/ui/input';
 
 export default function HelpCenter() {
     return (
@@ -23,10 +23,16 @@ export default function HelpCenter() {
                     {[
                         { title: 'Getting Started', desc: 'Learn the basics of using TalentX' },
                         { title: 'Hiring Process', desc: 'How to find and hire talent' },
-                        { title: 'Payments & Billing', desc: 'Subscription and payment information' },
-                        { title: 'Account Settings', desc: 'Manage your account and preferences' }
+                        {
+                            title: 'Payments & Billing',
+                            desc: 'Subscription and payment information',
+                        },
+                        { title: 'Account Settings', desc: 'Manage your account and preferences' },
                     ].map((topic) => (
-                        <div key={topic.title} className="border border-gray-200 rounded-xl p-6 hover:border-[#204ecf] hover:shadow-lg transition-all cursor-pointer">
+                        <div
+                            key={topic.title}
+                            className="border border-gray-200 rounded-xl p-6 hover:border-[#204ecf] hover:shadow-lg transition-all cursor-pointer"
+                        >
                             <h3 className="text-xl font-bold text-[#1a1a2e] mb-2">{topic.title}</h3>
                             <p className="text-gray-600">{topic.desc}</p>
                         </div>

@@ -17,13 +17,13 @@ export class HireRequestService {
         notificationRepo,
         talentRepo,
         agencyRepo,
-        projectRepo
+        projectRepo,
     }: {
-        hireRequestRepo: IHireRequestRepository,
-        notificationRepo: INotificationRepository,
-        talentRepo: ITalentRepository,
-        agencyRepo: IAgencyRepository,
-        projectRepo: IProjectRepository
+        hireRequestRepo: IHireRequestRepository;
+        notificationRepo: INotificationRepository;
+        talentRepo: ITalentRepository;
+        agencyRepo: IAgencyRepository;
+        projectRepo: IProjectRepository;
     }) {
         this.hireRequestRepo = hireRequestRepo;
         this.notificationRepo = notificationRepo;
@@ -39,7 +39,7 @@ export class HireRequestService {
             try {
                 extraData = JSON.parse(dto.data);
             } catch (e) {
-                console.error("Failed to parse hire request extra data", e);
+                console.error('Failed to parse hire request extra data', e);
             }
         }
 
@@ -55,11 +55,13 @@ export class HireRequestService {
                     type: 'hired',
                     content: `You have been hired for project by ${dto.client_name}!`,
                     userId: talent.userId,
-                    data: JSON.stringify({ projectId: extraData.projectId, clientName: dto.client_name })
+                    data: JSON.stringify({
+                        projectId: extraData.projectId,
+                        clientName: dto.client_name,
+                    }),
                 });
                 // Admin notification skipped or can be added
             }
-
         } else if (dto.matched_agency_id && extraData.projectId) {
             request = await this.hireRequestRepo.processAgencyHire(dto, extraData);
 
@@ -69,7 +71,11 @@ export class HireRequestService {
                     type: 'hired',
                     content: `Your agency has been hired for a project by ${dto.client_name}!`,
                     userId: agency.userId,
-                    data: JSON.stringify({ projectId: extraData.projectId, clientName: dto.client_name, role: 'agency' })
+                    data: JSON.stringify({
+                        projectId: extraData.projectId,
+                        clientName: dto.client_name,
+                        role: 'agency',
+                    }),
                 });
             }
         } else {
@@ -94,7 +100,7 @@ export class HireRequestService {
                 try {
                     extraData = JSON.parse(request.data);
                 } catch (e) {
-                    console.error("Failed to parse request data during matching", e);
+                    console.error('Failed to parse request data during matching', e);
                 }
             }
 
@@ -110,7 +116,7 @@ export class HireRequestService {
                         talentId,
                         role: 'Hired Talent',
                         rateType: extraData.rateType || 'hourly',
-                        rateAmount: parseFloat(extraData.rateAmount || "0")
+                        rateAmount: parseFloat(extraData.rateAmount || '0'),
                     });
 
                     // Notify talent they have been matched/hired
@@ -120,11 +126,14 @@ export class HireRequestService {
                             type: 'hired',
                             content: `Good news! Your match for project "${projectId}" has been finalized.`,
                             userId: talent.userId,
-                            data: JSON.stringify({ projectId, status: 'matched' })
+                            data: JSON.stringify({ projectId, status: 'matched' }),
                         });
                     }
                 } catch (e) {
-                    console.error("[HireRequestService] Failed to create membership or notify talent on match", e);
+                    console.error(
+                        '[HireRequestService] Failed to create membership or notify talent on match',
+                        e
+                    );
                 }
             }
         }

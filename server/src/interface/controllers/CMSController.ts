@@ -68,7 +68,11 @@ export class CMSController {
     }
     async updateTestimonial(req: AuthRequest, res: Response) {
         try {
-            const item = await this.cmsService.updateTestimonial(req.user!.id, req.params.id, req.body);
+            const item = await this.cmsService.updateTestimonial(
+                req.user!.id,
+                req.params.id,
+                req.body
+            );
             res.json(item);
         } catch (error: any) {
             console.error('Error updating testimonial:', error);
@@ -106,7 +110,11 @@ export class CMSController {
     }
     async updateCaseStudy(req: AuthRequest, res: Response) {
         try {
-            const item = await this.cmsService.updateCaseStudy(req.user!.id, req.params.id, req.body);
+            const item = await this.cmsService.updateCaseStudy(
+                req.user!.id,
+                req.params.id,
+                req.body
+            );
             res.json(item);
         } catch (error: any) {
             console.error('Error updating case study:', error);
@@ -144,7 +152,11 @@ export class CMSController {
     }
     async updateBlogPost(req: AuthRequest, res: Response) {
         try {
-            const item = await this.cmsService.updateBlogPost(req.user!.id, req.params.id, req.body);
+            const item = await this.cmsService.updateBlogPost(
+                req.user!.id,
+                req.params.id,
+                req.body
+            );
             res.json(item);
         } catch (error: any) {
             console.error('Error updating blog post:', error);

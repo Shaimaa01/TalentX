@@ -16,25 +16,26 @@ export class AgencyService {
             avatar_url: agency.user?.avatar_url,
             services: JSON.parse(agency.services || '[]'),
             industry_focus: JSON.parse(agency.industry_focus || '[]'),
-            coordinates: agency.lat && agency.lng ? { lat: agency.lat, lng: agency.lng } : undefined,
-            user: undefined
+            coordinates:
+                agency.lat && agency.lng ? { lat: agency.lat, lng: agency.lng } : undefined,
+            user: undefined,
         };
     }
 
     async getAllAgencies() {
         const agencies = await this.agencyRepo.findAll();
-        return agencies.map(a => this.transformToDomain(a));
+        return agencies.map((a) => this.transformToDomain(a));
     }
 
     async getAgencyById(id: string) {
         const agency = await this.agencyRepo.findById(id);
-        if (!agency) throw new Error("Agency not found");
+        if (!agency) throw new Error('Agency not found');
         return this.transformToDomain(agency);
     }
 
     async getAgencyByUserId(userId: string) {
         const agency = await this.agencyRepo.findByUserId(userId);
-        if (!agency) throw new Error("Agency not found");
+        if (!agency) throw new Error('Agency not found');
         return this.transformToDomain(agency);
     }
 

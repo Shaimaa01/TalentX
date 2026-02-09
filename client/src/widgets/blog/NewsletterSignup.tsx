@@ -24,11 +24,14 @@ export default function NewsletterSignup() {
                         </span>
 
                         <h2 className="text-4xl md:text-5xl font-light text-white mb-6 leading-tight">
-                            Get the latest <span className="text-[#204ecf] italic">talent insights</span> delivered to your inbox
+                            Get the latest{' '}
+                            <span className="text-[#204ecf] italic">talent insights</span> delivered
+                            to your inbox
                         </h2>
 
                         <p className="text-lg text-gray-400 mb-12">
-                            Join 50,000+ industry leaders receiving our weekly analysis on the future of work and global talent trends.
+                            Join 50,000+ industry leaders receiving our weekly analysis on the
+                            future of work and global talent trends.
                         </p>
 
                         <form className="flex flex-col md:flex-row gap-4 max-w-lg mx-auto">
