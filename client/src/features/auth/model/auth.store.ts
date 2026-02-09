@@ -3,6 +3,17 @@ import { persist } from 'zustand/middleware';
 import { authApi } from '../api/auth.api';
 import { AuthState } from '../api/types';
 
+const normalizeRole = (role: unknown) => {
+    if (typeof role !== 'string') return role;
+    const raw = role.trim().toLowerCase();
+    if (raw === 'admin') return 'admin';
+    if (raw === 'core_team' || raw === 'core-team' || raw === 'core team') return 'core_team';
+    if (raw === 'client' || raw.startsWith('client')) return 'client';
+    if (raw === 'talent' || raw.startsWith('talent')) return 'talent';
+    if (raw === 'agency' || raw.startsWith('agency')) return 'agency';
+    return raw;
+};
+
 export const useAuthStore = create<AuthState>()(
     persist(
         (set) => ({
@@ -16,7 +27,8 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null });
                 try {
                     const { user, token } = await authApi.login(credentials);
-                    set({ user, token, isAuthenticated: true, isLoading: false });
+                    const normalizedUser = { ...user, role: normalizeRole(user?.role) };
+                    set({ user: normalizedUser as any, token, isAuthenticated: true, isLoading: false });
                     // Also set in localStorage for apiClient to pick up immediately if needed
                     // though persist middleware handles state rehydration
                     localStorage.setItem('talentx_token', token);
@@ -33,7 +45,8 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null });
                 try {
                     const { user, token } = await authApi.register(data);
-                    set({ user, token, isAuthenticated: true, isLoading: false });
+                    const normalizedUser = { ...user, role: normalizeRole(user?.role) };
+                    set({ user: normalizedUser as any, token, isAuthenticated: true, isLoading: false });
                     localStorage.setItem('talentx_token', token);
                 } catch (error: any) {
                     set({
@@ -56,7 +69,8 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true });
                 try {
                     const user = await authApi.me();
-                    set({ user, isAuthenticated: true, isLoading: false });
+                    const normalizedUser = { ...user, role: normalizeRole(user?.role) };
+                    set({ user: normalizedUser as any, isAuthenticated: true, isLoading: false });
                 } catch (error) {
                     set({ user: null, token: null, isAuthenticated: false, isLoading: false });
                     localStorage.removeItem('talentx_token');

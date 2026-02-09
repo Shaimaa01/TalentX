@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Project, User } from '@/shared/types';
 import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
@@ -19,7 +19,7 @@ interface ProjectListProps {
     onCreate?: () => void;
 }
 
-export default function ProjectList({ projects, onSelectProject, onEdit, onDelete, onCreate }: ProjectListProps) {
+function ProjectList({ projects, onSelectProject, onEdit, onDelete, onCreate }: ProjectListProps) {
     if (projects.length === 0) {
         return (
             <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
@@ -156,4 +156,6 @@ export default function ProjectList({ projects, onSelectProject, onEdit, onDelet
         </div>
     );
 }
+
+export default memo(ProjectList);
 

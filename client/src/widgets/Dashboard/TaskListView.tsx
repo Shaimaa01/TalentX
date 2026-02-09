@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Task } from '@/shared/types';
 import { Clock, AlertCircle, CheckCircle, Circle, MoreHorizontal } from 'lucide-react';
 import { Button } from "@/shared/components/ui/button";
@@ -165,4 +165,4 @@ const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onTaskClick }) => {
     );
 };
 
-export default TaskListView;
+export default memo(TaskListView);

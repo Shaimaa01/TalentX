@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Task } from '@/shared/types';
 import { Button } from "@/shared/components/ui/button";
 import { Circle, Clock, AlertCircle, CheckCircle } from 'lucide-react';
@@ -210,12 +210,20 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskClick, onUpdateS
         })
     );
 
-    const columns = [
+    const columns = useMemo(() => ([
         { id: 'todo', title: 'To Do', icon: Circle, color: 'text-gray-500' },
         { id: 'in_progress', title: 'In Progress', icon: Clock, color: 'text-blue-500' },
         { id: 'review', title: 'Review', icon: AlertCircle, color: 'text-yellow-500' },
         { id: 'done', title: 'Done', icon: CheckCircle, color: 'text-green-500' }
-    ] as const;
+    ] as const), []);
+
+    const optimisticTasksByStatus = useMemo(() => {
+        const grouped: Record<string, Task[]> = { todo: [], in_progress: [], review: [], done: [] };
+        (optimisticTasks || []).forEach(t => {
+            (grouped[t.status] ||= []).push(t);
+        });
+        return grouped;
+    }, [optimisticTasks]);
 
     // Sync optimistic tasks with actual tasks, but preserve optimistic changes
     React.useEffect(() => {
@@ -229,7 +237,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskClick, onUpdateS
         });
     }, [tasks]);
 
-    const handleOptimisticUpdate = (taskId: string, newStatus: Task["status"]) => {
+    const handleOptimisticUpdate = useCallback((taskId: string, newStatus: Task["status"]) => {
         // Update UI immediately
         setOptimisticTasks(prev => 
             prev.map(task => 
@@ -251,7 +259,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskClick, onUpdateS
                 return newSet;
             });
         }, 2000);
-    };
+    }, [onUpdateStatus]);
 
     const handleDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id as string);
@@ -300,7 +308,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskClick, onUpdateS
         >
             <div className="grid md:grid-cols-4 gap-6 overflow-x-auto pb-4">
                 {columns.map((col) => {
-                    const columnTasks = optimisticTasks?.filter(t => t.status === col.id) || [];
+                    const columnTasks = optimisticTasksByStatus[col.id] || [];
                     return (
                         <div key={col.id} className="min-w-[280px]">
                             <div className="flex items-center justify-between mb-4">

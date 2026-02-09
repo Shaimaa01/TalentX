@@ -136,7 +136,7 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                         >
                             <div className="mb-8">
                                 <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">Basic Information</h2>
-                                <p className="text-gray-500">Let's start with the basics.</p>
+                                <p className="text-gray-500">Let&apos;s start with the basics.</p>
                             </div>
 
                             {/* Role Toggle */}

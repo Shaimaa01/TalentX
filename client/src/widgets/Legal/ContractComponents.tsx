@@ -68,32 +68,12 @@ const templates = [
 
 function CustomContractModal({ isOpen, onClose, contract, projectId, currentUser, onSuccess }: CustomContractModalProps) {
     const queryClient = useQueryClient();
-    const [type, setType] = useState<'NDA' | 'MSA'>(contract?.type as 'NDA' | 'MSA' || 'NDA');
-    const [content, setContent] = useState(contract?.content || templates[0].content);
+    const [type, setType] = useState<'NDA' | 'MSA'>(() => {
+        if (contract?.type === 'MSA') return 'MSA';
+        return 'NDA';
+    });
+    const [content, setContent] = useState(() => contract?.content || templates[0].content);
     const [signerName, setSignerName] = useState('');
-
-    useEffect(() => {
-        if (isOpen && !contract) {
-            // Reset for new contract creation
-            setType('NDA');
-            setContent(templates[0].content);
-            setSignerName('');
-        } else if (isOpen && contract) {
-            // For viewing/signing existing contract
-            setType(contract.type as 'NDA' | 'MSA');
-            setContent(contract.content);
-            setSignerName('');
-        }
-    }, [isOpen, contract]);
-
-    useEffect(() => {
-        if (!contract) { // Only update content if creating a new contract
-            const selectedTemplate = templates.find(t => t.id === type);
-            if (selectedTemplate) {
-                setContent(selectedTemplate.content);
-            }
-        }
-    }, [type, contract]);
 
     const createMutation = useMutation({
         mutationFn: (newContractData: { projectId: string; type: 'NDA' | 'MSA'; title: string; content: string; clientId: string }) =>
@@ -162,7 +142,7 @@ function CustomContractModal({ isOpen, onClose, contract, projectId, currentUser
         const splitText = doc.splitTextToSize(contract.content, 170);
         doc.text(splitText, 20, 60);
 
-        let y = doc.internal.pageSize.height - 40;
+        const y = doc.internal.pageSize.height - 40;
 
         if (contract.clientSignature) {
             doc.text(`Client Signature: ${contract.clientSignature}`, 20, y);
@@ -228,7 +208,11 @@ function CustomContractModal({ isOpen, onClose, contract, projectId, currentUser
                                         {templates.map(t => (
                                             <button
                                                 key={t.id}
-                                                onClick={() => setType(t.id as any)}
+                                                onClick={() => {
+                                                    const nextType = t.id === 'MSA' ? 'MSA' : 'NDA';
+                                                    setType(nextType);
+                                                    setContent(t.content);
+                                                }}
                                                 className={`p-6 rounded-2xl border-2 transition-all text-left group ${type === t.id
                                                     ? 'border-blue-500 bg-blue-50/50'
                                                     : 'border-gray-100 hover:border-blue-200 hover:bg-gray-50'
@@ -354,10 +338,6 @@ export function ContractsList({ projectId, currentUser }: ContractsListProps) {
     const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
     // const { toast } = useToast(); // Removed as sonner is used in CustomContractModal
 
-    useEffect(() => {
-        loadContracts();
-    }, [projectId]);
-
     const loadContracts = async () => {
         try {
             const data = await talentXApi.Legal.Contracts.listByProject(projectId);
@@ -367,6 +347,10 @@ export function ContractsList({ projectId, currentUser }: ContractsListProps) {
             toast.error("Failed to load contracts", { description: (error as Error).message });
         }
     };
+
+    useEffect(() => {
+        loadContracts();
+    }, [projectId]);
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -437,6 +421,7 @@ export function ContractsList({ projectId, currentUser }: ContractsListProps) {
 
             {/* Create Modal */}
             <CustomContractModal
+                key={`create-${isCreateModalOpen ? 'open' : 'closed'}`}
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 projectId={projectId}
@@ -446,6 +431,7 @@ export function ContractsList({ projectId, currentUser }: ContractsListProps) {
 
             {/* View/Sign Modal */}
             <CustomContractModal
+                key={`view-${isViewModalOpen ? 'open' : 'closed'}-${selectedContract?.id || 'none'}`}
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
                 contract={selectedContract}

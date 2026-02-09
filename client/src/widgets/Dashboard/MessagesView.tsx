@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWebSocket } from '@/shared/lib/hooks/useWebSocket';
 import { talentXApi, WS_URL } from '@/shared/api/talentXApi';
@@ -29,6 +29,8 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
             userId: (showSupport && user?.role === 'admin') ? selectedThreadUser : undefined
         })
     });
+
+    const messageCount = useMemo(() => currentMessages?.length || 0, [currentMessages]);
 
     // Handle incoming messages via WebSocket
     useEffect(() => {
@@ -71,13 +73,13 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
 
     // Mark as read when viewing messages
     React.useEffect(() => {
-        if (!messagesLoading && currentMessages && currentMessages.length > 0) {
+        if (!messagesLoading && currentMessages && messageCount > 0) {
             markReadMutation.mutate({
                 isSupport: showSupport,
                 threadUserId: (showSupport && user?.role === 'admin') ? selectedThreadUser || undefined : undefined
             });
         }
-    }, [showSupport, selectedThreadUser, currentMessages?.length, messagesLoading]);
+    }, [showSupport, selectedThreadUser, messageCount, messagesLoading]);
 
     const { data: supportThreads } = useQuery({
         queryKey: ['support-threads'],

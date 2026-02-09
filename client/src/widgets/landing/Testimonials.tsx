@@ -3,11 +3,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useSmartQuery } from '@/shared/lib/smartQuery';
 import { talentXApi } from '@/shared/api/talentXApi';
 
 export default function Testimonials() {
-    const { data: testimonials, isLoading } = useQuery({
+    const { data: testimonials, isLoading } = useSmartQuery({
         queryKey: ['cms-testimonials'],
         queryFn: () => talentXApi.entities.CMS.Testimonial.list()
     });

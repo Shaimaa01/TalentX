@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { User, Project } from '@/shared/types';
 import { Button } from "@/shared/components/ui/button";
 import { Plus, Bell, LogOut, Briefcase, MessageSquare, Users, Settings, Search, X, BarChart } from 'lucide-react';
@@ -11,6 +11,7 @@ import { talentXApi } from '@/shared/api/talentXApi';
 import { toast } from 'sonner';
 import { useSearchParams } from 'next/navigation';
 import NotificationCenter from './NotificationCenter';
+import { withClientProjectsDefaults } from '@/features/projects/lib/projectViewModels';
 
 interface ClientDashboardProps {
     user: User;
@@ -46,14 +47,7 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
         queryKey: ['projects', user.id],
         queryFn: async () => {
             const allProjects = await talentXApi.entities.Project.filter({ client_email: user.email });
-            return allProjects.map(p => ({
-                ...p,
-                progress: p.progress || 0,
-                budget_spent: p.budget_spent || 0,
-                total_budget: p.total_budget || 0,
-                next_milestone: p.next_milestone || '',
-                team_members: p.team_members || []
-            }));
+            return withClientProjectsDefaults(allProjects);
         }
     });
 
@@ -158,7 +152,10 @@ export default function ClientDashboard({ user, onLogout, activeView, setActiveV
         refetchInterval: 10000
     });
 
-    const selectedProject = projects.find(p => p.id === selectedProjectId);
+    const selectedProject = useMemo(
+        () => projects.find(p => p.id === selectedProjectId),
+        [projects, selectedProjectId]
+    );
 
     return (
         <div className="min-h-screen bg-[#f5f7fa] flex">

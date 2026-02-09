@@ -4,17 +4,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, X } from 'lucide-react';
 import { Button } from "@/shared/components/ui/button";
-import { useQuery } from '@tanstack/react-query';
+import { useSmartQuery } from '@/shared/lib/smartQuery';
 import { talentXApi } from '@/shared/api/talentXApi';
-
-interface Story {
-    id: string;
-    company: string;
-    logo: string;
-    thumbnail: string;
-    videoUrl: string;
-}
-
+import { toClientStories, type ClientStory } from './clientStories.utils';
 
 // Helper function to convert YouTube URL to embed URL
 const getYouTubeEmbedUrl = (url: string): string | null => {
@@ -32,19 +24,13 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
 };
 
 export default function ClientStories() {
-    const [selectedStory, setSelectedStory] = useState<Story | null>(null);
+    const [selectedStory, setSelectedStory] = useState<ClientStory | null>(null);
 
-    const { data: caseStudies, isLoading } = useQuery({
+    const { data: caseStudies, isLoading } = useSmartQuery({
         queryKey: ['cms-case-studies'],
         queryFn: async () => {
             const items = await talentXApi.entities.CMS.CaseStudy.list();
-            return items.map(item => ({
-                id: item.id,
-                company: item.client_name || item.title,
-                logo: item.logo || 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg',
-                thumbnail: item.image,
-                videoUrl: item.video_url || ''
-            }));
+            return toClientStories(items);
         }
     });
 

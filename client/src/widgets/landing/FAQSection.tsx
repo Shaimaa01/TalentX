@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useSmartQuery } from '@/shared/lib/smartQuery';
 import { talentXApi } from '@/shared/api/talentXApi';
 
 interface FAQSectionProps {
@@ -14,7 +14,7 @@ interface FAQSectionProps {
 export default function FAQSection({ category, title = "Common Questions" }: FAQSectionProps) {
     const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-    const { data: faqs, isLoading } = useQuery({
+    const { data: faqs, isLoading } = useSmartQuery({
         queryKey: ['cms-faqs', category || 'all'],
         queryFn: async () => {
             const allFaqs = await talentXApi.entities.CMS.FAQ.list();
