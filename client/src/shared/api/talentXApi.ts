@@ -1,5 +1,5 @@
 import { apiClient, API_URL, WS_URL } from './client';
-import { Talent, Agency, Team, Subscription, HireRequest, Project, Task, User, Message, FAQ, Testimonial, CaseStudy, BlogPost, AuditLog } from '@/shared/types';
+import { Talent, Agency, Team, Subscription, HireRequest, Project, Task, User, Message, FAQ, Testimonial, CaseStudy, BlogPost, AuditLog, GenerateTeamsInput, HireTeamInput } from '@/shared/types';
 
 export { API_URL, WS_URL };
 
@@ -82,12 +82,27 @@ export const talentXApi = {
                 const response = await apiClient.get('/teams');
                 return response.data;
             },
-            generate: async (data: { skills: string; team_size: number }): Promise<any> => {
-                const response = await apiClient.post('/teams/generate', data);
+            generate: async (data: GenerateTeamsInput): Promise<any> => {
+                // Transform GenerateTeamsInput to backend format
+                const backendData = {
+                    skills: data.category, // Map category to skills
+                    team_size: 3, // Default team size, can be adjusted based on requirements
+                    // Additional context can be passed if backend supports it
+                    ...(data.budget && { budget: data.budget }),
+                    ...(data.timeline && { timeline: data.timeline }),
+                    ...(data.description && { description: data.description })
+                };
+                const response = await apiClient.post('/teams/generate', backendData);
                 return response.data;
             },
-            hire: async (data: { talentIds: string[]; projectId: string }): Promise<any> => {
-                const response = await apiClient.post('/teams/hire', data);
+            hire: async (data: HireTeamInput): Promise<any> => {
+                // Transform HireTeamInput to backend format
+                const backendData = {
+                    talentIds: [data.teamId], // Backend expects array of talent IDs
+                    projectId: data.projectId || '', // Ensure projectId is provided
+                    ...(data.startDate && { startDate: data.startDate })
+                };
+                const response = await apiClient.post('/teams/hire', backendData);
                 return response.data;
             }
         },

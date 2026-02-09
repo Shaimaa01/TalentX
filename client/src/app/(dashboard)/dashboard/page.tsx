@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -19,7 +20,28 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { createPageUrl } from "@/shared/lib/utils";
-import { Task, User,  Talent } from "@/shared/types";
+import {
+  Task,
+  User,
+  Talent,
+  Team,
+  TeamMember,
+  GeneratedTeam,
+  TeamMemberFormData,
+  ApiError,
+  CreateTaskInput,
+  UpdateTaskInput,
+  CreateUserInput,
+  UpdateUserInput,
+  GenerateTeamsInput,
+  HireTeamInput,
+  UserFormData,
+  TaskFormData,
+  StatCardProps,
+  UserRole,
+  Agency,
+  Project,
+} from "@/shared/types";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import ClientDashboard from "@/widgets/Dashboard/ClientDashboard";
@@ -35,6 +57,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
 import AdminDashboard from "@/widgets/Dashboard/AdminDashboard";
 import { TasksView } from "@/widgets/Dashboard/TasksView";
 import { ProjectsView } from "@/widgets/Dashboard/ProjectsView";
@@ -69,7 +98,7 @@ function DashboardContent() {
     // Sync with search params
     const viewParam = searchParams.get("view");
     if (viewParam) {
-      setActiveView(viewParam as any);
+      setActiveView(viewParam as TabValue);
     } else {
       setActiveView("overview");
     }
@@ -147,41 +176,44 @@ function DashboardContent() {
       ...data
     }: {
       id: string;
-      [key: string]: any;
-    }) => {
-      console.log('API Call - Updating task:', id, 'with data:', data);
+    } & UpdateTaskInput) => {
+      console.log("API Call - Updating task:", id, "with data:", data);
       const result = await talentXApi.entities.Task.update(id, data);
-      console.log('API Response:', result);
+      console.log("API Response:", result);
       return result;
     },
     onSuccess: () => {
-      console.log('Mutation successful - invalidating tasks cache');
+      console.log("Mutation successful - invalidating tasks cache");
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task updated");
     },
-    onError: (error: any) => {
-      console.error('Mutation failed:', error);
-      console.error('Error details:', error.response?.data || error.message);
-      toast.error(`Failed to update task: ${error.response?.data?.message || error.message}`);
+    onError: (error: ApiError) => {
+      console.error("Mutation failed:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      toast.error(
+        `Failed to update task: ${error.response?.data?.message || error.message}`,
+      );
     },
   });
 
   const createTaskMutation = useMutation({
-    mutationFn: async (data: any) => {
-      console.log('API Call - Creating task:', data);
+    mutationFn: async (data: CreateTaskInput) => {
+      console.log("API Call - Creating task:", data);
       const result = await talentXApi.entities.Task.create(data);
-      console.log('API Response:', result);
+      console.log("API Response:", result);
       return result;
     },
     onSuccess: () => {
-      console.log('Create mutation successful - invalidating tasks cache');
+      console.log("Create mutation successful - invalidating tasks cache");
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task created");
     },
-    onError: (error: any) => {
-      console.error('Create mutation failed:', error);
-      console.error('Error details:', error.response?.data || error.message);
-      toast.error(`Failed to create task: ${error.response?.data?.message || error.message}`);
+    onError: (error: ApiError) => {
+      console.error("Create mutation failed:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      toast.error(
+        `Failed to create task: ${error.response?.data?.message || error.message}`,
+      );
     },
   });
 
@@ -195,7 +227,7 @@ function DashboardContent() {
   });
 
   const updateAgencyMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<any> }) =>
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Agency> }) =>
       await talentXApi.entities.Agency.update(id, data),
     onSuccess: () => {
       toast.success("Profile updated successfully");
@@ -204,7 +236,7 @@ function DashboardContent() {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) =>
+    mutationFn: async ({ id, data }: { id: string; data: UpdateUserInput }) =>
       talentXApi.entities.User.update(id, data),
     onSuccess: (updatedUser) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -220,7 +252,8 @@ function DashboardContent() {
   });
 
   const createUserMutation = useMutation({
-    mutationFn: async (data: any) => talentXApi.entities.User.create(data),
+    mutationFn: async (data: CreateUserInput) =>
+      talentXApi.entities.User.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       toast.success("User created successfully");
@@ -256,7 +289,7 @@ function DashboardContent() {
 
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [userFormData, setUserFormData] = useState({
+  const [userFormData, setUserFormData] = useState<UserFormData>({
     full_name: "",
     email: "",
     password: "",
@@ -290,16 +323,20 @@ function DashboardContent() {
     setIsUserModalOpen(true);
   };
 
-  const handleTaskSave = (taskData: any) => {
+  const handleTaskSave = (taskData: TaskFormData) => {
     if (selectedTask) {
       // Update existing task
       updateTaskMutation.mutate({
         id: selectedTask.id,
-        ...taskData
+        ...taskData,
       });
     } else {
       // Create new task
-      createTaskMutation.mutate(taskData);
+      createTaskMutation.mutate({
+        status: taskData.status ?? "todo",
+        priority: taskData.priority ?? "medium",
+        ...taskData,
+      });
     }
     setIsTaskModalOpen(false);
     setSelectedTask(null);
@@ -310,10 +347,10 @@ function DashboardContent() {
     if (editingUser) {
       updateUserMutation.mutate({
         id: editingUser.id,
-        data: userFormData as any,
+        data: userFormData,
       });
     } else {
-      createUserMutation.mutate(userFormData as any);
+      createUserMutation.mutate(userFormData);
     }
     setIsUserModalOpen(false);
     setEditingUser(null);
@@ -327,10 +364,9 @@ function DashboardContent() {
 
   // --- Views ---
 
-
   const SettingsView = () => {
     const [activeTab, setActiveTab] = useState<"profile" | "billing">(
-      "profile"
+      "profile",
     );
     const [formData, setFormData] = useState({
       full_name: user?.full_name || "",
@@ -348,7 +384,9 @@ function DashboardContent() {
     return (
       <div className="max-w-4xl xl:max-w-7xl mx-auto space-y-6 sm:space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#1a1a2e]">Settings</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#1a1a2e]">
+            Settings
+          </h1>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -508,7 +546,13 @@ function DashboardContent() {
       activeTasks: tasks?.filter((t) => t.status !== "done").length || 0,
     };
 
-    const StatCard = ({ title, value, icon: Icon, color, subtitle }: any) => (
+    const StatCard = ({
+      title,
+      value,
+      icon: Icon,
+      color,
+      subtitle,
+    }: StatCardProps) => (
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
         <div className="flex items-start justify-between mb-4">
           <div className={`p-3 rounded-xl ${color}`}>
@@ -535,7 +579,7 @@ function DashboardContent() {
               Welcome back, {user?.full_name}!
             </h1>
             <p className="text-gray-500">
-              Here's what's happening with your projects.
+              Here&apos;s what&apos;s happening with your projects.
             </p>
           </div>
           <Button
@@ -607,7 +651,7 @@ function DashboardContent() {
                               src={
                                 project.assigned_to.image_url ||
                                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                  project.assigned_to.name
+                                  project.assigned_to.name,
                                 )}&background=random`
                               }
                               alt={project.assigned_to.name}
@@ -636,8 +680,8 @@ function DashboardContent() {
                         project.status === "completed"
                           ? "bg-green-50 text-green-600 hover:bg-green-50"
                           : project.status === "active"
-                          ? "bg-blue-50 text-[#204ecf] hover:bg-blue-50"
-                          : "bg-gray-50 text-gray-600 hover:bg-gray-50"
+                            ? "bg-blue-50 text-[#204ecf] hover:bg-blue-50"
+                            : "bg-gray-50 text-gray-600 hover:bg-gray-50"
                       } border-none font-bold uppercase text-[10px]`}
                     >
                       {project.status}
@@ -706,7 +750,7 @@ function DashboardContent() {
       if (agencyProfile?.id) {
         updateAgencyMutation.mutate({
           id: agencyProfile.id,
-          data: formData as any,
+          data: formData as Partial<Agency>,
         });
         setIsEditing(false);
       }
@@ -919,12 +963,16 @@ function DashboardContent() {
       skills: "",
       team_size: 3,
       budget: "",
+      category: "",
     });
-    const [generatedTeams, setGeneratedTeams] = useState<any[]>([]);
-    const [selectedTeam, setSelectedTeam] = useState<any>(null);
+    const [generatedTeams, setGeneratedTeams] = useState<GeneratedTeam[]>([]);
+    const [selectedTeam, setSelectedTeam] = useState<GeneratedTeam | null>(
+      null,
+    );
 
     const internalGenerateTeamsMutation = useMutation({
-      mutationFn: (data: any) => talentXApi.entities.Team.generate(data),
+      mutationFn: (data: GenerateTeamsInput) =>
+        talentXApi.entities.Team.generate(data),
       onSuccess: (data) => {
         setGeneratedTeams(data);
         setStep("selection");
@@ -933,7 +981,7 @@ function DashboardContent() {
     });
 
     const internalHireTeamMutation = useMutation({
-      mutationFn: (data: any) => talentXApi.entities.Team.hire(data),
+      mutationFn: (data: HireTeamInput) => talentXApi.entities.Team.hire(data),
       onSuccess: () => {
         setStep("success");
         toast.success("Team hired successfully!");
@@ -948,7 +996,7 @@ function DashboardContent() {
         setStep("requirements");
       } else {
         router.push(
-          createPageUrl(type === "talent" ? "BrowseTalent" : "BrowseAgencies")
+          createPageUrl(type === "talent" ? "BrowseTalent" : "BrowseAgencies"),
         );
       }
     };
@@ -958,10 +1006,10 @@ function DashboardContent() {
       internalGenerateTeamsMutation.mutate(requirements);
     };
 
-    const handleHire = (team: any) => {
+    const handleHire = (team: GeneratedTeam) => {
       if (!projects || projects.length === 0) {
         toast.error(
-          "You need a project to hire a team. Please create a project first."
+          "You need a project to hire a team. Please create a project first.",
         );
         setActiveView("projects");
         return;
@@ -971,8 +1019,13 @@ function DashboardContent() {
     };
 
     const confirmHire = (projectId: string) => {
+      if (!selectedTeam?.id) return;
       internalHireTeamMutation.mutate({
-        talentIds: selectedTeam.members.map((m: any) => m.id),
+        teamId: selectedTeam.id,
+        talentIds:
+          selectedTeam?.members
+            ?.map((m) => m.id)
+            .filter((id): id is string => !!id) || [],
         projectId: projectId,
       });
     };
@@ -1025,7 +1078,7 @@ function DashboardContent() {
                 onChange={(e) => setSelectedTargetProject(e.target.value)}
               >
                 <option value="">Select a project...</option>
-                {projects?.map((p: any) => (
+                {projects?.map((p: Project) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
                   </option>
@@ -1121,8 +1174,8 @@ function DashboardContent() {
                       idx === 0
                         ? "bg-blue-500"
                         : idx === 1
-                        ? "bg-purple-500"
-                        : "bg-green-500"
+                          ? "bg-purple-500"
+                          : "bg-green-500"
                     }`}
                   ></div>
                   <div className="p-6">
@@ -1146,7 +1199,7 @@ function DashboardContent() {
                         Team Members
                       </h4>
                       <div className="flex -space-x-2 overflow-hidden py-2">
-                        {team.members.map((member: any) => (
+                        {team.members?.map((member: TeamMember) => (
                           <img
                             key={member.id}
                             className="inline-block h-10 w-10 rounded-full ring-2 ring-white object-cover"
@@ -1159,11 +1212,11 @@ function DashboardContent() {
                           />
                         ))}
                         <div className="flex items-center justify-center w-10 h-10 rounded-full ring-2 ring-white bg-gray-100 text-xs font-medium text-gray-500">
-                          +{team.members.length}
+                          +{team.members?.length ?? 0}
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        {team.members.slice(0, 4).map((m: any) => (
+                        {team.members?.slice(0, 4).map((m: TeamMember) => (
                           <div
                             key={m.id}
                             className="flex items-center gap-1.5 text-gray-600"
@@ -1221,6 +1274,42 @@ function DashboardContent() {
           </div>
 
           <form onSubmit={handleGenerate} className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Project Category
+              </label>
+              <Select
+                value={requirements.category}
+                onValueChange={(value) =>
+                  setRequirements({ ...requirements, category: value })
+                }
+              >
+                <SelectTrigger className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="web-development">
+                    Web Development
+                  </SelectItem>
+                  <SelectItem value="mobile-development">
+                    Mobile Development
+                  </SelectItem>
+                  <SelectItem value="ui-ux-design">UI/UX Design</SelectItem>
+                  <SelectItem value="data-science">Data Science</SelectItem>
+                  <SelectItem value="machine-learning">
+                    Machine Learning
+                  </SelectItem>
+                  <SelectItem value="devops">DevOps</SelectItem>
+                  <SelectItem value="blockchain">Blockchain</SelectItem>
+                  <SelectItem value="game-development">
+                    Game Development
+                  </SelectItem>
+                  <SelectItem value="marketing">Marketing</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
                 Required Skills
@@ -1526,7 +1615,10 @@ function DashboardContent() {
                     className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium"
                     value={userFormData.role}
                     onChange={(e) =>
-                      setUserFormData({ ...userFormData, role: e.target.value })
+                      setUserFormData({
+                        ...userFormData,
+                        role: e.target.value as UserRole,
+                      })
                     }
                   >
                     <option value="client">Client</option>
@@ -1662,14 +1754,18 @@ function DashboardContent() {
         >
           <TabsList className="flex gap-2 sm:gap-3 justify-start flex-wrap mb-6 sm:mb-8">
             {TALENT_DASHBOARD_TABS.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="text-sm px-3 sm:px-4 py-2">
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="text-sm px-3 sm:px-4 py-2"
+              >
                 {tab.label}
               </TabsTrigger>
             ))}
           </TabsList>
 
           <TabsContent value="overview" className="mt-0">
-            <TalentDashboard 
+            <TalentDashboard
               user={user}
               talentProfile={talentProfile || null}
               updateTalentMutation={updateTalentMutation}
@@ -1677,10 +1773,10 @@ function DashboardContent() {
           </TabsContent>
 
           <TabsContent value="projects" className="mt-0">
-            <ProjectsView 
-              user={user} 
-              selectedProject={selectedProject} 
-              projects={projects} 
+            <ProjectsView
+              user={user}
+              selectedProject={selectedProject}
+              projects={projects}
               setSelectedProject={setSelectedProject}
             />
           </TabsContent>
@@ -1689,7 +1785,9 @@ function DashboardContent() {
             <TasksView
               setSelectedTask={setSelectedTask}
               setIsTaskModalOpen={setIsTaskModalOpen}
-              onUpdateTask={(id, status) => updateTaskMutation.mutate({ id, status })} // Callback
+              onUpdateTask={(id, status) =>
+                updateTaskMutation.mutate({ id, status })
+              } // Callback
               tasks={tasks}
             />
           </TabsContent>
@@ -1714,7 +1812,9 @@ function DashboardContent() {
             setSelectedTask(null);
           }}
           onSave={handleTaskSave}
-          isSaving={createTaskMutation.isPending || updateTaskMutation.isPending}
+          isSaving={
+            createTaskMutation.isPending || updateTaskMutation.isPending
+          }
         />
       )}
     </div>
