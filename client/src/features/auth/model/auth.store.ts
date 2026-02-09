@@ -20,8 +20,12 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             token: null,
             isAuthenticated: false,
+            isInitializing: true, // Start as true - app is initializing
             isLoading: false,
             error: null,
+
+            // Call this after store rehydration
+            setInitialized: () => set({ isInitializing: false }),
 
             login: async (credentials) => {
                 set({ isLoading: true, error: null });
@@ -79,11 +83,12 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-            partialize: (state) => ({
-                user: state.user,
-                token: state.token,
-                isAuthenticated: state.isAuthenticated,
-            }),
+            partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
+            //Mark initialization complete after rehydration
+            onRehydrateStorage: () => (state) => {
+            // This callback runs AFTER the store has loaded saved data from localStorage
+            if (state) {state.setInitialized();}
+    },
         }
     )
 );

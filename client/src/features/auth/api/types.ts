@@ -23,10 +23,12 @@ export interface AuthState {
     user: User | null;
     token: string | null;
     isAuthenticated: boolean;
-    isLoading: boolean;
+    isInitializing: boolean; //for app startup
+    isLoading: boolean; // for user actions
     error: string | null;
     login: (credentials: LoginCredentials) => Promise<void>;
     register: (data: RegisterData) => Promise<void>;
     logout: () => void;
     checkAuth: () => Promise<void>;
+    setInitialized: () => void; //mark initialization complete
 }

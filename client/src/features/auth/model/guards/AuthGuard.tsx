@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '../auth.store';
+import { DashboardSkeleton } from '@/shared/components/ui/skeleton-variants';
 
 interface AuthGuardProps {
     children: React.ReactNode;
@@ -29,11 +30,7 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
     }, [isAuthenticated, isLoading, router, pathname, checked]);
 
     if (isLoading || !checked) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-            </div>
-        );
+        return <DashboardSkeleton />;
     }
 
     if (!isAuthenticated) {
