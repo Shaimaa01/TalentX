@@ -37,7 +37,7 @@ export default function ApplyTalentPage() {
                             </Link>
                             <Button
                                 variant="outline"
-                                className="border-white text-white hover:bg-white/10 font-bold py-6 px-10 text-lg rounded-[4px] transition-all"
+                                className="border-white text-gray-800 hover:bg-white/10 font-bold py-6 px-10 text-lg rounded-[4px] transition-all"
                             >
                                 How it Works
                             </Button>
