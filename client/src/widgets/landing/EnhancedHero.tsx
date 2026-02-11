@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Filter, Box, Pen, ChevronLeft, ChevronRight, Code } from 'lucide-react';
+import { Filter, Box, Pen, ChevronLeft, ChevronRight, Code } from 'lucide-react';
 import Link from 'next/link';
 import { createPageUrl } from '@/shared/lib/utils';
 
@@ -215,7 +215,7 @@ export default function EnhancedHero() {
                                 {content.description}
                             </p>
                             <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                                <Link href={createPageUrl(content.ctaPrimaryLink as any)}>
+                                <Link href={createPageUrl(content.ctaPrimaryLink)}>
                                     <Button className="h-12 px-8 text-base font-bold bg-[#00d084] hover:bg-[#00ba76] text-white shadow-xl shadow-[#00d084]/20 hover:shadow-[#00d084]/30 border-none transition-all duration-300 transform hover:-translate-y-1 rounded-sm">
                                         {activeTab === 'talent'
                                             ? 'Hire Top Talent'
@@ -224,7 +224,7 @@ export default function EnhancedHero() {
                                               : 'Partner with Agencies'}
                                     </Button>
                                 </Link>
-                                <Link href={createPageUrl(content.ctaSecondaryLink as any)}>
+                                <Link href={createPageUrl(content.ctaSecondaryLink)}>
                                     <Button className="h-12 px-8 bg-[#ffffff]/50 text-base text-[#2d3748] border-2 border-primary hover:border-primary hover:text-primary hover:bg-transparent transition-all duration-300 transform hover:-translate-y-1">
                                         {content.ctaSecondary}
                                     </Button>

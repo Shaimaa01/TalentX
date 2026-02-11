@@ -2,8 +2,7 @@ import axios from "axios";
 import { ToastUtils } from "../lib/toast-utils";
 
 // Environment variable for API URL
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 // Derived WebSocket URL
 export const WS_URL = API_URL.replace("http", "ws").replace("/api", "");

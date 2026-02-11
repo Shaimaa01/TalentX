@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import React, { memo, useMemo } from 'react';
 import { Button } from "@/shared/components/ui/button";
 import { Task } from "@/shared/types";
 import { UseMutationResult } from "@tanstack/react-query";
@@ -17,13 +18,21 @@ interface ProjectKanbanBoardProps {
     >;
 }
 
-export const ProjectKanbanBoard = ({tasks , setSelectedTask ,setIsTaskModalOpen ,updateTaskStatusMutation}:ProjectKanbanBoardProps) => {
-        const columns = [
+export const ProjectKanbanBoard = memo(({ tasks, setSelectedTask, setIsTaskModalOpen, updateTaskStatusMutation }: ProjectKanbanBoardProps) => {
+        const columns = useMemo(() => ([
             { id: 'todo', title: 'To Do', icon: Circle, color: 'text-gray-500' },
             { id: 'in_progress', title: 'In Progress', icon: Clock, color: 'text-blue-500' },
             { id: 'review', title: 'Review', icon: AlertCircle, color: 'text-yellow-500' },
             { id: 'done', title: 'Done', icon: CheckCircle, color: 'text-green-500' }
-        ]as const;
+        ] as const), []);
+
+        const tasksByStatus = useMemo(() => {
+            const grouped: Record<string, Task[]> = { todo: [], in_progress: [], review: [], done: [] };
+            (tasks || []).forEach(t => {
+                (grouped[t.status] ||= []).push(t);
+            });
+            return grouped;
+        }, [tasks]);
 
         return (
             <div className="grid md:grid-cols-4 gap-6 overflow-x-auto pb-4">
@@ -34,7 +43,7 @@ export const ProjectKanbanBoard = ({tasks , setSelectedTask ,setIsTaskModalOpen 
                                 <col.icon className={`w-5 h-5 ${col.color}`} />
                                 <h3 className="font-bold text-gray-700">{col.title}</h3>
                                 <span className="bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-xs font-bold">
-                                    {tasks?.filter(t => t.status === col.id).length || 0}
+                                    {tasksByStatus[col.id]?.length || 0}
                                 </span>
                             </div>
                             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setSelectedTask(null); setIsTaskModalOpen(true); }}>
@@ -43,7 +52,7 @@ export const ProjectKanbanBoard = ({tasks , setSelectedTask ,setIsTaskModalOpen 
                         </div>
 
                         <div className="space-y-3">
-                            {tasks?.filter(t => t.status === col.id).map((task) => (
+                            {tasksByStatus[col.id]?.map((task) => (
                                 <motion.div
                                     key={task.id}
                                     layoutId={task.id}
@@ -110,4 +119,7 @@ export const ProjectKanbanBoard = ({tasks , setSelectedTask ,setIsTaskModalOpen 
                 ))}
             </div>
         );
-    };
+    }
+);
+
+export default ProjectKanbanBoard;

@@ -27,7 +27,7 @@ export default function AboutHero() {
                         About TalentX
                     </span>
                     <h1 className="text-[52px] md:text-[56px] lg:text-[62px] font-light text-white mb-6 leading-[1.15] tracking-tight">
-                        We connect the world's top talent with the Startups, and Enterprises.
+                        We connect the world&apos;s top talent with the Startups, and Enterprises.
                     </h1>
                 </motion.div>
             </div>

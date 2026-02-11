@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSocketStore } from '@/features/messaging/model/socket.store';
 import { useNotificationStore } from '@/stores/notificationStore';
@@ -37,6 +37,8 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
                 userId: showSupport && user?.role === 'admin' ? selectedThreadUser : undefined,
             }),
     });
+
+    const messageCount = useMemo(() => currentMessages?.length || 0, [currentMessages]);
 
     // Handle incoming messages via WebSocket
     useEffect(() => {
@@ -82,7 +84,7 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
 
     // Mark as read when viewing messages
     React.useEffect(() => {
-        if (!messagesLoading && currentMessages && currentMessages.length > 0) {
+        if (!messagesLoading && currentMessages && messageCount > 0) {
             markReadMutation.mutate({
                 isSupport: showSupport,
                 threadUserId:
@@ -91,7 +93,7 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
                         : undefined,
             });
         }
-    }, [showSupport, selectedThreadUser, currentMessages?.length, messagesLoading]);
+    }, [showSupport, selectedThreadUser, messageCount, messagesLoading]);
 
     const { data: supportThreads } = useQuery({
         queryKey: ['support-threads'],

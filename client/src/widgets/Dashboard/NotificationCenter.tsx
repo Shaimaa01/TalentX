@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, Check, Loader2, Info, CheckCircle, Mail, X, DollarSign } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
@@ -48,10 +48,10 @@ export default function NotificationCenter({ userId, user }: NotificationCenterP
     const pathname = usePathname();
     const { unreadCount, decrementUnreadCount } = useNotificationStore();
     // WebSocket is now handled by WebSocketProvider
-console.log("unreadcount" , unreadCount );
-// In NotificationCenter, after const { unreadCount } = ...
-console.log('🔔 Current unreadCount from store:', unreadCount);
-console.log('🔔 Store state:', useNotificationStore.getState());
+    console.log('unreadcount', unreadCount);
+    // In NotificationCenter, after const { unreadCount } = ...
+    console.log('🔔 Current unreadCount from store:', unreadCount);
+    console.log('🔔 Store state:', useNotificationStore.getState());
 
     const handleNotificationClick = async (notif: Notification) => {
         // Mark as read immediately for UX
@@ -63,7 +63,7 @@ console.log('🔔 Store state:', useNotificationStore.getState());
 
         // Parse data for navigation
         let projectId: string | null = null;
-        let view: string | null = null;
+        const view: string | null = null;
 
         if (notif.data) {
             try {
@@ -109,30 +109,40 @@ console.log('🔔 Store state:', useNotificationStore.getState());
         queryFn: async () => {
             // Use talentXApi for fetching notifications
             const allNotifications = await talentXApi.entities.Notification.list(userId);
-            
-            
+
             // For admins, also fetch shared admin-broadcast notifications
             let sharedNotifications = [];
             if (user?.role === 'admin' || user?.role === 'core_team') {
                 try {
-                    sharedNotifications = await talentXApi.entities.Notification.list('admin-broadcast');
-                   
+                    sharedNotifications =
+                        await talentXApi.entities.Notification.list('admin-broadcast');
                 } catch (error) {
                     console.log('🔔 No shared notifications found');
                 }
             }
-            
+
             // Combine and deduplicate
-const uniqueMap = new Map();
+            const uniqueMap = new Map();
 
-// Add all notifications, preventing duplicates
-[...allNotifications, ...sharedNotifications].forEach((notif: any) => {
-    if (notif.senderId !== userId && !uniqueMap.has(notif.id)) {
-        uniqueMap.set(notif.id, notif);
-    }
-});
+            // Add all notifications, preventing duplicates
+            [...allNotifications, ...sharedNotifications].forEach((notif: any) => {
+                if (notif.senderId !== userId && !uniqueMap.has(notif.id)) {
+                    uniqueMap.set(notif.id, notif);
+                }
+            });
 
-const combined = Array.from(uniqueMap.values());
+            const combined = Array.from(uniqueMap.values());
+            // Calculate and update unread count in store
+            const unreadNotifications = combined.filter((n: any) => !n.isRead);
+            const supportCount = unreadNotifications.filter(
+                (n) => n.type === 'support_ticket'
+            ).length;
+            const generalCount = unreadNotifications.length - supportCount;
+
+            useNotificationStore.getState().setUnreadCount({
+                general: generalCount,
+                support: supportCount,
+            });
 
             console.log('🔔 NOTIFICATION COUNT:', combined.length);
             return combined;
@@ -146,7 +156,7 @@ const combined = Array.from(uniqueMap.values());
         },
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['notifications', userId] });
-            
+
             // varied decrement based on type
             if (variables.type === 'support_ticket' || variables.type === 'message') {
                 decrementUnreadCount('support');

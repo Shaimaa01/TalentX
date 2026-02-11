@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { User, Agency, Task } from '@/shared/types';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -29,6 +29,7 @@ import TaskListView from './TaskListView';
 import TaskModal from './TaskModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ViewModeToggle } from '@/shared/components/ui/view-mode-toggle';
+import { filterAgencyAssignedProjects } from '@/features/projects/lib/projectViewModels';
 
 interface AgencyDashboardProps {
     user: User;
@@ -101,14 +102,15 @@ export default function AgencyDashboard({
         queryFn: async () => {
             if (!agencyProfile?.id) return [];
             const allProjects = await talentXApi.entities.Project.list();
-            return allProjects.filter((p: any) => {
-                return p.assigned_to?.type === 'agency' && p.assigned_to?.id === agencyProfile.id;
-            });
+            return filterAgencyAssignedProjects(allProjects, agencyProfile.id);
         },
         enabled: !!agencyProfile?.id,
     });
 
-    const selectedProject = projects?.find((p: any) => p.id === selectedProjectId);
+    const selectedProject = useMemo(
+        () => projects?.find((p: any) => p.id === selectedProjectId),
+        [projects, selectedProjectId]
+    );
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
