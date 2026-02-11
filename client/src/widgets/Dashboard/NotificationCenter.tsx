@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, Check, Loader2, Info, CheckCircle, Mail, X, DollarSign } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
@@ -104,7 +104,10 @@ export default function NotificationCenter({ userId }: NotificationCenterProps) 
         refetchInterval: 15000, // Poll every 15s for better responsiveness during testing
     });
 
-    const unreadCount = notifications?.filter((n) => !n.isRead).length || 0;
+    const unreadCount = useMemo(
+        () => notifications?.filter(n => !n.isRead).length || 0,
+        [notifications]
+    );
 
     const markReadMutation = useMutation({
         mutationFn: async (id: string) => {

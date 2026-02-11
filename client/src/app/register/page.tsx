@@ -10,6 +10,7 @@ import { useAuthStore } from '@/features/auth/model/auth.store';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Check, CreditCard, Shield, Lock, ArrowRight } from 'lucide-react';
+import { RegisterFormSkeleton } from '@/shared/components/ui/skeleton-variants';
 import GuestGuard from '@/features/auth/ui/GuestGuard';
 
 function RegisterContent() {
@@ -431,11 +432,18 @@ function RegisterContent() {
                                         </Button>
                                         <Button
                                             onClick={handleRegister}
-                                            className="w-2/3 bg-[#00c853] hover:bg-[#00a844] text-white font-bold py-6 shadow-lg shadow-green-200"
+                                            className="w-2/3 bg-[#00c853] hover:bg-[#00a844] text-white font-bold py-6 shadow-lg shadow-green-200 disabled:opacity-70 disabled:cursor-not-allowed"
                                             disabled={isLoading}
                                         >
                                             {isLoading ? (
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                <span className="flex items-center justify-center gap-1">
+                                                    Creating Account
+                                                    <span className="flex gap-1">
+                                                        <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+                                                        <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+                                                        <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+                                                    </span>
+                                                </span>
                                             ) : (
                                                 'Pay & Create Account'
                                             )}
@@ -461,13 +469,7 @@ function RegisterContent() {
 export default function RegisterPage() {
     return (
         <GuestGuard>
-            <Suspense
-                fallback={
-                    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                        <div className="w-8 h-8 border-2 border-[#204ecf] border-t-transparent rounded-full animate-spin" />
-                    </div>
-                }
-            >
+            <Suspense fallback={<RegisterFormSkeleton />}>
                 <RegisterContent />
             </Suspense>
         </GuestGuard>

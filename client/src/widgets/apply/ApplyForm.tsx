@@ -89,313 +89,308 @@ interface ApplyFormProps {
 }
 
 export default function ApplyForm({ onSuccess }: ApplyFormProps) {
-  const [step, setStep] = useState(1);
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
+    const [step, setStep] = useState(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [resumeFile, setResumeFile] = useState<File | null>(null);
+    const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        role: '',
+        linkedin: '',
+        portfolio: '',
+        experience: '',
+        agencyName: '',
+        companyWebsite: '',
+        linkedinCompany: '',
+        teamSize: '',
+        foundedYear: ''
+    });
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    trigger,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fullName: "",
-      email: "",
-      role: "", // default empty
-      agencyName: "",
-      companyWebsite: "",
-      linkedinCompany: "",
-      teamSize: "",
-      foundedYear: "",
-      linkedin: "",
-      portfolio: "",
-      experience: "",
-    },
-  });
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
-  const role = watch("role");
-  const isAgency = role === "agency";
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setResumeFile(e.target.files[0]);
+        }
+    };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setResumeFile(e.target.files[0]);
-    }
-  };
+    const nextStep = () => setStep(prev => prev + 1);
+    const prevStep = () => setStep(prev => prev - 1);
 
-  const nextStep = async () => {
-    let fieldsToValidate: (keyof FormData)[] = [];
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!resumeFile) {
+            toast.error("File missing", {
+                description: formData.role === 'agency' ? "Please upload your company profile." : "Please upload your resume."
+            });
+            return;
+        }
 
-    if (step === 1) {
-      if (isAgency) {
-        fieldsToValidate = [
-          "fullName",
-          "email",
-          "role",
-          "agencyName",
-          "companyWebsite",
-          "linkedinCompany",
-          "teamSize",
-          "foundedYear",
-        ];
-      } else {
-        fieldsToValidate = ["fullName", "email", "role"];
-      }
-    } else if (step === 2 && !isAgency) {
-      fieldsToValidate = ["linkedin", "experience", "portfolio"];
-    }
+        setIsSubmitting(true);
 
-    const isValid = await trigger(fieldsToValidate);
-    if (!isValid) return;
+        try {
+            const data = new FormData();
+            data.append('full_name', formData.fullName);
+            data.append('email', formData.email);
 
-    if (step === 1 && isAgency) {
-      setStep(3); // Skip to upload for agency
-    } else {
-      setStep((prev) => prev + 1);
-    }
-  };
+            if (formData.role === 'agency') {
+                data.append('role', 'agency');
+                data.append('agency_name', formData.agencyName);
+                data.append('company_website', formData.companyWebsite);
+                data.append('linkedin_company_page', formData.linkedinCompany);
+                data.append('team_size', formData.teamSize);
+                data.append('founded_year', formData.foundedYear);
+            } else {
+                const roleLabels: Record<string, string> = {
+                    developer: 'Software Developer',
+                    designer: 'Designer',
+                    finance: 'Finance Expert',
+                    product: 'Product Manager',
+                    project: 'Project Manager'
+                };
+                data.append('role', 'talent');
+                data.append('title', roleLabels[formData.role] || formData.role);
+                data.append('category', formData.role);
+                data.append('experience', formData.experience);
+                data.append('linkedin', formData.linkedin);
+                if (formData.portfolio) data.append('portfolio', formData.portfolio);
+            }
 
-  const prevStep = () => {
-    if (step === 3 && isAgency) {
-      setStep(1);
-    } else {
-      setStep((prev) => prev - 1);
-    }
-  };
+            data.append('password', 'ChangesRequired123!');
+            data.append('resume', resumeFile);
 
-  const onSubmit = async (data: FormData) => {
-    if (!resumeFile) {
-        toast.error("File missing", {
-            description: isAgency ? "Please upload your company profile." : "Please upload your resume."
-        });
-        return;
-    }
+            const response = await fetch(`${API_URL}/applications/submit`, {
+                method: 'POST',
+                body: data,
+            });
 
-    try {
-      const formData = new FormData();
-      formData.append("full_name", data.fullName);
-      formData.append("email", data.email);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to submit application");
+            }
 
-      if (isAgency) {
-        formData.append("role", "agency");
-        formData.append("agency_name", data.agencyName || "");
-        formData.append("company_website", data.companyWebsite || "");
-        formData.append("linkedin_company_page", data.linkedinCompany || "");
-        formData.append("team_size", data.teamSize || "");
-        formData.append("founded_year", data.foundedYear || "");
-      } else {
-        const roleLabels: Record<string, string> = {
-          developer: "Software Developer",
-          designer: "Designer",
-          finance: "Finance Expert",
-          product: "Product Manager",
-          project: "Project Manager",
-        };
-        formData.append("role", "talent");
-        formData.append("title", roleLabels[data.role] || data.role);
-        formData.append("category", data.role);
-        formData.append("experience", data.experience || "");
-        formData.append("linkedin", data.linkedin || "");
-        if (data.portfolio) formData.append("portfolio", data.portfolio);
-      }
+            toast.success("Details Submitted");
+            onSuccess();
+        } catch (error) {
+            console.error(error);
+            toast.error("Submission failed", {
+                description: error instanceof Error ? error.message : "Something went wrong. Please try again."
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-      formData.append("password", "ChangesRequired123!");
-      formData.append("resume", resumeFile);
+    const totalSteps = formData.role === 'agency' ? 2 : 3;
+    const progress = (step / totalSteps) * 100;
 
-      await apiClient.post("/applications/submit", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        _suppressToast: true,
-      });
+    return (
+        <div className="max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden">
+            {/* Progress Bar */}
+            <div className="h-2 bg-gray-100 flex">
+                <motion.div
+                    className="h-full bg-[#204ecf]"
+                    initial={{ width: '0%' }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.5 }}
+                />
+            </div>
 
-      toast.success("Details Submitted");
-      onSuccess();
-    } catch (error: any) {
-      console.error(error);
-      handleFormErrors(error, setError);
-      
-      // Fallback if no field errors were mapped (e.g. 500 or logic error)
-      if (!error.response?.data?.errors) {
-         toast.error(error.message || "Submission failed");
-      }
-    }
-  };
+            <form onSubmit={handleSubmit} className="p-12">
+                <AnimatePresence mode="wait">
+                    {step === 1 && (
+                        <motion.div
+                            key="step1"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-6"
+                        >
+                            <div className="mb-8">
+                                <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">Basic Information</h2>
+                                <p className="text-gray-500">Let&apos;s start with the basics.</p>
+                            </div>
 
-  const totalSteps = isAgency ? 2 : 3;
+                            {/* Role Toggle */}
+                            <div className="flex bg-gray-50 p-1.5 rounded-2xl mb-8 border border-gray-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, role: 'developer' }))}
+                                    className={`flex-1 py-4 text-sm font-bold rounded-xl transition-all duration-200 ${!['agency'].includes(formData.role) ? 'bg-white text-[#204ecf] shadow-md scale-[1.02]' : 'text-gray-500 hover:text-gray-900'}`}
+                                >
+                                    Apply as Talent
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, role: 'agency' }))}
+                                    className={`flex-1 py-4 text-sm font-bold rounded-xl transition-all duration-200 ${formData.role === 'agency' ? 'bg-white text-[#204ecf] shadow-md scale-[1.02]' : 'text-gray-500 hover:text-gray-900'}`}
+                                >
+                                    Apply as Agency
+                                </button>
+                            </div>
 
-  let currentProgressStep = step;
-  if (isAgency && step === 3) currentProgressStep = 2;
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="fullName" className="text-black font-semibold">
+                                        {formData.role === 'agency' ? 'Representative Name' : 'Full Name'} <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                        id="fullName"
+                                        name="fullName"
+                                        placeholder={formData.role === 'agency' ? "Jane Smith" : "John Doe"}
+                                        value={formData.fullName}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                    />
+                                </div>
 
-  const progress = (currentProgressStep / totalSteps) * 100;
+                                <div className="space-y-2">
+                                    <Label htmlFor="email" className="text-black font-semibold">
+                                        {formData.role === 'agency' ? 'Work Email' : 'Email Address'} <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        placeholder="john@example.com"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                    />
+                                </div>
 
-  return (
-    <div className="max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden">
-      {/* Progress Bar */}
-      <div className="h-2 bg-gray-100 flex">
-        <motion.div
-          className="h-full bg-[#204ecf]"
-          initial={{ width: "0%" }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.5 }}
-        />
-      </div>
+                                {formData.role === 'agency' ? (
+                                    <>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="agencyName" className="text-black font-semibold">Agency Name <span className="text-red-500">*</span></Label>
+                                            <Input
+                                                id="agencyName"
+                                                name="agencyName"
+                                                placeholder="Creative Solutions Ltd."
+                                                value={formData.agencyName}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="companyWebsite" className="text-black font-semibold">Company Website <span className="text-red-500">*</span></Label>
+                                            <Input
+                                                id="companyWebsite"
+                                                name="companyWebsite"
+                                                placeholder="https://agency.com"
+                                                value={formData.companyWebsite}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="linkedinCompany" className="text-black font-semibold">LinkedIn Company Page <span className="text-red-500">*</span></Label>
+                                            <Input
+                                                id="linkedinCompany"
+                                                name="linkedinCompany"
+                                                placeholder="https://linkedin.com/company/agency"
+                                                value={formData.linkedinCompany}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="teamSize" className="text-black font-semibold">Team Size <span className="text-red-500">*</span></Label>
+                                                <Input
+                                                    id="teamSize"
+                                                    name="teamSize"
+                                                    type="number"
+                                                    placeholder="e.g. 15"
+                                                    value={formData.teamSize}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="foundedYear" className="text-black font-semibold">Year Founded <span className="text-red-500">*</span></Label>
+                                                <Input
+                                                    id="foundedYear"
+                                                    name="foundedYear"
+                                                    type="number"
+                                                    placeholder="e.g. 2015"
+                                                    value={formData.foundedYear}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="role" className="text-black font-semibold">Primary Role <span className="text-red-500">*</span></Label>
+                                        <select
+                                            id="role"
+                                            name="role"
+                                            value={formData.role}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full h-12 rounded-xl text-black border border-gray-200 px-4 focus:outline-none focus:border-[#204ecf] focus:ring-1 focus:ring-[#204ecf] bg-white text-sm"
+                                        >
+                                            <option value="">Select a role</option>
+                                            <option value="developer">Software Developer</option>
+                                            <option value="designer">Designer</option>
+                                            <option value="finance">Finance Expert</option>
+                                            <option value="product">Product Manager</option>
+                                            <option value="project">Project Manager</option>
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="p-12">
-        <AnimatePresence mode="wait">
-          {step === 1 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">
-                  Basic Information
-                </h2>
-                <p className="text-gray-500">Let's start with the basics.</p>
-              </div>
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    // Validation for Step 1
+                                    if (!formData.fullName || !formData.email) {
+                                        toast.error("Required fields missing", { description: "Please fill in your name and email." });
+                                        return;
+                                    }
 
-              {/* Role Toggle */}
-              <div className="flex bg-gray-50 p-1.5 rounded-2xl mb-8 border border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setValue("role", "developer", { shouldValidate: true })}
-                  className={`flex-1 py-4 text-sm font-bold rounded-xl transition-all duration-200 ${
-                    !isAgency
-                      ? "bg-white text-[#204ecf] shadow-md scale-[1.02]"
-                      : "text-gray-500 hover:text-gray-900"
-                  }`}
-                >
-                  Apply as Talent
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setValue("role", "agency", { shouldValidate: true })}
-                  className={`flex-1 py-4 text-sm font-bold rounded-xl transition-all duration-200 ${
-                    isAgency
-                      ? "bg-white text-[#204ecf] shadow-md scale-[1.02]"
-                      : "text-gray-500 hover:text-gray-900"
-                  }`}
-                >
-                  Apply as Agency
-                </button>
-              </div>
+                                    if (formData.role === 'agency') {
+                                        if (!formData.agencyName || !formData.companyWebsite || !formData.linkedinCompany || !formData.teamSize || !formData.foundedYear) {
+                                            toast.error("Required fields missing", { description: "Please fill in all agency details." });
+                                            return;
+                                        }
+                                        setStep(3);
+                                    } else {
+                                        if (!formData.role) {
+                                            toast.error("Role required", { description: "Please select a primary role." });
+                                            return;
+                                        }
+                                        nextStep();
+                                    }
+                                }}
+                                className="w-full h-14 bg-[#204ecf] hover:bg-[#1a3da8] text-white font-bold rounded-xl mt-8"
+                            >
+                                Next Step
+                                <ChevronRight className="w-5 h-5 ml-2" />
+                            </Button>
+                        </motion.div>
+                    )}
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-black font-semibold">
-                    {isAgency ? "Representative Name" : "Full Name"}{" "}
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="fullName"
-                    placeholder={isAgency ? "Jane Smith" : "John Doe"}
-                    className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                    error={errors.fullName?.message}
-                    {...register("fullName")}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-black font-semibold">
-                    {isAgency ? "Work Email" : "Email Address"}{" "}
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="john@example.com"
-                    className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                    error={errors.email?.message}
-                    {...register("email")}
-                  />
-                </div>
-
-                {isAgency ? (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="agencyName" className="text-black font-semibold">
-                        Agency Name <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="agencyName"
-                        placeholder="Creative Solutions Ltd."
-                        className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                        error={errors.agencyName?.message}
-                        {...register("agencyName")}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="companyWebsite" className="text-black font-semibold">
-                        Company Website <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="companyWebsite"
-                        placeholder="https://agency.com"
-                        className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                        error={errors.companyWebsite?.message}
-                        {...register("companyWebsite")}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="linkedinCompany" className="text-black font-semibold">
-                        LinkedIn Company Page <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="linkedinCompany"
-                        placeholder="https://linkedin.com/company/agency"
-                        className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                        error={errors.linkedinCompany?.message}
-                        {...register("linkedinCompany")}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="teamSize" className="text-black font-semibold">
-                          Team Size <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                          id="teamSize"
-                          type="number"
-                          placeholder="e.g. 15"
-                          className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                          error={errors.teamSize?.message}
-                          {...register("teamSize")}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="foundedYear" className="text-black font-semibold">
-                          Year Founded <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                          id="foundedYear"
-                          type="number"
-                          placeholder="e.g. 2015"
-                          className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                          error={errors.foundedYear?.message}
-                          {...register("foundedYear")}
-                        />
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="space-y-2">
-                    <Label htmlFor="role" className="text-black font-semibold">
-                      Primary Role <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative">
-                        <select
-                        id="role"
-                        className={`w-full h-12 rounded-xl text-black border px-4 focus:outline-none focus:border-[#204ecf] focus:ring-1 focus:ring-[#204ecf] bg-white text-sm ${
-                            errors.role ? "border-red-500 focus:ring-red-500" : "border-gray-200"
-                        }`}
-                        {...register("role")}
+                    {step === 2 && formData.role !== 'agency' && (
+                        <motion.div
+                            key="step2"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-6"
                         >
                         <option value="">Select a role</option>
                         <option value="developer">Software Developer</option>

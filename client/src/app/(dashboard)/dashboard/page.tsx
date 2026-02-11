@@ -1,50 +1,73 @@
-'use client';
+/* eslint-disable @next/next/no-img-element */
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { talentXApi } from '@/shared/api/talentXApi';
 import { Button } from '@/shared/components/ui/button';
 import {
-    Plus,
-    MoreHorizontal,
-    Clock,
-    CheckCircle,
-    Circle,
-    AlertCircle,
-    Search,
-    Bell,
-    Settings,
-    LogOut,
-    MessageSquare,
-    Briefcase,
-    Users,
-    BarChart,
-    User as UserIcon,
-    CheckCircle2,
-    LayoutGrid,
-    List,
-    DollarSign,
-    X,
-    CheckCircle as CheckCircleIcon,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { createPageUrl } from '@/shared/lib/utils';
-import { Task, User, Talent } from '@/shared/types';
-import { toast } from 'sonner';
-import { useRouter, useSearchParams } from 'next/navigation';
-import ClientDashboard from '@/widgets/Dashboard/ClientDashboard';
-import AgencyDashboard from '@/widgets/Dashboard/AgencyDashboard';
-import TaskModal from '@/widgets/Dashboard/TaskModal';
-import { MessagesView } from '@/widgets/Dashboard/MessagesView';
-import { Badge } from '@/shared/components/ui/badge';
-import NotificationCenter from '@/widgets/Dashboard/NotificationCenter';
-import { useAuthStore } from '@/features/auth/model/auth.store';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
-import AdminDashboard from '@/widgets/Dashboard/AdminDashboard';
-import { TasksView } from '@/widgets/Dashboard/TasksView';
-import { ProjectsView } from '@/widgets/Dashboard/ProjectsView';
-import TalentDashboard from '@/widgets/Dashboard/TalentDashboard';
+  Plus,
+  Settings,
+  MessageSquare,
+  Briefcase,
+  Users,
+  User as UserIcon,
+  CheckCircle2,
+  DollarSign,
+  X,
+  CheckCircle as CheckCircleIcon,
+  Clock,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { createPageUrl } from "@/shared/lib/utils";
+import {
+  Task,
+  User,
+  Talent,
+  Team,
+  TeamMember,
+  GeneratedTeam,
+  TeamMemberFormData,
+  ApiError,
+  CreateTaskInput,
+  UpdateTaskInput,
+  CreateUserInput,
+  UpdateUserInput,
+  GenerateTeamsInput,
+  HireTeamInput,
+  UserFormData,
+  TaskFormData,
+  StatCardProps,
+  UserRole,
+  Agency,
+  Project,
+} from "@/shared/types";
+import { toast } from "sonner";
+import { useRouter, useSearchParams } from "next/navigation";
+import ClientDashboard from "@/widgets/Dashboard/ClientDashboard";
+import AgencyDashboard from "@/widgets/Dashboard/AgencyDashboard";
+import TaskModal from "@/widgets/Dashboard/TaskModal";
+import { MessagesView } from "@/widgets/Dashboard/MessagesView";
+import { Badge } from "@/shared/components/ui/badge";
+import { DashboardSkeleton } from "@/shared/components/ui/skeleton-variants";
+import { useAuthStore } from "@/features/auth/model/auth.store";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+import AdminDashboard from "@/widgets/Dashboard/AdminDashboard";
+import { TasksView } from "@/widgets/Dashboard/TasksView";
+import { ProjectsView } from "@/widgets/Dashboard/ProjectsView";
+import TalentDashboard from "@/widgets/Dashboard/TalentDashboard";
 
 type TabValue =
     | 'overview'
@@ -72,13 +95,13 @@ function DashboardContent() {
     useEffect(() => {
         if (!user) return;
 
-        // Sync with search params
-        const viewParam = searchParams.get('view');
-        if (viewParam) {
-            setActiveView(viewParam as any);
-        } else {
-            setActiveView('overview');
-        }
+    // Sync with search params
+    const viewParam = searchParams.get("view");
+    if (viewParam) {
+      setActiveView(viewParam as TabValue);
+    } else {
+      setActiveView("overview");
+    }
 
         const projectParam = searchParams.get('project');
         if (projectParam) {
@@ -95,90 +118,104 @@ function DashboardContent() {
 
     // --- Queries ---
 
-    const { data: projects = [] } = useQuery({
-        queryKey: ['projects', user?.id],
-        queryFn: async () => talentXApi.entities.Project.list(),
-        enabled: !!user,
-    });
+  const { data: projects = [] } = useQuery({
+    queryKey: ["projects", user?.id],
+    queryFn: async () => talentXApi.entities.Project.list(),
+    enabled: !!user,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+  });
 
-    const { data: tasks = [] } = useQuery({
-        queryKey: ['tasks', selectedProject, user?.id],
-        queryFn: async () => {
-            if (selectedProject)
-                return await talentXApi.entities.Task.filter({
-                    project_id: selectedProject,
-                });
-            if (user?.role === 'talent')
-                return await talentXApi.entities.Task.filter({ assignee: user.id });
-            return [];
-        },
-        enabled: !!user,
-    });
+  const { data: tasks = [] } = useQuery({
+    queryKey: ["tasks", selectedProject, user?.id],
+    queryFn: async () => {
+      if (selectedProject)
+        return await talentXApi.entities.Task.filter({
+          project_id: selectedProject,
+        });
+      if (user?.role === "talent")
+        return await talentXApi.entities.Task.filter({ assignee: user.id });
+      return [];
+    },
+    enabled: !!user,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+  });
 
-    const { data: unreadCounts } = useQuery({
-        queryKey: ['unread-counts', user?.id],
-        queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
-        enabled: !!user,
-        refetchInterval: 15000,
-    });
+  const { data: unreadCounts } = useQuery({
+    queryKey: ["unread-counts", user?.id],
+    queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
+    enabled: !!user,
+    refetchInterval: 15000,
+    staleTime: 10000, // Consider data fresh for 10 seconds
+  });
 
-    const { data: talentProfile, refetch: refetchTalentProfile } = useQuery({
-        queryKey: ['talentProfile', user?.id],
-        queryFn: async () => {
-            if (user?.role !== 'talent') return null;
-            return await talentXApi.entities.Talent.getByUserId(user.id);
-        },
-        enabled: !!user && user.role === 'talent',
-    });
+  const { data: talentProfile, refetch: refetchTalentProfile } = useQuery({
+    queryKey: ["talentProfile", user?.id],
+    queryFn: async () => {
+      if (user?.role !== "talent") return null;
+      return await talentXApi.entities.Talent.getByUserId(user.id);
+    },
+    enabled: !!user && user.role === "talent",
+    staleTime: 60000, // Consider data fresh for 60 seconds (profile changes less frequently)
+  });
 
-    const { data: agencyProfile, refetch: refetchAgencyProfile } = useQuery({
-        queryKey: ['agencyProfile', user?.id],
-        queryFn: async () => {
-            if (user?.role !== 'agency') return null;
-            return await talentXApi.entities.Agency.getByUserId(user.id);
-        },
-        enabled: !!user && user.role === 'agency',
-    });
+  const { data: agencyProfile, refetch: refetchAgencyProfile } = useQuery({
+    queryKey: ["agencyProfile", user?.id],
+    queryFn: async () => {
+      if (user?.role !== "agency") return null;
+      return await talentXApi.entities.Agency.getByUserId(user.id);
+    },
+    enabled: !!user && user.role === "agency",
+    staleTime: 60000, // Consider data fresh for 60 seconds (profile changes less frequently)
+  });
 
     // --- Mutations ---
 
-    const updateTaskMutation = useMutation({
-        mutationFn: async ({ id, ...data }: { id: string; [key: string]: any }) => {
-            console.log('API Call - Updating task:', id, 'with data:', data);
-            const result = await talentXApi.entities.Task.update(id, data);
-            console.log('API Response:', result);
-            return result;
-        },
-        onSuccess: () => {
-            console.log('Mutation successful - invalidating tasks cache');
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
-            toast.success('Task updated');
-        },
-        onError: (error: any) => {
-            console.error('Mutation failed:', error);
-            console.error('Error details:', error.response?.data || error.message);
-            toast.error(`Failed to update task: ${error.response?.data?.message || error.message}`);
-        },
-    });
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({
+      id,
+      ...data
+    }: {
+      id: string;
+    } & UpdateTaskInput) => {
+      console.log("API Call - Updating task:", id, "with data:", data);
+      const result = await talentXApi.entities.Task.update(id, data);
+      console.log("API Response:", result);
+      return result;
+    },
+    onSuccess: () => {
+      console.log("Mutation successful - invalidating tasks cache");
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task updated");
+    },
+    onError: (error: ApiError) => {
+      console.error("Mutation failed:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      toast.error(
+        `Failed to update task: ${error.response?.data?.message || error.message}`,
+      );
+    },
+  });
 
-    const createTaskMutation = useMutation({
-        mutationFn: async (data: any) => {
-            console.log('API Call - Creating task:', data);
-            const result = await talentXApi.entities.Task.create(data);
-            console.log('API Response:', result);
-            return result;
-        },
-        onSuccess: () => {
-            console.log('Create mutation successful - invalidating tasks cache');
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
-            toast.success('Task created');
-        },
-        onError: (error: any) => {
-            console.error('Create mutation failed:', error);
-            console.error('Error details:', error.response?.data || error.message);
-            toast.error(`Failed to create task: ${error.response?.data?.message || error.message}`);
-        },
-    });
+  const createTaskMutation = useMutation({
+    mutationFn: async (data: CreateTaskInput) => {
+      console.log("API Call - Creating task:", data);
+      const result = await talentXApi.entities.Task.create(data);
+      console.log("API Response:", result);
+      return result;
+    },
+    onSuccess: () => {
+      console.log("Create mutation successful - invalidating tasks cache");
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task created");
+    },
+    onError: (error: ApiError) => {
+      console.error("Create mutation failed:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      toast.error(
+        `Failed to create task: ${error.response?.data?.message || error.message}`,
+      );
+    },
+  });
 
     const updateTalentMutation = useMutation({
         mutationFn: async ({ id, data }: { id: string; data: Partial<Talent> }) =>
@@ -189,40 +226,41 @@ function DashboardContent() {
         },
     });
 
-    const updateAgencyMutation = useMutation({
-        mutationFn: async ({ id, data }: { id: string; data: Partial<any> }) =>
-            await talentXApi.entities.Agency.update(id, data),
-        onSuccess: () => {
-            toast.success('Profile updated successfully');
-            refetchAgencyProfile();
-        },
-    });
+  const updateAgencyMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Agency> }) =>
+      await talentXApi.entities.Agency.update(id, data),
+    onSuccess: () => {
+      toast.success("Profile updated successfully");
+      refetchAgencyProfile();
+    },
+  });
 
-    const updateUserMutation = useMutation({
-        mutationFn: async ({ id, data }: { id: string; data: any }) =>
-            talentXApi.entities.User.update(id, data),
-        onSuccess: (updatedUser) => {
-            queryClient.invalidateQueries({ queryKey: ['users'] });
-            toast.success('User updated successfully');
-            setIsUserModalOpen(false);
-            // If updating current user, update local state
-            if (updatedUser.id === user?.id) {
-                // Note: AuthStore handles this via me() but we can update local if needed
-                queryClient.invalidateQueries({ queryKey: ['user'] });
-            }
-        },
-        onError: () => toast.error('Failed to update user'),
-    });
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateUserInput }) =>
+      talentXApi.entities.User.update(id, data),
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User updated successfully");
+      setIsUserModalOpen(false);
+      // If updating current user, update local state
+      if (updatedUser.id === user?.id) {
+        // Note: AuthStore handles this via me() but we can update local if needed
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+      }
+    },
+    onError: () => toast.error("Failed to update user"),
+  });
 
-    const createUserMutation = useMutation({
-        mutationFn: async (data: any) => talentXApi.entities.User.create(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['users'] });
-            toast.success('User created successfully');
-            setIsUserModalOpen(false);
-        },
-        onError: () => toast.error('Failed to create user'),
-    });
+  const createUserMutation = useMutation({
+    mutationFn: async (data: CreateUserInput) =>
+      talentXApi.entities.User.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User created successfully");
+      setIsUserModalOpen(false);
+    },
+    onError: () => toast.error("Failed to create user"),
+  });
 
     const deleteUserMutation = useMutation({
         mutationFn: async (id: string) => talentXApi.entities.User.delete(id),
@@ -249,16 +287,16 @@ function DashboardContent() {
         onError: () => toast.error('Failed to hire team.'),
     });
 
-    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [userFormData, setUserFormData] = useState({
-        full_name: '',
-        email: '',
-        password: '',
-        role: 'client',
-        title: '',
-        agency_name: '',
-    });
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userFormData, setUserFormData] = useState<UserFormData>({
+    full_name: "",
+    email: "",
+    password: "",
+    role: "client",
+    title: "",
+    agency_name: "",
+  });
 
     const handleOpenUserModal = (user?: User) => {
         if (user) {
@@ -285,34 +323,38 @@ function DashboardContent() {
         setIsUserModalOpen(true);
     };
 
-    const handleTaskSave = (taskData: any) => {
-        if (selectedTask) {
-            // Update existing task
-            updateTaskMutation.mutate({
-                id: selectedTask.id,
-                ...taskData,
-            });
-        } else {
-            // Create new task
-            createTaskMutation.mutate(taskData);
-        }
-        setIsTaskModalOpen(false);
-        setSelectedTask(null);
-    };
+  const handleTaskSave = (taskData: TaskFormData) => {
+    if (selectedTask) {
+      // Update existing task
+      updateTaskMutation.mutate({
+        id: selectedTask.id,
+        ...taskData,
+      });
+    } else {
+      // Create new task
+      createTaskMutation.mutate({
+        status: taskData.status ?? "todo",
+        priority: taskData.priority ?? "medium",
+        ...taskData,
+      });
+    }
+    setIsTaskModalOpen(false);
+    setSelectedTask(null);
+  };
 
-    const handleUserSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (editingUser) {
-            updateUserMutation.mutate({
-                id: editingUser.id,
-                data: userFormData as any,
-            });
-        } else {
-            createUserMutation.mutate(userFormData as any);
-        }
-        setIsUserModalOpen(false);
-        setEditingUser(null);
-    };
+  const handleUserSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingUser) {
+      updateUserMutation.mutate({
+        id: editingUser.id,
+        data: userFormData,
+      });
+    } else {
+      createUserMutation.mutate(userFormData);
+    }
+    setIsUserModalOpen(false);
+    setEditingUser(null);
+  };
 
     const { data: allUsers = [] } = useQuery({
         queryKey: ['users'],
@@ -320,15 +362,17 @@ function DashboardContent() {
         enabled: !!user && user.role === 'admin',
     });
 
-    // --- Views ---
+  // --- Views ---
 
-    const SettingsView = () => {
-        const [activeTab, setActiveTab] = useState<'profile' | 'billing'>('profile');
-        const [formData, setFormData] = useState({
-            full_name: user?.full_name || '',
-            email: user?.email || '',
-            password: '',
-        });
+  const SettingsView = () => {
+    const [activeTab, setActiveTab] = useState<"profile" | "billing">(
+      "profile",
+    );
+    const [formData, setFormData] = useState({
+      full_name: user?.full_name || "",
+      email: user?.email || "",
+      password: "",
+    });
 
         const handleSubmit = (e: React.FormEvent) => {
             e.preventDefault();
@@ -337,11 +381,13 @@ function DashboardContent() {
             }
         };
 
-        return (
-            <div className="max-w-4xl xl:max-w-7xl mx-auto space-y-6 sm:space-y-8">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h1 className="text-xl sm:text-2xl font-bold text-[#1a1a2e]">Settings</h1>
-                </div>
+    return (
+      <div className="max-w-4xl xl:max-w-7xl mx-auto space-y-6 sm:space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#1a1a2e]">
+            Settings
+          </h1>
+        </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="flex flex-col sm:flex-row border-b border-gray-100">
@@ -505,39 +551,49 @@ function DashboardContent() {
             activeTasks: tasks?.filter((t) => t.status !== 'done').length || 0,
         };
 
-        const StatCard = ({ title, value, icon: Icon, color, subtitle }: any) => (
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-xl ${color}`}>
-                        <Icon className="w-6 h-6" />
-                    </div>
-                </div>
-                <h3 className="text-gray-500 text-sm font-medium mb-1">{title}</h3>
-                <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-[#1a1a2e]">{value}</span>
-                    {subtitle && (
-                        <span className="text-xs text-gray-400 font-medium">{subtitle}</span>
-                    )}
-                </div>
-            </div>
-        );
+    const StatCard = ({
+      title,
+      value,
+      icon: Icon,
+      color,
+      subtitle,
+    }: StatCardProps) => (
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+        <div className="flex items-start justify-between mb-4">
+          <div className={`p-3 rounded-xl ${color}`}>
+            <Icon className="w-6 h-6" />
+          </div>
+        </div>
+        <h3 className="text-gray-500 text-sm font-medium mb-1">{title}</h3>
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold text-[#1a1a2e]">{value}</span>
+          {subtitle && (
+            <span className="text-xs text-gray-400 font-medium">
+              {subtitle}
+            </span>
+          )}
+        </div>
+      </div>
+    );
 
-        return (
-            <div className="space-y-8">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-[#1a1a2e]">
-                            Welcome back, {user?.full_name}!
-                        </h1>
-                        <p className="text-gray-500">Here's what's happening with your projects.</p>
-                    </div>
-                    <Button
-                        onClick={() => setActiveView('hire')}
-                        className="bg-[#00c853] hover:bg-[#00a846] text-white rounded-xl px-6"
-                    >
-                        <Plus className="w-4 h-4 mr-2" /> Start New Project
-                    </Button>
-                </div>
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1a1a2e]">
+              Welcome back, {user?.full_name}!
+            </h1>
+            <p className="text-gray-500">
+              Here&apos;s what&apos;s happening with your projects.
+            </p>
+          </div>
+          <Button
+            onClick={() => setActiveView("hire")}
+            className="bg-[#00c853] hover:bg-[#00a846] text-white rounded-xl px-6"
+          >
+            <Plus className="w-4 h-4 mr-2" /> Start New Project
+          </Button>
+        </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard
@@ -568,80 +624,78 @@ function DashboardContent() {
                     />
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="font-bold text-[#1a1a2e]">Recent Projects</h2>
-                                <button
-                                    onClick={() => setActiveView('projects')}
-                                    className="text-sm font-bold text-[#204ecf] hover:underline"
-                                >
-                                    View all
-                                </button>
-                            </div>
-                            <div className="space-y-4">
-                                {projects?.slice(0, 3).map((project) => (
-                                    <div
-                                        key={project.id}
-                                        className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-blue-100 hover:bg-blue-50/30 transition-all group"
-                                    >
-                                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-white transition-colors">
-                                            <Briefcase className="w-5 h-5 text-gray-400 group-hover:text-[#204ecf]" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="font-bold text-[#1a1a2e] text-sm">
-                                                    {project.name}
-                                                </h4>
-                                                {project.assigned_to && (
-                                                    <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
-                                                        <img
-                                                            src={
-                                                                project.assigned_to.image_url ||
-                                                                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                                                    project.assigned_to.name
-                                                                )}&background=random`
-                                                            }
-                                                            alt={project.assigned_to.name}
-                                                            className="w-4 h-4 rounded-full"
-                                                        />
-                                                        <span className="text-[10px] font-bold text-gray-500">
-                                                            {project.assigned_to.name}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="flex items-center gap-3 mt-1">
-                                                <div className="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-[#204ecf]"
-                                                        style={{
-                                                            width: `${project.progress || 0}%`,
-                                                        }}
-                                                    ></div>
-                                                </div>
-                                                <span className="text-xs text-gray-500 font-medium">
-                                                    {project.progress || 0}%
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <Badge
-                                            className={`${
-                                                project.status === 'completed'
-                                                    ? 'bg-green-50 text-green-600 hover:bg-green-50'
-                                                    : project.status === 'active'
-                                                      ? 'bg-blue-50 text-[#204ecf] hover:bg-blue-50'
-                                                      : 'bg-gray-50 text-gray-600 hover:bg-gray-50'
-                                            } border-none font-bold uppercase text-[10px]`}
-                                        >
-                                            {project.status}
-                                        </Badge>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-bold text-[#1a1a2e]">Recent Projects</h2>
+                <button
+                  onClick={() => setActiveView("projects")}
+                  className="text-sm font-bold text-[#204ecf] hover:underline"
+                >
+                  View all
+                </button>
+              </div>
+              <div className="space-y-4">
+                {projects?.slice(0, 3).map((project) => (
+                  <div
+                    key={project.id}
+                    className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-blue-100 hover:bg-blue-50/30 transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-white transition-colors">
+                      <Briefcase className="w-5 h-5 text-gray-400 group-hover:text-[#204ecf]" />
                     </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-bold text-[#1a1a2e] text-sm">
+                          {project.name}
+                        </h4>
+                        {project.assigned_to && (
+                          <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
+                            <img
+                              src={
+                                project.assigned_to.image_url ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                  project.assigned_to.name,
+                                )}&background=random`
+                              }
+                              alt={project.assigned_to.name}
+                              className="w-4 h-4 rounded-full"
+                            />
+                            <span className="text-[10px] font-bold text-gray-500">
+                              {project.assigned_to.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1">
+                        <div className="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#204ecf]"
+                            style={{ width: `${project.progress || 0}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs text-gray-500 font-medium">
+                          {project.progress || 0}%
+                        </span>
+                      </div>
+                    </div>
+                    <Badge
+                      className={`${
+                        project.status === "completed"
+                          ? "bg-green-50 text-green-600 hover:bg-green-50"
+                          : project.status === "active"
+                            ? "bg-blue-50 text-[#204ecf] hover:bg-blue-50"
+                            : "bg-gray-50 text-gray-600 hover:bg-gray-50"
+                      } border-none font-bold uppercase text-[10px]`}
+                    >
+                      {project.status}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
                     <div className="space-y-6">
                         <div className="bg-[#1a1a2e] p-6 rounded-2xl text-white shadow-xl shadow-blue-900/10">
@@ -696,16 +750,16 @@ function DashboardContent() {
             services: agencyProfile?.services || [],
         });
 
-        const handleSubmit = (e: React.FormEvent) => {
-            e.preventDefault();
-            if (agencyProfile?.id) {
-                updateAgencyMutation.mutate({
-                    id: agencyProfile.id,
-                    data: formData as any,
-                });
-                setIsEditing(false);
-            }
-        };
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (agencyProfile?.id) {
+        updateAgencyMutation.mutate({
+          id: agencyProfile.id,
+          data: formData as Partial<Agency>,
+        });
+        setIsEditing(false);
+      }
+    };
 
         return (
             <div className="space-y-8">
@@ -902,69 +956,85 @@ function DashboardContent() {
         );
     };
 
-    const HireView = () => {
-        const [step, setStep] = useState<
-            'options' | 'requirements' | 'selection' | 'confirmation' | 'success'
-        >('options');
-        const [selectedTargetProject, setSelectedTargetProject] = useState<string>('');
-        const [hireType, setHireType] = useState<'talent' | 'team' | 'agency' | null>(null);
-        const [requirements, setRequirements] = useState({
-            skills: '',
-            team_size: 3,
-            budget: '',
-        });
-        const [generatedTeams, setGeneratedTeams] = useState<any[]>([]);
-        const [selectedTeam, setSelectedTeam] = useState<any>(null);
+  const HireView = () => {
+    const [step, setStep] = useState<
+      "options" | "requirements" | "selection" | "confirmation" | "success"
+    >("options");
+    const [selectedTargetProject, setSelectedTargetProject] =
+      useState<string>("");
+    const [hireType, setHireType] = useState<
+      "talent" | "team" | "agency" | null
+    >(null);
+    const [requirements, setRequirements] = useState({
+      skills: "",
+      team_size: 3,
+      budget: "",
+      category: "",
+    });
+    const [generatedTeams, setGeneratedTeams] = useState<GeneratedTeam[]>([]);
+    const [selectedTeam, setSelectedTeam] = useState<GeneratedTeam | null>(
+      null,
+    );
 
-        const internalGenerateTeamsMutation = useMutation({
-            mutationFn: (data: any) => talentXApi.entities.Team.generate(data),
-            onSuccess: (data) => {
-                setGeneratedTeams(data);
-                setStep('selection');
-            },
-            onError: () => toast.error('Failed to generate teams. Please try again.'),
-        });
+    const internalGenerateTeamsMutation = useMutation({
+      mutationFn: (data: GenerateTeamsInput) =>
+        talentXApi.entities.Team.generate(data),
+      onSuccess: (data) => {
+        setGeneratedTeams(data);
+        setStep("selection");
+      },
+      onError: () => toast.error("Failed to generate teams. Please try again."),
+    });
 
-        const internalHireTeamMutation = useMutation({
-            mutationFn: (data: any) => talentXApi.entities.Team.hire(data),
-            onSuccess: () => {
-                setStep('success');
-                toast.success('Team hired successfully!');
-                queryClient.invalidateQueries({ queryKey: ['projects'] });
-            },
-            onError: () => toast.error('Failed to hire team.'),
-        });
+    const internalHireTeamMutation = useMutation({
+      mutationFn: (data: HireTeamInput) => talentXApi.entities.Team.hire(data),
+      onSuccess: () => {
+        setStep("success");
+        toast.success("Team hired successfully!");
+        queryClient.invalidateQueries({ queryKey: ["projects"] });
+      },
+      onError: () => toast.error("Failed to hire team."),
+    });
 
-        const handleOptionSelect = (type: 'talent' | 'team' | 'agency') => {
-            setHireType(type);
-            if (type === 'team') {
-                setStep('requirements');
-            } else {
-                router.push(createPageUrl(type === 'talent' ? 'BrowseTalent' : 'BrowseAgencies'));
-            }
-        };
+    const handleOptionSelect = (type: "talent" | "team" | "agency") => {
+      setHireType(type);
+      if (type === "team") {
+        setStep("requirements");
+      } else {
+        router.push(
+          createPageUrl(type === "talent" ? "BrowseTalent" : "BrowseAgencies"),
+        );
+      }
+    };
 
         const handleGenerate = (e: React.FormEvent) => {
             e.preventDefault();
             internalGenerateTeamsMutation.mutate(requirements);
         };
 
-        const handleHire = (team: any) => {
-            if (!projects || projects.length === 0) {
-                toast.error('You need a project to hire a team. Please create a project first.');
-                setActiveView('projects');
-                return;
-            }
-            setSelectedTeam(team);
-            setStep('confirmation');
-        };
+    const handleHire = (team: GeneratedTeam) => {
+      if (!projects || projects.length === 0) {
+        toast.error(
+          "You need a project to hire a team. Please create a project first.",
+        );
+        setActiveView("projects");
+        return;
+      }
+      setSelectedTeam(team);
+      setStep("confirmation");
+    };
 
-        const confirmHire = (projectId: string) => {
-            internalHireTeamMutation.mutate({
-                talentIds: selectedTeam.members.map((m: any) => m.id),
-                projectId: projectId,
-            });
-        };
+    const confirmHire = (projectId: string) => {
+      if (!selectedTeam?.id) return;
+      internalHireTeamMutation.mutate({
+        teamId: selectedTeam.id,
+        talentIds:
+          selectedTeam?.members
+            ?.map((m) => m.id)
+            .filter((id): id is string => !!id) || [],
+        projectId: projectId,
+      });
+    };
 
         if (step === 'confirmation') {
             return (
@@ -995,27 +1065,27 @@ function DashboardContent() {
                         </div>
                     </div>
 
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
-                                Select Project to Assign Team
-                            </label>
-                            <select
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium"
-                                value={selectedTargetProject}
-                                onChange={(e) => setSelectedTargetProject(e.target.value)}
-                            >
-                                <option value="">Select a project...</option>
-                                {projects?.map((p: any) => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <p className="text-xs text-gray-400 mt-2">
-                                Team members will be added to this project.
-                            </p>
-                        </div>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Select Project to Assign Team
+              </label>
+              <select
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium"
+                value={selectedTargetProject}
+                onChange={(e) => setSelectedTargetProject(e.target.value)}
+              >
+                <option value="">Select a project...</option>
+                {projects?.map((p: Project) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-400 mt-2">
+                Team members will be added to this project.
+              </p>
+            </div>
 
                         <Button
                             onClick={() => {
@@ -1079,78 +1149,78 @@ function DashboardContent() {
                         <h2 className="text-2xl font-bold text-[#1a1a2e]">Select Your Team</h2>
                     </div>
 
-                    {internalGenerateTeamsMutation.isPending ? (
-                        <div className="text-center py-20">
-                            <div className="animate-spin w-10 h-10 border-4 border-[#204ecf] border-t-transparent rounded-full mx-auto mb-4"></div>
-                            <p className="text-gray-500">
-                                Analyzing thousands of profiles to find your perfect match...
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="grid md:grid-cols-3 gap-6">
-                            {generatedTeams.map((team, idx) => (
-                                <div
-                                    key={team.id}
-                                    className="bg-white border-2 border-transparent hover:border-[#204ecf] rounded-2xl shadow-sm overflow-hidden transition-all group"
-                                >
-                                    <div
-                                        className={`p-1 h-2 w-full ${
-                                            idx === 0
-                                                ? 'bg-blue-500'
-                                                : idx === 1
-                                                  ? 'bg-purple-500'
-                                                  : 'bg-green-500'
-                                        }`}
-                                    ></div>
-                                    <div className="p-6">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <h3 className="text-xl font-bold text-[#1a1a2e]">
-                                                {team.team_name}
-                                            </h3>
-                                            <Badge
-                                                variant="secondary"
-                                                className="bg-gray-100 text-gray-700"
-                                            >
-                                                {team.match_score}% Match
-                                            </Badge>
-                                        </div>
-                                        <p className="text-sm text-gray-500 mb-6 h-10">
-                                            {team.description}
-                                        </p>
+          {internalGenerateTeamsMutation.isPending ? (
+            <div className="text-center py-20">
+              <div className="animate-spin w-10 h-10 border-4 border-[#204ecf] border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-gray-500">
+                Analyzing thousands of profiles to find your perfect match...
+              </p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-6">
+              {generatedTeams.map((team, idx) => (
+                <div
+                  key={team.id}
+                  className="bg-white border-2 border-transparent hover:border-[#204ecf] rounded-2xl shadow-sm overflow-hidden transition-all group"
+                >
+                  <div
+                    className={`p-1 h-2 w-full ${
+                      idx === 0
+                        ? "bg-blue-500"
+                        : idx === 1
+                          ? "bg-purple-500"
+                          : "bg-green-500"
+                    }`}
+                  ></div>
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-xl font-bold text-[#1a1a2e]">
+                        {team.team_name}
+                      </h3>
+                      <Badge
+                        variant="secondary"
+                        className="bg-gray-100 text-gray-700"
+                      >
+                        {team.match_score}% Match
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-6 h-10">
+                      {team.description}
+                    </p>
 
-                                        <div className="space-y-3 mb-6">
-                                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                                Team Members
-                                            </h4>
-                                            <div className="flex -space-x-2 overflow-hidden py-2">
-                                                {team.members.map((member: any) => (
-                                                    <img
-                                                        key={member.id}
-                                                        className="inline-block h-10 w-10 rounded-full ring-2 ring-white object-cover"
-                                                        src={
-                                                            member.image_url ||
-                                                            `https://ui-avatars.com/api/?name=${member.name}&background=random`
-                                                        }
-                                                        alt={member.name}
-                                                        title={`${member.name} - ${member.role}`}
-                                                    />
-                                                ))}
-                                                <div className="flex items-center justify-center w-10 h-10 rounded-full ring-2 ring-white bg-gray-100 text-xs font-medium text-gray-500">
-                                                    +{team.members.length}
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-2 text-sm">
-                                                {team.members.slice(0, 4).map((m: any) => (
-                                                    <div
-                                                        key={m.id}
-                                                        className="flex items-center gap-1.5 text-gray-600"
-                                                    >
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                                                        <span className="truncate">{m.role}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
+                    <div className="space-y-3 mb-6">
+                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Team Members
+                      </h4>
+                      <div className="flex -space-x-2 overflow-hidden py-2">
+                        {team.members?.map((member: TeamMember) => (
+                          <img
+                            key={member.id}
+                            className="inline-block h-10 w-10 rounded-full ring-2 ring-white object-cover"
+                            src={
+                              member.image_url ||
+                              `https://ui-avatars.com/api/?name=${member.name}&background=random`
+                            }
+                            alt={member.name}
+                            title={`${member.name} - ${member.role}`}
+                          />
+                        ))}
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full ring-2 ring-white bg-gray-100 text-xs font-medium text-gray-500">
+                          +{team.members?.length ?? 0}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        {team.members?.slice(0, 4).map((m: TeamMember) => (
+                          <div
+                            key={m.id}
+                            className="flex items-center gap-1.5 text-gray-600"
+                          >
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                            <span className="truncate">{m.role}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
                                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                                             <div>
@@ -1195,25 +1265,61 @@ function DashboardContent() {
                         <h2 className="text-2xl font-bold text-[#1a1a2e]">Build Your Ideal Team</h2>
                     </div>
 
-                    <form onSubmit={handleGenerate} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
-                                Required Skills
-                            </label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                                placeholder="e.g. React, Node.js, AWS, UI/UX Design"
-                                value={requirements.skills}
-                                onChange={(e) =>
-                                    setRequirements({ ...requirements, skills: e.target.value })
-                                }
-                                required
-                            />
-                            <p className="text-xs text-gray-400 mt-2">
-                                Separate skills with commas
-                            </p>
-                        </div>
+          <form onSubmit={handleGenerate} className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Project Category
+              </label>
+              <Select
+                value={requirements.category}
+                onValueChange={(value) =>
+                  setRequirements({ ...requirements, category: value })
+                }
+              >
+                <SelectTrigger className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="web-development">
+                    Web Development
+                  </SelectItem>
+                  <SelectItem value="mobile-development">
+                    Mobile Development
+                  </SelectItem>
+                  <SelectItem value="ui-ux-design">UI/UX Design</SelectItem>
+                  <SelectItem value="data-science">Data Science</SelectItem>
+                  <SelectItem value="machine-learning">
+                    Machine Learning
+                  </SelectItem>
+                  <SelectItem value="devops">DevOps</SelectItem>
+                  <SelectItem value="blockchain">Blockchain</SelectItem>
+                  <SelectItem value="game-development">
+                    Game Development
+                  </SelectItem>
+                  <SelectItem value="marketing">Marketing</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Required Skills
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                placeholder="e.g. React, Node.js, AWS, UI/UX Design"
+                value={requirements.skills}
+                onChange={(e) =>
+                  setRequirements({ ...requirements, skills: e.target.value })
+                }
+                required
+              />
+              <p className="text-xs text-gray-400 mt-2">
+                Separate skills with commas
+              </p>
+            </div>
 
                         <div className="grid grid-cols-2 gap-6">
                             <div>
@@ -1411,94 +1517,94 @@ function DashboardContent() {
                 </table>
             </div>
 
-            {isUserModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"
-                    >
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-[#1a1a2e]">
-                                {editingUser ? 'Edit User' : 'Create New User'}
-                            </h3>
-                            <button
-                                onClick={() => setIsUserModalOpen(false)}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <form onSubmit={handleUserSubmit} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Full Name
-                                </label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                                    value={userFormData.full_name}
-                                    onChange={(e) =>
-                                        setUserFormData({
-                                            ...userFormData,
-                                            full_name: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Email
-                                </label>
-                                <input
-                                    type="email"
-                                    required
-                                    className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                                    value={userFormData.email}
-                                    onChange={(e) =>
-                                        setUserFormData({ ...userFormData, email: e.target.value })
-                                    }
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Password {editingUser && '(Keep empty for no change)'}
-                                </label>
-                                <input
-                                    type="password"
-                                    className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none"
-                                    value={userFormData.password}
-                                    onChange={(e) =>
-                                        setUserFormData({
-                                            ...userFormData,
-                                            password: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-                            {!editingUser && (
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                                        Role
-                                    </label>
-                                    <select
-                                        className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium"
-                                        value={userFormData.role}
-                                        onChange={(e) =>
-                                            setUserFormData({
-                                                ...userFormData,
-                                                role: e.target.value,
-                                            })
-                                        }
-                                    >
-                                        <option value="client">Client</option>
-                                        <option value="talent">Talent</option>
-                                        <option value="agency">Agency</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
-                                </div>
-                            )}
+      {isUserModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-[#1a1a2e]">
+                {editingUser ? "Edit User" : "Create New User"}
+              </h3>
+              <button
+                onClick={() => setIsUserModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleUserSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                  value={userFormData.full_name}
+                  onChange={(e) =>
+                    setUserFormData({
+                      ...userFormData,
+                      full_name: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                  value={userFormData.email}
+                  onChange={(e) =>
+                    setUserFormData({ ...userFormData, email: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Password {editingUser && "(Keep empty for no change)"}
+                </label>
+                <input
+                  type="password"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none"
+                  value={userFormData.password}
+                  onChange={(e) =>
+                    setUserFormData({
+                      ...userFormData,
+                      password: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              {!editingUser && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
+                    Role
+                  </label>
+                  <select
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#204ecf] outline-none bg-white font-medium"
+                    value={userFormData.role}
+                    onChange={(e) =>
+                      setUserFormData({
+                        ...userFormData,
+                        role: e.target.value as UserRole,
+                      })
+                    }
+                  >
+                    <option value="client">Client</option>
+                    <option value="talent">Talent</option>
+                    <option value="agency">Agency</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              )}
 
                             <div className="flex justify-end gap-3 mt-8">
                                 <Button
@@ -1556,23 +1662,24 @@ function DashboardContent() {
         </div>
     );
 
-    if (!user)
-        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!user) {
+    return <DashboardSkeleton />;
+  }
 
-    if (user.role === 'client') {
-        return (
-            <ClientDashboard
-                user={user}
-                onLogout={handleLogout}
-                activeView={activeView}
-                setActiveView={setActiveView}
-                MessagesView={() => <MessagesView user={user} />}
-                HireView={HireView}
-                SettingsView={SettingsView}
-                ClientOverview={ClientOverview}
-            />
-        );
-    }
+  if (user.role === "client") {
+    return (
+      <ClientDashboard
+        user={user}
+        onLogout={handleLogout}
+        activeView={activeView}
+        setActiveView={setActiveView}
+        MessagesView={() => <MessagesView user={user} />}
+        HireView={HireView}
+        SettingsView={SettingsView}
+        ClientOverview={ClientOverview}
+      />
+    );
+  }
 
     if (user.role === 'agency') {
         return (
@@ -1610,51 +1717,53 @@ function DashboardContent() {
         { value: 'settings', label: 'Settings' },
     ];
 
-    return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <div className="flex-1 max-w-7xl xl:max-w-8xl mx-auto w-full px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8">
-                <Tabs
-                    value={activeView}
-                    onValueChange={(v) => setActiveView(v as TabValue)}
-                    className="w-full"
-                >
-                    <TabsList className="flex gap-2 sm:gap-3 justify-start flex-wrap mb-6 sm:mb-8">
-                        {TALENT_DASHBOARD_TABS.map((tab) => (
-                            <TabsTrigger
-                                key={tab.value}
-                                value={tab.value}
-                                className="text-sm px-3 sm:px-4 py-2"
-                            >
-                                {tab.label}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex-1 max-w-7xl xl:max-w-8xl mx-auto w-full px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8">
+        <Tabs
+          value={activeView}
+          onValueChange={(v) => setActiveView(v as TabValue)}
+          className="w-full"
+        >
+          <TabsList className="flex gap-2 sm:gap-3 justify-start flex-wrap mb-6 sm:mb-8">
+            {TALENT_DASHBOARD_TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="text-sm px-3 sm:px-4 py-2"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-                    <TabsContent value="overview" className="mt-0">
-                        <TalentDashboard
-                            user={user}
-                            talentProfile={talentProfile || null}
-                            updateTalentMutation={updateTalentMutation}
-                        />
-                    </TabsContent>
+          <TabsContent value="overview" className="mt-0">
+            <TalentDashboard
+              user={user}
+              talentProfile={talentProfile || null}
+              updateTalentMutation={updateTalentMutation}
+            />
+          </TabsContent>
 
-                    <TabsContent value="projects" className="mt-0">
-                        <ProjectsView
-                            user={user}
-                            selectedProject={selectedProject}
-                            projects={projects}
-                            setSelectedProject={setSelectedProject}
-                        />
-                    </TabsContent>
+          <TabsContent value="projects" className="mt-0">
+            <ProjectsView
+              user={user}
+              selectedProject={selectedProject}
+              projects={projects}
+              setSelectedProject={setSelectedProject}
+            />
+          </TabsContent>
 
-                    <TabsContent value="tasks" className="mt-0">
-                        <TasksView
-                            setSelectedTask={setSelectedTask}
-                            setIsTaskModalOpen={setIsTaskModalOpen}
-                            onUpdateTask={(id, status) => updateTaskMutation.mutate({ id, status })} // Callback
-                            tasks={tasks}
-                        />
-                    </TabsContent>
+          <TabsContent value="tasks" className="mt-0">
+            <TasksView
+              setSelectedTask={setSelectedTask}
+              setIsTaskModalOpen={setIsTaskModalOpen}
+              onUpdateTask={(id, status) =>
+                updateTaskMutation.mutate({ id, status })
+              } // Callback
+              tasks={tasks}
+            />
+          </TabsContent>
 
                     <TabsContent value="messages" className="mt-0">
                         <MessagesView user={user} />
@@ -1666,33 +1775,29 @@ function DashboardContent() {
                 </Tabs>
             </div>
 
-            {isTaskModalOpen && user && (
-                <TaskModal
-                    task={selectedTask}
-                    user={user}
-                    teamMembers={[]}
-                    onClose={() => {
-                        setIsTaskModalOpen(false);
-                        setSelectedTask(null);
-                    }}
-                    onSave={handleTaskSave}
-                    isSaving={createTaskMutation.isPending || updateTaskMutation.isPending}
-                />
-            )}
-        </div>
-    );
+      {isTaskModalOpen && user && (
+        <TaskModal
+          task={selectedTask}
+          user={user}
+          teamMembers={[]}
+          onClose={() => {
+            setIsTaskModalOpen(false);
+            setSelectedTask(null);
+          }}
+          onSave={handleTaskSave}
+          isSaving={
+            createTaskMutation.isPending || updateTaskMutation.isPending
+          }
+        />
+      )}
+    </div>
+  );
 }
 
 export default function DashboardPage() {
-    return (
-        <React.Suspense
-            fallback={
-                <div className="min-h-screen flex items-center justify-center">
-                    Loading Dashboard...
-                </div>
-            }
-        >
-            <DashboardContent />
-        </React.Suspense>
-    );
+  return (
+    <React.Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </React.Suspense>
+  );
 }

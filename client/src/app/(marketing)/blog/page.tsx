@@ -1,27 +1,21 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useSmartQuery } from '@/shared/lib/smartQuery';
 import { talentXApi } from '@/shared/api/talentXApi';
 import BlogHero from '@/widgets/blog/BlogHero';
 import FeaturedPost from '@/widgets/blog/FeaturedPost';
 import BlogPostCard from '@/widgets/blog/BlogPostCard';
 import NewsletterSignup from '@/widgets/blog/NewsletterSignup';
+import { toBlogPostCardModel } from '@/widgets/blog/blog.utils';
 
 export default function Blog() {
-    const { data: blogPosts, isLoading } = useQuery({
+    const { data: blogPosts, isLoading } = useSmartQuery({
         queryKey: ['blog-posts'],
         queryFn: async () => {
             const posts = await talentXApi.entities.CMS.BlogPost.list();
-            // Map API structure to component expectation
-            return posts
-                .filter((p) => p.published)
-                .map((p) => ({
-                    ...p,
-                    date: p.createdAt || new Date().toISOString(),
-                    readTime: p.readTime || '5 min',
-                }));
-        },
+            return toBlogPostCardModel(posts);
+        }
     });
 
     const featuredPost = blogPosts?.find((p) => p.featured) || blogPosts?.[0];

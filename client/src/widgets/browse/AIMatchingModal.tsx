@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, X, Sparkles, Phone, Video, Mic, MicOff, VideoOff } from 'lucide-react';
 import { talentXApi } from '@/shared/api/talentXApi';
@@ -40,6 +40,27 @@ export default function AIMatchingModal({
     const [callDuration, setCallDuration] = useState(0);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const getMatches = useCallback(async (query: string): Promise<Entity[]> => {
+        let entities: unknown[] = [];
+        if (mode === 'talent') {
+            entities = await talentXApi.entities.Talent.list();
+        } else if (mode === 'team') {
+            entities = await talentXApi.entities.Team.list();
+        } else if (mode === 'agency') {
+            entities = await talentXApi.entities.Agency.list();
+        }
+
+        return (entities as any[]).filter((e: any) => {
+            const name = e.full_name || e.team_name || e.agency_name || '';
+            const title = e.title || e.specialization || '';
+            const skills = e.skills || e.services || [];
+
+            return name.toLowerCase().includes(query.toLowerCase()) ||
+                title.toLowerCase().includes(query.toLowerCase()) ||
+                (Array.isArray(skills) && skills.some((s: string) => query.toLowerCase().includes(s.toLowerCase())));
+        });
+    }, [mode]);
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
@@ -65,37 +86,39 @@ export default function AIMatchingModal({
         let interval: NodeJS.Timeout;
         if (callType && callStatus === 'connected') {
             interval = setInterval(() => {
-                setCallDuration((prev) => prev + 1);
+                setCallDuration(prev => {
+                    const next = prev + 1;
 
-                // Simulate live suggestions in chat during call
-                if (callDuration === 5) {
-                    getMatches('developer').then((matches) => {
-                        const aiMessage: Message = {
-                            id: Date.now().toString(),
-                            sender: 'ai',
-                            content:
-                                "I've found a great developer for you based on our conversation so far.",
-                            matches: matches.slice(0, 1),
-                        };
-                        setMessages((prev) => [...prev, aiMessage]);
-                    });
-                }
-                if (callDuration === 12) {
-                    getMatches('designer').then((matches) => {
-                        const aiMessage: Message = {
-                            id: Date.now().toString(),
-                            sender: 'ai',
-                            content:
-                                'I also found a designer who might be a good fit for the UI/UX part.',
-                            matches: matches.slice(0, 1),
-                        };
-                        setMessages((prev) => [...prev, aiMessage]);
-                    });
-                }
+                    if (next === 5) {
+                        getMatches("developer").then(matches => {
+                            const aiMessage: Message = {
+                                id: Date.now().toString(),
+                                sender: 'ai',
+                                content: "I've found a great developer for you based on our conversation so far.",
+                                matches: matches.slice(0, 1)
+                            };
+                            setMessages(prevMessages => [...prevMessages, aiMessage]);
+                        });
+                    }
+
+                    if (next === 12) {
+                        getMatches("designer").then(matches => {
+                            const aiMessage: Message = {
+                                id: Date.now().toString(),
+                                sender: 'ai',
+                                content: "I also found a designer who might be a good fit for the UI/UX part.",
+                                matches: matches.slice(0, 1)
+                            };
+                            setMessages(prevMessages => [...prevMessages, aiMessage]);
+                        });
+                    }
+
+                    return next;
+                });
             }, 1000);
         }
         return () => clearInterval(interval);
-    }, [callType, callStatus, callDuration]);
+    }, [callType, callStatus, getMatches]);
 
     const formatDuration = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -109,30 +132,6 @@ export default function AIMatchingModal({
         setTimeout(() => {
             setCallStatus('connected');
         }, 2000);
-    };
-
-    const getMatches = async (query: string): Promise<Entity[]> => {
-        let entities: any[] = [];
-        if (mode === 'talent') {
-            entities = await talentXApi.entities.Talent.list();
-        } else if (mode === 'team') {
-            entities = await talentXApi.entities.Team.list();
-        } else if (mode === 'agency') {
-            entities = await talentXApi.entities.Agency.list();
-        }
-
-        return entities.filter((e: any) => {
-            const name = e.full_name || e.team_name || e.agency_name || '';
-            const title = e.title || e.specialization || '';
-            const skills = e.skills || e.services || [];
-
-            return (
-                name.toLowerCase().includes(query.toLowerCase()) ||
-                title.toLowerCase().includes(query.toLowerCase()) ||
-                (Array.isArray(skills) &&
-                    skills.some((s: string) => query.toLowerCase().includes(s.toLowerCase())))
-            );
-        });
     };
 
     const endCall = () => {

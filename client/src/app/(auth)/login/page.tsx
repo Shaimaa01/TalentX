@@ -111,9 +111,18 @@ export default function Login() {
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full bg-[#204ecf] hover:bg-[#1a3da8] text-white font-bold py-6 text-lg rounded-lg shadow-lg shadow-blue-900/20 disabled:opacity-70"
+                                className="w-full bg-[#204ecf] hover:bg-[#1a3da8] text-white font-bold py-6 text-lg rounded-lg shadow-lg shadow-blue-900/20 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
-                                {isLoading ? 'Signing In...' : 'Sign In'}
+                                {isLoading ? (
+                                    <span className="flex items-center justify-center gap-1">
+                                        Signing In
+                                        <span className="flex gap-1">
+                                            <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+                                            <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+                                            <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+                                        </span>
+                                    </span>
+                                ) : 'Sign In'}
                             </Button>
                         </form>
 
