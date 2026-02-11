@@ -12,6 +12,11 @@ import * as Router from "./interface/routes/indexRouter";
 import { maintenanceMiddleware } from "./interface/middleware/MaintenanceMiddleware";
 
 import { setupWebSocketServer } from "./infrastructure/websocket/WebSocketServer";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./infrastructure/swagger";
+import { ErrorHandler } from "./infrastructure/ErrorApp";
+import fs from "fs";
+import path from "path";
 
 import { errorMiddleware } from "./interface/middleware/ErrorMiddleware";
 
@@ -59,7 +64,7 @@ const auditLogController = container.resolve("auditLogController");
 const contractController = container.resolve("contractController");
 const disputeController = container.resolve("disputeController");
 const workVerificationController = container.resolve(
-  "workVerificationController"
+  "workVerificationController",
 );
 const systemSettingController = container.resolve("systemSettingController");
 
@@ -106,6 +111,23 @@ app.use(
 app.use(
   "/api/settings",
   Router.createSystemSettingRoutes(systemSettingController)
+);
+
+// ------ Error Handling -------
+app.use(ErrorHandler);
+
+
+// --- Swagger Documentation ---
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Export Swagger JSON for FE team
+const apiDir = path.join(__dirname, "../api");
+if (!fs.existsSync(apiDir)) {
+  fs.mkdirSync(apiDir, { recursive: true });
+}
+fs.writeFileSync(
+  path.join(apiDir, "swagger.json"),
+  JSON.stringify(swaggerSpec, null, 2),
 );
 
 // Legacy compatibility for notifications

@@ -1,5 +1,68 @@
 import { z } from 'zod';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     CreateProjectDTO:
+ *       type: object
+ *       required:
+ *         - name
+ *       properties:
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         client_email:
+ *           type: string
+ *         clientId:
+ *           type: string
+ *         status:
+ *           type: string
+ *           enum: [active, completed, pending, archived]
+ *         progress:
+ *           type: number
+ *         budget_spent:
+ *           type: number
+ *         total_budget:
+ *           oneOf:
+ *             - type: string
+ *             - type: number
+ *         next_milestone:
+ *           type: string
+ *         start_date:
+ *           type: string
+ *         talentId:
+ *           type: string
+ *         agencyId:
+ *           type: string
+ *     RecordPaymentDTO:
+ *       type: object
+ *       required:
+ *         - projectId
+ *         - talentId
+ *         - amount
+ *       properties:
+ *         projectId:
+ *           type: string
+ *         talentId:
+ *           type: string
+ *         amount:
+ *           type: number
+ *     CompleteProjectDTO:
+ *       type: object
+ *       required:
+ *         - rating
+ *         - review
+ *       properties:
+ *         rating:
+ *           type: number
+ *           minimum: 1
+ *           maximum: 5
+ *         review:
+ *           type: string
+ *           minLength: 10
+ */
 export const CreateProjectSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     description: z.string().optional(),

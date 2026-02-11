@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { TeamService } from '../../application/services/TeamService';
 import { GenerateTeamSchema, HireTeamSchema } from '../../application/dtos/TeamDTO';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class TeamController {
     private teamService: TeamService;
@@ -9,47 +10,47 @@ export class TeamController {
         this.teamService = teamService;
     }
 
-    listTeams = async (req: Request, res: Response) => {
+    listTeams = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const teams = await this.teamService.listTeams();
             res.json(teams);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error listing teams' });
+            next(error);
         }
     };
 
-    getTeam = async (req: Request, res: Response) => {
+    getTeam = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const team = await this.teamService.getTeamById(req.params.id);
             res.json(team);
         } catch (error: any) {
-            res.status(404).json({ message: error.message || 'Team not found' });
+            next(error);
         }
     };
 
-    generateTeams = async (req: Request, res: Response) => {
+    generateTeams = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const validation = GenerateTeamSchema.safeParse(req.body);
             if (!validation.success) {
-                return res.status(400).json({ errors: (validation.error as any).errors });
+                return next(new ErrorApp("Validation Error", 400, JSON.stringify(validation.error.issues)));
             }
             const teams = await this.teamService.generateTeams(validation.data);
             res.json(teams);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error generating teams' });
+            next(error);
         }
     };
 
-    hireTeam = async (req: Request, res: Response) => {
+    hireTeam = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const validation = HireTeamSchema.safeParse(req.body);
             if (!validation.success) {
-                return res.status(400).json({ errors: (validation.error as any).errors });
+                return next(new ErrorApp("Validation Error", 400, JSON.stringify(validation.error.issues)));
             }
             const result = await this.teamService.hireTeam(validation.data);
             res.json(result);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error hiring team' });
+            next(error);
         }
     };
 }

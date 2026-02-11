@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { DisputeService } from '../../application/services/DisputeService';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class DisputeController {
     private disputeService: DisputeService;
@@ -8,34 +9,34 @@ export class DisputeController {
         this.disputeService = disputeService;
     }
 
-    createDispute = async (req: Request, res: Response) => {
+    createDispute = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const dispute = await this.disputeService.createDispute(req.user!.id, req.body);
             res.status(201).json(dispute);
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            next(error);
         }
     };
 
-    getAllDisputes = async (req: Request, res: Response) => {
+    getAllDisputes = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const disputes = await this.disputeService.getAllDisputes();
             res.json(disputes);
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            next(error);
         }
     };
 
-    getDisputesByProject = async (req: Request, res: Response) => {
+    getDisputesByProject = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const disputes = await this.disputeService.getDisputesByProject(req.params.projectId);
             res.json(disputes);
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            next(error);
         }
     };
 
-    resolveDispute = async (req: Request, res: Response) => {
+    resolveDispute = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { resolution, status } = req.body;
             const updatedDispute = await this.disputeService.resolveDispute(
@@ -46,7 +47,7 @@ export class DisputeController {
             );
             res.json(updatedDispute);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 }

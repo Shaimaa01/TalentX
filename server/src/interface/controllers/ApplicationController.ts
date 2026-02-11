@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { CreateApplicationSchema } from '../../application/dtos/ApplicationDTO';
 import { ApplicationService } from '../../application/services/ApplicationService';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class ApplicationController {
     private applicationService: ApplicationService;
@@ -9,18 +10,13 @@ export class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    submitApplication = async (req: Request, res: Response) => {
+    submitApplication = async (req: Request, res: Response, next: NextFunction) => {
         try {
             // 1. Validate Input (Zod)
-            // Note: req.body is parsed by express.json(), but multipart forms might need handling
-            // Since we use Multer, req.body is populated.
             const validationResult = CreateApplicationSchema.safeParse(req.body);
 
             if (!validationResult.success) {
-                return res.status(400).json({
-                    message: 'Validation Error',
-                    errors: (validationResult.error as any).errors,
-                });
+                return next(new ErrorApp("Validation Error", 400, JSON.stringify(validationResult.error.issues)));
             }
 
             // 2. Call Service
@@ -34,14 +30,11 @@ export class ApplicationController {
                 applicationId: application.id,
             });
         } catch (error: any) {
-            console.error('Submit Application Error:', error);
-            res.status(500).json({
-                message: error.message || 'Internal server error',
-            });
+            next(error);
         }
     };
 
-    getApplications = async (req: Request, res: Response) => {
+    getApplications = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const applications = await this.applicationService.getAllApplications();
 
@@ -62,39 +55,37 @@ export class ApplicationController {
 
             res.json(formattedApps);
         } catch (error) {
-            console.error('Get Applications Error:', error);
-            res.status(500).json({ message: 'Internal server error' });
+            next(error);
         }
     };
 
-    deleteApplication = async (req: Request, res: Response) => {
+    deleteApplication = async (req: Request, res: Response, next: NextFunction) => {
         const { id } = req.params;
         try {
             await this.applicationService.deleteApplication(id);
             res.json({ message: 'Application deleted successfully' });
         } catch (error) {
-            res.status(500).json({ message: 'Internal server error' });
+            next(error);
         }
     };
 
-    updateStatus = async (req: Request, res: Response) => {
+    updateStatus = async (req: Request, res: Response, next: NextFunction) => {
         const { id } = req.params;
         const { status } = req.body;
         try {
             await this.applicationService.updateStatus(id, status);
             res.json({ message: `Application status updated to ${status}` });
         } catch (error: any) {
-            console.error('Update Status Error:', error);
-            res.status(500).json({ message: error.message || 'Internal server error' });
+            next(error);
         }
     };
 
-    getSheetUrl = async (req: Request, res: Response) => {
+    getSheetUrl = async (req: Request, res: Response, next: NextFunction) => {
         const sheetId = process.env.GOOGLE_SHEET_ID;
         if (sheetId) {
             res.json({ url: `https://docs.google.com/spreadsheets/d/${sheetId}` });
         } else {
-            res.status(404).json({ message: 'Google Sheet ID not configured' });
+            next(new ErrorApp("Google Sheet ID not configured", 404));
         }
     };
 }

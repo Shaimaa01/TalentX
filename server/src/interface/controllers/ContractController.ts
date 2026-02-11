@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ContractService } from '../../application/services/ContractService';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class ContractController {
     private contractService: ContractService;
@@ -8,31 +9,31 @@ export class ContractController {
         this.contractService = contractService;
     }
 
-    createContract = async (req: Request, res: Response) => {
+    createContract = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const contract = await this.contractService.createContract(req.user!.id, req.body);
             res.status(201).json(contract);
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            next(error);
         }
     };
 
-    getContractsByProject = async (req: Request, res: Response) => {
+    getContractsByProject = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const contracts = await this.contractService.getContractsByProject(
                 req.params.projectId
             );
             res.json(contracts);
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            next(error);
         }
     };
 
-    signContract = async (req: Request, res: Response) => {
+    signContract = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { signature } = req.body;
             if (!signature) {
-                return res.status(400).json({ error: 'Signature is required' });
+                return next(new ErrorApp('Signature is required', 400));
             }
             const contract = await this.contractService.signContract(
                 req.params.id,
@@ -41,7 +42,7 @@ export class ContractController {
             );
             res.json(contract);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 }

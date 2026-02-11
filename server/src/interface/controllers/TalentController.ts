@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { TalentService } from '../../application/services/TalentService';
 import { UpdateTalentSchema } from '../../application/dtos/TalentDTO';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class TalentController {
     private talentService: TalentService;
@@ -9,38 +10,38 @@ export class TalentController {
         this.talentService = talentService;
     }
 
-    getAllTalents = async (req: Request, res: Response) => {
+    getAllTalents = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const talents = await this.talentService.getAllTalents();
             res.json(talents);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error fetching talents' });
+            next(error);
         }
     };
 
-    getTalentById = async (req: Request, res: Response) => {
+    getTalentById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const talent = await this.talentService.getTalentById(req.params.id);
             res.json(talent);
         } catch (error: any) {
-            res.status(404).json({ message: error.message || 'Talent not found' });
+            next(error);
         }
     };
 
-    getTalentByUserId = async (req: Request, res: Response) => {
+    getTalentByUserId = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const talent = await this.talentService.getTalentByUserId(req.params.userId);
             res.json(talent);
         } catch (error: any) {
-            res.status(404).json({ message: error.message || 'Talent not found' });
+            next(error);
         }
     };
 
-    updateTalent = async (req: Request, res: Response) => {
+    updateTalent = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const validationResult = UpdateTalentSchema.safeParse(req.body);
             if (!validationResult.success) {
-                return res.status(400).json({ errors: (validationResult.error as any).errors });
+                return next(new ErrorApp("Validation Error", 400, JSON.stringify(validationResult.error.issues)));
             }
 
             const updatedTalent = await this.talentService.updateTalent(
@@ -49,7 +50,7 @@ export class TalentController {
             );
             res.json(updatedTalent);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error updating talent' });
+            next(error);
         }
     };
 }
