@@ -1,5 +1,41 @@
 import { z } from 'zod';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     UpdateUserDTO:
+ *       type: object
+ *       properties:
+ *         full_name:
+ *           type: string
+ *         title:
+ *           type: string
+ *         category:
+ *           type: string
+ *         experience_years:
+ *           type: number
+ *         skills:
+ *           oneOf:
+ *             - type: string
+ *             - type: array
+ *               items:
+ *                 type: string
+ *         expertise:
+ *           oneOf:
+ *             - type: string
+ *             - type: array
+ *               items:
+ *                 type: string
+ *         agency_name:
+ *           type: string
+ *         team_size:
+ *           oneOf:
+ *             - type: string
+ *             - type: number
+ *         resume_url:
+ *           type: string
+ */
 export const UpdateUserSchema = z.object({
     full_name: z.string().optional(),
 

@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuditLogService } from '../../application/services/AuditLogService';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class AuditLogController {
     private auditLogService: AuditLogService;
@@ -8,14 +9,13 @@ export class AuditLogController {
         this.auditLogService = auditLogService;
     }
 
-    async listLogs(req: Request, res: Response) {
+    listLogs = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { entityType, startDate, endDate } = req.query as any;
             const logs = await this.auditLogService.listLogs({ entityType, startDate, endDate });
             res.json(logs);
         } catch (error: any) {
-            console.error('Error listing audit logs:', error);
-            res.status(500).json({ message: error.message || 'Internal Server Error' });
+            next(error);
         }
     }
 }

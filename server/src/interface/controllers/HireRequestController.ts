@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { HireRequestService } from '../../application/services/HireRequestService';
 import { CreateHireRequestSchema } from '../../application/dtos/HireRequestDTO';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class HireRequestController {
     private hireRequestService: HireRequestService;
@@ -9,38 +10,36 @@ export class HireRequestController {
         this.hireRequestService = hireRequestService;
     }
 
-    createHireRequest = async (req: Request, res: Response) => {
+    createHireRequest = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const validation = CreateHireRequestSchema.safeParse(req.body);
             if (!validation.success) {
-                return res.status(400).json({ errors: (validation.error as any).errors });
+                return next(new ErrorApp("Validation Error", 400, JSON.stringify(validation.error.issues)));
             }
             const request = await this.hireRequestService.createHireRequest(validation.data);
             res.status(201).json(request);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error creating hire request' });
+            next(error);
         }
     };
 
-    listHireRequests = async (req: Request, res: Response) => {
+    listHireRequests = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const requests = await this.hireRequestService.listHireRequests();
             res.json(requests);
         } catch (error: any) {
-            res.status(500).json({ message: error.message || 'Error listing hire requests' });
+            next(error);
         }
     };
 
-    updateStatus = async (req: Request, res: Response) => {
+    updateStatus = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id } = req.params;
             const { status } = req.body;
             const request = await this.hireRequestService.updateStatus(id, status);
             res.json(request);
         } catch (error: any) {
-            res.status(500).json({
-                message: error.message || 'Error updating hire request status',
-            });
+            next(error);
         }
     };
 }

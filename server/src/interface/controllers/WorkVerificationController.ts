@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { WorkVerificationService } from '../../application/services/WorkVerificationService';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class WorkVerificationController {
     private workVerificationService: WorkVerificationService;
@@ -8,81 +9,81 @@ export class WorkVerificationController {
         this.workVerificationService = workVerificationService;
     }
 
-    logTime = async (req: Request, res: Response) => {
+    logTime = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const timeLog = await this.workVerificationService.logTime(req.user!.id, req.body);
             res.status(201).json(timeLog);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 
-    approveTimeLog = async (req: Request, res: Response) => {
+    approveTimeLog = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const timeLog = await this.workVerificationService.approveTimeLog(req.params.id);
             res.json(timeLog);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 
-    rejectTimeLog = async (req: Request, res: Response) => {
+    rejectTimeLog = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const timeLog = await this.workVerificationService.rejectTimeLog(req.params.id);
             res.json(timeLog);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 
-    getTimeLogsByProject = async (req: Request, res: Response) => {
+    getTimeLogsByProject = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const timeLogs = await this.workVerificationService.getTimeLogsByProject(
                 req.params.projectId
             );
             res.json(timeLogs);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 
-    createMilestone = async (req: Request, res: Response) => {
+    createMilestone = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const milestone = await this.workVerificationService.createMilestone(req.body);
             res.status(201).json(milestone);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 
-    requestMilestoneApproval = async (req: Request, res: Response) => {
+    requestMilestoneApproval = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const milestone = await this.workVerificationService.requestMilestoneApproval(
                 req.params.id
             );
             res.json(milestone);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 
-    approveMilestone = async (req: Request, res: Response) => {
+    approveMilestone = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const milestone = await this.workVerificationService.approveMilestone(req.params.id);
             res.json(milestone);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 
-    getMilestonesByProject = async (req: Request, res: Response) => {
+    getMilestonesByProject = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const milestones = await this.workVerificationService.getMilestonesByProject(
                 req.params.projectId
             );
             res.json(milestones);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     };
 }

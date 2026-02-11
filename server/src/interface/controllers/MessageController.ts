@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { MessageService } from '../../application/services/MessageService';
 import { CreateMessageSchema } from '../../application/dtos/MessageDTO';
 import { AuthRequest } from '../middleware/AuthMiddleware';
+import { ErrorApp } from '../../infrastructure/ErrorApp';
 
 export class MessageController {
     private messageService: MessageService;
@@ -10,7 +11,7 @@ export class MessageController {
         this.messageService = messageService;
     }
 
-    listMessages = async (req: AuthRequest, res: Response) => {
+    listMessages = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const messages = await this.messageService.listMessages(
                 req.user!.id,
@@ -19,19 +20,15 @@ export class MessageController {
             );
             res.json(messages);
         } catch (error: any) {
-            console.error('List Messages Error:', error);
-            res.status(500).json({
-                message: error.message || 'Error listing messages',
-                stack: error.stack,
-            });
+            next(error);
         }
     };
 
-    createMessage = async (req: AuthRequest, res: Response) => {
+    createMessage = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const validation = CreateMessageSchema.safeParse(req.body);
             if (!validation.success) {
-                return res.status(400).json({ errors: (validation.error as any).errors });
+                return next(new ErrorApp("Validation Error", 400, JSON.stringify(validation.error.issues)));
             }
             const message = await this.messageService.createMessage(
                 req.user!.id,
@@ -40,28 +37,20 @@ export class MessageController {
             );
             res.status(201).json(message);
         } catch (error: any) {
-            console.error('Create Message Error:', error);
-            res.status(500).json({
-                message: error.message || 'Error creating message',
-                stack: error.stack,
-            });
+            next(error);
         }
     };
 
-    getUnreadCount = async (req: AuthRequest, res: Response) => {
+    getUnreadCount = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const counts = await this.messageService.getUnreadCount(req.user!.id, req.user!.role);
             res.json(counts);
         } catch (error: any) {
-            console.error('Get Unread Count Error:', error);
-            res.status(500).json({
-                message: error.message || 'Error getting unread counts',
-                stack: error.stack,
-            });
+            next(error);
         }
     };
 
-    markAsRead = async (req: AuthRequest, res: Response) => {
+    markAsRead = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const result = await this.messageService.markAsRead(
                 req.user!.id,
@@ -70,11 +59,7 @@ export class MessageController {
             );
             res.json(result);
         } catch (error: any) {
-            console.error('Mark As Read Error:', error);
-            res.status(500).json({
-                message: error.message || 'Error marking as read',
-                stack: error.stack,
-            });
+            next(error);
         }
     };
 }
