@@ -18,8 +18,7 @@ import {
     LayoutGrid,
     List,
 } from 'lucide-react';
-import Link from 'next/link';
-import { createPageUrl } from '@/shared/lib/utils';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { talentXApi } from '@/shared/api/talentXApi';
 import { toast } from 'sonner';
@@ -28,7 +27,6 @@ import ProjectDetail from './ProjectDetail';
 import KanbanBoard from './KanbanBoard';
 import TaskListView from './TaskListView';
 import TaskModal from './TaskModal';
-import NotificationCenter from './NotificationCenter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ViewModeToggle } from '@/shared/components/ui/view-mode-toggle';
 
@@ -57,11 +55,7 @@ export default function AgencyDashboard({
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-    const { data: unreadCounts } = useQuery({
-        queryKey: ['unread-counts'],
-        queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
-        refetchInterval: 10000,
-    });
+
 
     const searchParams = useSearchParams();
 

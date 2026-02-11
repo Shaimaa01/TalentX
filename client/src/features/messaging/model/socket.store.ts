@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { SocketState, Message } from './types';
 import { toast } from 'sonner';
+import { useNotificationStore } from '@/stores/notificationStore';
 
 export const useSocketStore = create<SocketState>((set, get) => ({
     socket: null,
@@ -24,14 +25,33 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         };
 
         ws.onmessage = (event) => {
+            console.log('🔔 SOCKET.STORE: RAW message received:', event.data);
             try {
                 const data = JSON.parse(event.data);
+                console.log('🔔 SOCKET.STORE: Parsed message:', data);
 
                 if (data.type === 'authenticated') {
                     console.log('WS Authenticated');
+                } else if (data.type === 'unreadCount') {
+                    console.log('🔔 SOCKET.STORE: Received unreadCount:', data.data);
+                    // data.data is expected to be { general: number, support: number }
+                    if (data.data && typeof data.data === 'object' && 'general' in data.data) {
+                        useNotificationStore.getState().setUnreadCount(data.data);
+                    } else {
+                         // Fallback for number or unexpected format
+                         const count = Number(data.data) || 0;
+                         useNotificationStore.getState().setUnreadCount({ general: count, support: 0 });
+                    }
                 } else if (data.type === 'new_message') {
                     get().addMessage(data.message);
                     toast.info(`New message from ${data.message.senderRole}`);
+                    
+                    // Increment specific unread count based on message type
+                    if (data.message.isSupport) {
+                        useNotificationStore.getState().incrementUnreadCount('support');
+                    } else {
+                        useNotificationStore.getState().incrementUnreadCount('general');
+                    }
                 } else if (data.type === 'error') {
                     console.error('WS Error:', data.message);
                     toast.error(data.message);
@@ -73,8 +93,9 @@ export const useSocketStore = create<SocketState>((set, get) => ({
                     isSupport,
                 })
             );
+            return true;
         } else {
-            toast.error('Connection lost. Please refresh.');
+            return false;
         }
     },
 

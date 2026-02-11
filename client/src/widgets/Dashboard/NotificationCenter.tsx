@@ -7,6 +7,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { useRouter, usePathname } from 'next/navigation';
 import { talentXApi, API_URL } from '@/shared/api/talentXApi';
+import { useNotificationStore } from '@/stores/notificationStore';
 
 interface Notification {
     id: string;
@@ -19,6 +20,7 @@ interface Notification {
 
 interface NotificationCenterProps {
     userId?: string;
+    user?: any; // Add user prop to access role
 }
 
 // Simple timeAgo helper to replace date-fns
@@ -38,17 +40,23 @@ function timeAgo(date: string | Date): string {
     return past.toLocaleDateString();
 }
 
-export default function NotificationCenter({ userId }: NotificationCenterProps) {
+export default function NotificationCenter({ userId, user }: NotificationCenterProps) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
     const router = useRouter();
     const pathname = usePathname();
+    const { unreadCount, decrementUnreadCount } = useNotificationStore();
+    // WebSocket is now handled by WebSocketProvider
+console.log("unreadcount" , unreadCount );
+// In NotificationCenter, after const { unreadCount } = ...
+console.log('🔔 Current unreadCount from store:', unreadCount);
+console.log('🔔 Store state:', useNotificationStore.getState());
 
     const handleNotificationClick = async (notif: Notification) => {
         // Mark as read immediately for UX
         if (!notif.isRead) {
-            markReadMutation.mutate(notif.id);
+            markReadMutation.mutate({ id: notif.id, type: notif.type });
         }
 
         setIsOpen(false);
@@ -95,23 +103,56 @@ export default function NotificationCenter({ userId }: NotificationCenterProps) 
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Keep notifications query for list display but remove polling
     const { data: notifications, isLoading } = useQuery({
         queryKey: ['notifications', userId],
         queryFn: async () => {
             // Use talentXApi for fetching notifications
-            return await talentXApi.entities.Notification.list(userId);
+            const allNotifications = await talentXApi.entities.Notification.list(userId);
+            
+            
+            // For admins, also fetch shared admin-broadcast notifications
+            let sharedNotifications = [];
+            if (user?.role === 'admin' || user?.role === 'core_team') {
+                try {
+                    sharedNotifications = await talentXApi.entities.Notification.list('admin-broadcast');
+                   
+                } catch (error) {
+                    console.log('🔔 No shared notifications found');
+                }
+            }
+            
+            // Combine and deduplicate
+const uniqueMap = new Map();
+
+// Add all notifications, preventing duplicates
+[...allNotifications, ...sharedNotifications].forEach((notif: any) => {
+    if (notif.senderId !== userId && !uniqueMap.has(notif.id)) {
+        uniqueMap.set(notif.id, notif);
+    }
+});
+
+const combined = Array.from(uniqueMap.values());
+
+            console.log('🔔 NOTIFICATION COUNT:', combined.length);
+            return combined;
         },
-        refetchInterval: 15000, // Poll every 15s for better responsiveness during testing
+        // Remove refetchInterval - using WebSocket instead
     });
 
-    const unreadCount = notifications?.filter((n) => !n.isRead).length || 0;
-
     const markReadMutation = useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async ({ id, type }: { id: string; type: string }) => {
             return await talentXApi.entities.Notification.markRead(id);
         },
-        onSuccess: () => {
+        onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['notifications', userId] });
+            
+            // varied decrement based on type
+            if (variables.type === 'support_ticket' || variables.type === 'message') {
+                decrementUnreadCount('support');
+            } else {
+                decrementUnreadCount('general');
+            }
         },
     });
 
@@ -140,9 +181,9 @@ export default function NotificationCenter({ userId }: NotificationCenterProps) 
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <Bell className="h-5 w-5 text-gray-600" />
-                {unreadCount > 0 && (
+                {unreadCount.total > 0 && (
                     <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                        {unreadCount > 9 ? '9+' : unreadCount}
+                        {unreadCount.total > 9 ? '9+' : unreadCount.total}
                     </span>
                 )}
             </Button>
@@ -152,12 +193,12 @@ export default function NotificationCenter({ userId }: NotificationCenterProps) 
                     <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
                         <div className="flex items-center gap-2">
                             <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
-                            {unreadCount > 0 && (
+                            {unreadCount.total > 0 && (
                                 <Badge
                                     variant="secondary"
                                     className="bg-blue-50 text-blue-600 border-blue-100 text-[10px] py-0 px-1.5"
                                 >
-                                    {unreadCount} New
+                                    {unreadCount.total} New
                                 </Badge>
                             )}
                         </div>

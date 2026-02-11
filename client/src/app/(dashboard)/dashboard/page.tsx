@@ -44,6 +44,7 @@ import {
 } from "@/shared/types";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useNotificationStore } from '@/stores/notificationStore';
 import ClientDashboard from "@/widgets/Dashboard/ClientDashboard";
 import AgencyDashboard from "@/widgets/Dashboard/AgencyDashboard";
 import TaskModal from "@/widgets/Dashboard/TaskModal";
@@ -140,13 +141,20 @@ function DashboardContent() {
     staleTime: 30000, // Consider data fresh for 30 seconds
   });
 
-  const { data: unreadCounts } = useQuery({
-    queryKey: ["unread-counts", user?.id],
-    queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
-    enabled: !!user,
-    refetchInterval: 15000,
-    staleTime: 10000, // Consider data fresh for 10 seconds
-  });
+  // Initial fetch for unread count (no polling, WebSocket handles real-time updates)
+  useEffect(() => {
+    if (user) {
+      talentXApi.entities.Message.getUnreadCount().then(count => {
+        // Update store with initial count (general + support combined)
+        const totalCount = (count.general || 0) + (count.support || 0);
+        useNotificationStore.getState().setUnreadCount({
+          general: count.general || 0,
+          support: count.support || 0
+        });
+        console.log('Initial unread count:', count, 'Total:', totalCount);
+      });
+    }
+  }, [user]);
 
   const { data: talentProfile, refetch: refetchTalentProfile } = useQuery({
     queryKey: ["talentProfile", user?.id],

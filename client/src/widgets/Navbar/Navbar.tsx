@@ -674,7 +674,7 @@ export default function Navbar() {
                         ) : (
                             <>
                                 <div className="flex items-center gap-4">
-                                    {user && <NotificationCenter userId={user.id} />}
+                                    {user && <NotificationCenter userId={user.id} user={user} />}
                                     <div className="text-sm font-medium text-gray-600 hidden xl:block border-l border-gray-200 pl-4">
                                         Hi, {user?.full_name?.split(' ')[0]}
                                     </div>

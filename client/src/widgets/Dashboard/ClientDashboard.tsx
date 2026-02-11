@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Project } from '@/shared/types';
 import { Button } from '@/shared/components/ui/button';
+import { useNotificationStore } from '@/stores/notificationStore';
 import {
     Plus,
     Bell,
@@ -175,11 +176,7 @@ export default function ClientDashboard({
         }
     };
 
-    const { data: unreadCounts } = useQuery({
-        queryKey: ['unread-counts'],
-        queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
-        refetchInterval: 10000,
-    });
+    const { unreadCount } = useNotificationStore(); // Use WebSocket instead of polling
 
     const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
@@ -228,9 +225,9 @@ export default function ClientDashboard({
                             <MessageSquare className="w-5 h-5" />
                             Messages
                         </div>
-                        {(unreadCounts?.general || 0) + (unreadCounts?.support || 0) > 0 && (
+                        {unreadCount > 0 && (
                             <span className="bg-[#204ecf] text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                                {(unreadCounts?.general || 0) + (unreadCounts?.support || 0)}
+                                {unreadCount}
                             </span>
                         )}
                     </button>

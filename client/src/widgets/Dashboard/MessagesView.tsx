@@ -1,9 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useWebSocket } from '@/shared/lib/hooks/useWebSocket';
-import { talentXApi, WS_URL } from '@/shared/api/talentXApi';
+import { useSocketStore } from '@/features/messaging/model/socket.store';
+import { useNotificationStore } from '@/stores/notificationStore';
+import { talentXApi } from '@/shared/api/talentXApi';
 import { Button } from "@/shared/components/ui/button";
 import { MessageSquare, Users, Clock } from 'lucide-react';
 import { User } from '@/shared/types';
@@ -16,11 +18,16 @@ interface MessagesViewProps {
 
 export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewProps) => {
     const queryClient = useQueryClient();
-    const [showSupport, setShowSupport] = useState(initialShowSupport);
+    const { lastMessage, unreadCount } = useNotificationStore();
+    const { sendMessage, isConnected } = useSocketStore();
+    // Default to Support tab for non-admin users since they can't access General
+    const [showSupport, setShowSupport] = useState(user?.role === 'admin' || user?.role === 'core_team' ? initialShowSupport : true);
     const [selectedThreadUser, setSelectedThreadUser] = useState<string | null>(null);
 
-    // WebSocket Integration
-    const { isConnected, lastMessage, sendMessage: sendWSMessage } = useWebSocket(WS_URL);
+    // Use admin user ID from seed (only needed for admin/core_team users)
+    const ADMIN_USER_ID = '67a52004-635b-4c37-9415-9f9d64a943cf';
+
+    // WebSocket is now handled by SocketProvider
 
     const { data: currentMessages, isLoading: messagesLoading } = useQuery({
         queryKey: ['messages', showSupport, selectedThreadUser],
@@ -33,8 +40,8 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
 
     // Handle incoming messages via WebSocket
     useEffect(() => {
-        if (lastMessage?.type === 'new_message') {
-            const newMsg = lastMessage.message;
+        if (lastMessage) {
+            const newMsg = lastMessage;
             const isRelevant = showSupport
                 ? newMsg.isSupport &&
                   (user.role === 'admin'
@@ -65,11 +72,7 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
         }
     }, [lastMessage, showSupport, selectedThreadUser, queryClient, user.role]);
 
-    const { data: unreadCounts } = useQuery({
-        queryKey: ['unread-counts'],
-        queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
-        // refetchInterval removed as we use WS now
-    });
+    // Unread count is now handled by WebSocket via useNotificationStore
 
     const markReadMutation = useMutation({
         mutationFn: async (params: { isSupport: boolean; threadUserId?: string }) =>
@@ -98,25 +101,38 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
 
     const sendMessageMutation = useMutation({
         mutationFn: async (data: any) => {
-            // Priority: WebSocket
+            // Priority 1: Try WebSocket (Real-time)
+            // We check 'isConnected' AND the result of 'sendMessage' (boolean).
+            // If sendMessage returns false, the socket is not ready/open, so we default to REST.
             if (isConnected) {
-                const sent = sendWSMessage({
-                    type: 'message',
-                    ...data,
-                });
-                if (sent) return { status: 'ws_sent' };
+                const sent = sendMessage(data.receiver_id, data.content, data.isSupport);
+                if (sent) {
+                    return { status: 'ws_sent' };
+                }
             }
-            // Fallback: REST
+            // Priority 2: Fallback to REST API
+            // This ensures message delivery even if the socket is disconnected or fails silently.
+            // We do NOT show a socket error toast here to avoid confusing the user if REST succeeds.
             return talentXApi.entities.Message.create(data);
         },
         onSuccess: (res: any) => {
             if (res?.status !== 'ws_sent') {
-                // If it was REST, we need to invalidate
+                // If we fell back to REST, we must manually invalidate queries to update the UI
                 queryClient.invalidateQueries({ queryKey: ['messages'] });
                 queryClient.invalidateQueries({ queryKey: ['support-threads'] });
             }
         },
         onError: () => toast.error('Failed to send message'),
+        // Prevent multiple submissions
+        onMutate: () => {
+             const toastId = toast.loading('Sending message...');
+             return { toastId };
+        },
+        onSettled: (_data, _error, _variables, context) => {
+            if (context?.toastId) {
+                toast.dismiss(context.toastId);
+            }
+        }
     });
 
     return (
@@ -139,21 +155,24 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
                     </div>
                 </div>
                 <div className="bg-gray-200/50 p-1 rounded-xl flex items-center gap-1">
-                    <button
-                        onClick={() => setShowSupport(false)}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                            !showSupport
-                                ? 'bg-white text-[#204ecf] shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
-                        }`}
-                    >
-                        General
-                        {unreadCounts?.general ? (
-                            <span className="bg-[#204ecf] text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                                {unreadCounts.general}
-                            </span>
-                        ) : null}
-                    </button>
+                    {/* Only show General tab for admin and core_team */}
+                    {(user?.role === 'admin' || user?.role === 'core_team') && (
+                        <button
+                            onClick={() => setShowSupport(false)}
+                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                                !showSupport
+                                    ? 'bg-white text-[#204ecf] shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            General
+                            {unreadCount.general > 0 && (
+                                <span className="bg-[#204ecf] text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                                    {unreadCount.general}
+                                </span>
+                            )}
+                        </button>
+                    )}
                     <button
                         onClick={() => {
                             setShowSupport(true);
@@ -166,11 +185,11 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
                         }`}
                     >
                         Support
-                        {unreadCounts?.support ? (
+                        {unreadCount.support > 0 && (
                             <span className="bg-green-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                                {unreadCounts.support}
+                                {unreadCount.support}
                             </span>
-                        ) : null}
+                        )}
                     </button>
                 </div>
             </div>
@@ -299,21 +318,30 @@ export const MessagesView = ({ user, initialShowSupport = false }: MessagesViewP
                             <form
                                 onSubmit={(e) => {
                                     e.preventDefault();
+                                    
+                                    // Prevent multiple submissions
+                                    if (sendMessageMutation.isPending) return;
+                                    
                                     const input = (e.target as any).message;
-                                    if (input.value.trim()) {
-                                        sendMessageMutation.mutate({
-                                            content: input.value,
-                                            isSupport: showSupport,
-                                            receiver_id: showSupport
-                                                ? user?.role === 'admin'
-                                                    ? selectedThreadUser!
-                                                    : 'support-system-user-id-001'
-                                                : user?.role === 'admin'
-                                                  ? 'all'
-                                                  : 'admin',
-                                        });
-                                        input.value = '';
+                                    const receiverId = showSupport
+                                        ? user?.role === 'admin'
+                                            ? selectedThreadUser
+                                            : 'support-system-user-id-001'
+                                        : user?.role === 'admin'
+                                            ? null // Admin doesn't send to "admin"
+                                            : ADMIN_USER_ID;
+
+                                    if (!receiverId) {
+                                        toast.error("Please select a recipient first.");
+                                        return;
                                     }
+
+                                    sendMessageMutation.mutate({
+                                        content: input.value,
+                                        isSupport: showSupport,
+                                        receiver_id: receiverId,
+                                    });
+                                    input.value = '';
                                 }}
                                 className="flex items-center gap-3 bg-white text-black p-2 rounded-2xl border border-gray-200 shadow-sm focus-within:ring-2 focus-within:ring-[#204ecf]/20 transition-all"
                             >

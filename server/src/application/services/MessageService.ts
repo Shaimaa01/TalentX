@@ -2,6 +2,7 @@ import { IMessageRepository } from '../../domain/repositories/IMessageRepository
 import { INotificationRepository } from '../../domain/repositories/INotificationRepository';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { CreateMessageDTO } from '../dtos/MessageDTO';
+import { sendNotificationToUser } from '../../infrastructure/websocket/WebSocketServer';
 
 export class MessageService {
     private static SUPPORT_ID = 'support-system-user-id-001';
@@ -102,20 +103,24 @@ export class MessageService {
             content: dto.content,
         });
 
-        // Notifications
-        if (isSupport && !this.isSupportStaff(role)) {
-            // Notify all admins and core_team
-            const allUsers = await (this.userRepo as any).findAll();
-            const supportStaff = (allUsers as any[]).filter((u) => this.isSupportStaff(u.role));
+        // Send real-time notification to recipient
+        if (!isSupport) {
+            const unreadCount = await this.getUnreadCount(actualReceiverId, 'client'); // Get updated count
+            sendNotificationToUser(actualReceiverId, 'unreadCount', { count: unreadCount });
+            sendNotificationToUser(actualReceiverId, 'newMessage', this.formatMessage(message));
+        }
 
-            for (const staff of supportStaff) {
-                await this.notificationRepo.create({
-                    userId: staff.id,
-                    type: 'support_ticket',
-                    content: `New support ticket: "${dto.content.substring(0, 30)}..."`,
-                    data: JSON.stringify({ senderId, messageId: message.id }),
-                });
-            }
+        // Notifications for support tickets (database only - WebSocket handled by server)
+        if (isSupport && !this.isSupportStaff(role)) {
+            // Create ONE shared notification that all admins can see
+            // Use a special admin user ID or create a system notification
+            await this.notificationRepo.create({
+                userId: 'admin-broadcast', // Special ID for shared admin notifications
+                type: 'support_ticket',
+                content: `New support ticket: "${dto.content.substring(0, 30)}..."`,
+                data: JSON.stringify({ senderId, messageId: message.id }),
+            });
+            console.log('🔔 SHARED NOTIFICATION: Created 1 shared admin notification');
         }
 
         return this.formatMessage(message);
@@ -127,6 +132,30 @@ export class MessageService {
             MessageService.SUPPORT_ID,
             this.isSupportStaff(role)
         );
+    }
+
+    async getNotificationCount(userId: string) {
+        try {
+            console.log(`🔔 MESSAGE SERVICE: Getting notification count for user: ${userId}`);
+            
+            // Count unread database notifications for this specific user
+            const personalNotifications = await this.notificationRepo.findByUserId(userId);
+            const personalCount = personalNotifications.filter(n => !n.isRead).length;
+            console.log(`🔔 MESSAGE SERVICE: Personal notifications: ${personalNotifications.length}, unread: ${personalCount}`);
+            
+            // For admins, also count shared admin-broadcast notifications
+            const sharedNotifications = await this.notificationRepo.findByUserId('admin-broadcast');
+            const sharedCount = sharedNotifications.filter(n => !n.isRead).length;
+            console.log(`🔔 MESSAGE SERVICE: Shared notifications: ${sharedNotifications.length}, unread: ${sharedCount}`);
+            
+            const totalCount = personalCount + sharedCount;
+            console.log(`🔔 MESSAGE SERVICE: Total count for ${userId}: ${totalCount}`);
+            
+            return totalCount;
+        } catch (error) {
+            console.error('🔔 MESSAGE SERVICE: Error getting notification count:', error);
+            return 0;
+        }
     }
 
     async markAsRead(userId: string, role: string, dto: any) {

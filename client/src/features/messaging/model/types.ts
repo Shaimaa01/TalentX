@@ -5,6 +5,7 @@ export interface Message {
     receiverId: string;
     content: string;
     createdAt: string;
+    isSupport?: boolean;
 }
 
 export interface SocketState {
@@ -13,6 +14,6 @@ export interface SocketState {
     messages: Message[];
     connect: (url: string, token: string) => void;
     disconnect: () => void;
-    sendMessage: (receiverId: string, content: string, isSupport?: boolean) => void;
+    sendMessage: (receiverId: string, content: string, isSupport?: boolean) => boolean;
     addMessage: (message: Message) => void;
 }

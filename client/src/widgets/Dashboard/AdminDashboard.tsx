@@ -19,6 +19,7 @@ import { Label } from "@/shared/components/ui/label";
 import { ExternalLink, Check, X, Trash2, Mail, Plus, User as UserIcon, Users, Briefcase, BarChart as ChartIcon, TrendingUp, Settings as SettingsIcon, DollarSign, ClipboardCheck, ArrowUpRight, Search, Zap, PieChart, Activity, BookOpen, FileText, MessageSquare, HelpCircle, Pencil, Star } from 'lucide-react';
 import { useToast } from "@/shared/components/ui/use-toast";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNotificationStore } from '@/stores/notificationStore';
 import { talentXApi, API_URL } from '@/shared/api/talentXApi';
 import Link from 'next/link';
 import { createPageUrl } from '@/shared/lib/utils';
@@ -455,12 +456,9 @@ export default function AdminDashboard() {
 
     const insights = calculateInsights();
 
-    const { data: unreadCounts } = useQuery({
-        queryKey: ['unread-counts'],
-        queryFn: async () => talentXApi.entities.Message.getUnreadCount(),
-        refetchInterval: 10000,
-        staleTime: 10000, // 10 seconds
-    });
+    // Use WebSocket for unread count instead of polling
+    const { unreadCount } = useNotificationStore();
+
 
     // Show skeleton while user data is loading
     if (isUserLoading || !user) {
@@ -506,8 +504,8 @@ export default function AdminDashboard() {
                         )}
                         <TabsTrigger value="messages" className="flex items-center gap-2 ">
                             Support
-                            {unreadCounts?.support ? (
-                                <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{unreadCounts.support}</span>
+                            {unreadCount.support > 0 ? (
+                                <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{unreadCount.support}</span>
                             ) : null}
                         </TabsTrigger>
                         <TabsTrigger value="audit-logs" className="flex items-center gap-2">
