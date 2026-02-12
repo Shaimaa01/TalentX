@@ -20,7 +20,7 @@ import path from "path";
 
 import { errorMiddleware } from "./interface/middleware/ErrorMiddleware";
 
-const app = express();
+export const app = express();
 const PORT = process.env.PORT || 8000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -145,12 +145,14 @@ app.get("/health", (req, res) => {
 const server = http.createServer(app);
 setupWebSocketServer(server, messageService);
 
-server.listen(PORT, async () => {
-  console.log(`Backend Server running on port ${PORT}`);
-  try {
-    await userRepo.ensureSupportUser("support-system-user-id-001");
-    console.log("Support user ensured");
-  } catch (err) {
-    console.error("Failed to ensure support user:", err);
-  }
-});
+if (require.main === module) {
+  server.listen(PORT, async () => {
+    console.log(`Backend Server running on port ${PORT}`);
+    try {
+      await userRepo.ensureSupportUser("support-system-user-id-001");
+      console.log("Support user ensured");
+    } catch (err) {
+      console.error("Failed to ensure support user:", err);
+    }
+  });
+}
