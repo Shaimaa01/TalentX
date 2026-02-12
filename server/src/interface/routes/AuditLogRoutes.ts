@@ -7,9 +7,7 @@ export const createAuditLogRoutes = (controller: AuditLogController) => {
 
     // In a real app, you'd add verifyAdmin middleware here
     router.use(authenticateToken);
-    router.get('/', requireRole(['admin', 'core_team']), (req, res) =>
-        controller.listLogs(req, res)
-    );
+    router.get('/', requireRole(['admin', 'core_team']), controller.listLogs);
 
     return router;
 };
