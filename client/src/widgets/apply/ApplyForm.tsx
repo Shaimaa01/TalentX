@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "react-hook-form";
+import { useForm, Controller, Path, FieldErrors  } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/shared/components/ui/button";
@@ -10,79 +10,41 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { ChevronRight, ChevronLeft, Upload, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { apiClient } from "@/shared/api/client";
-import { handleFormErrors } from "@/shared/lib/form-errors";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
 
-// Define the validation schema
-const formSchema = z
-  .object({
-    fullName: z.string().min(1, "Full name is required"),
-    email: z.string().email("Invalid email address"),
-    role: z.string().min(1, "Role is required"),
+// Define the validation schema using discriminated union for better role-based logic
+const formSchema = z.discriminatedUnion('role', [
+    z.object({
+        role: z.literal('agency'),
+        fullName: z.string().min(2, 'Representative name is required'),
+        email: z.email('Invalid work email'),
+        agencyName: z.string().min(2, 'Agency name is required'),
+        companyWebsite: z.url('Invalid website URL'),
+        linkedinCompany: z.url('Invalid LinkedIn URL'),
+        teamSize: z.string().min(1, 'Team size is required'),
+        foundedYear: z.string().length(4, 'Invalid year (e.g. 2024)'),
+    }),
+    z.object({
+        role: z.enum(['developer', 'designer', 'finance', 'product', 'project']),
+        fullName: z.string().min(2, 'Full name is required'),
+        email: z.email('Invalid email address'),
+        linkedin: z.url('Invalid LinkedIn URL'),
+        experience: z.string().min(1, 'Experience is required'),
+        portfolio: z.url('Invalid portfolio URL').optional().or(z.literal('')),
+    }),
+]);
 
-    // Agency fields
-    agencyName: z.string().optional(),
-    companyWebsite: z.string().optional(),
-    linkedinCompany: z.string().optional(),
-    teamSize: z.string().optional(),
-    foundedYear: z.string().optional(),
-
-    // Talent fields
-    linkedin: z.string().optional(),
-    portfolio: z.string().optional(),
-    experience: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.role === "agency") {
-      if (!data.agencyName)
-        ctx.addIssue({
-          code: "custom",
-          path: ["agencyName"],
-          message: "Agency name is required",
-        });
-      if (!data.companyWebsite)
-        ctx.addIssue({
-          code: "custom",
-          path: ["companyWebsite"],
-          message: "Company website is required",
-        });
-      if (!data.linkedinCompany)
-        ctx.addIssue({
-          code: "custom",
-          path: ["linkedinCompany"],
-          message: "LinkedIn company page is required",
-        });
-      if (!data.teamSize)
-        ctx.addIssue({
-          code: "custom",
-          path: ["teamSize"],
-          message: "Team size is required",
-        });
-      if (!data.foundedYear)
-        ctx.addIssue({
-          code: "custom",
-          path: ["foundedYear"],
-          message: "Founded year is required",
-        });
-    } else {
-      // Talent validations
-
-        if (!data.linkedin)
-            ctx.addIssue({
-            code: "custom",
-            path: ["linkedin"],
-            message: "LinkedIn profile is required",
-            });
-        if (!data.experience)
-            ctx.addIssue({
-            code: "custom",
-            path: ["experience"],
-            message: "Experience is required",
-            });
-    }
-  });
-
-type FormData = z.infer<typeof formSchema>;
+type ApplyFormData = z.infer<typeof formSchema>;
+type AgencyErrors = FieldErrors<Extract<ApplyFormData, { role: 'agency' }>>;
+type TalentErrors = FieldErrors<
+    Extract<ApplyFormData, { role: 'developer' | 'designer' | 'finance' | 'product' | 'project' }>
+>;
 
 interface ApplyFormProps {
   onSuccess: () => void;
@@ -92,24 +54,35 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [resumeFile, setResumeFile] = useState<File | null>(null);
-    const [formData, setFormData] = useState({
-        fullName: '',
-        email: '',
-        role: '',
-        linkedin: '',
-        portfolio: '',
-        experience: '',
-        agencyName: '',
-        companyWebsite: '',
-        linkedinCompany: '',
-        teamSize: '',
-        foundedYear: ''
+
+    const {
+        register,
+        handleSubmit,
+        control,
+        trigger,
+        watch,
+        setValue,
+        formState: { errors },
+    } = useForm<ApplyFormData>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            role: 'developer',
+            fullName: '',
+            email: '',
+            // Talent fields
+            linkedin: '',
+            experience: '',
+            portfolio: '',
+            // Agency fields
+            agencyName: '',
+            companyWebsite: '',
+            linkedinCompany: '',
+            teamSize: '',
+            foundedYear: '',
+        } as ApplyFormData,
     });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    const role = watch('role');
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -120,11 +93,13 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
     const nextStep = () => setStep(prev => prev + 1);
     const prevStep = () => setStep(prev => prev - 1);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (data: ApplyFormData) => {
         if (!resumeFile) {
-            toast.error("File missing", {
-                description: formData.role === 'agency' ? "Please upload your company profile." : "Please upload your resume."
+            toast.error('File missing', {
+                description:
+                    data.role === 'agency'
+                        ? 'Please upload your company profile.'
+                        : 'Please upload your resume.',
             });
             return;
         }
@@ -132,17 +107,17 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
         setIsSubmitting(true);
 
         try {
-            const data = new FormData();
-            data.append('full_name', formData.fullName);
-            data.append('email', formData.email);
+            const formDataPayload = new FormData();
+            formDataPayload.append('full_name', data.fullName);
+            formDataPayload.append('email', data.email);
 
-            if (formData.role === 'agency') {
-                data.append('role', 'agency');
-                data.append('agency_name', formData.agencyName);
-                data.append('company_website', formData.companyWebsite);
-                data.append('linkedin_company_page', formData.linkedinCompany);
-                data.append('team_size', formData.teamSize);
-                data.append('founded_year', formData.foundedYear);
+            if (data.role === 'agency') {
+                formDataPayload.append('role', 'agency');
+                formDataPayload.append('agency_name', data.agencyName);
+                formDataPayload.append('company_website', data.companyWebsite);
+                formDataPayload.append('linkedin_company_page', data.linkedinCompany);
+                formDataPayload.append('team_size', data.teamSize);
+                formDataPayload.append('founded_year', data.foundedYear);
             } else {
                 const roleLabels: Record<string, string> = {
                     developer: 'Software Developer',
@@ -151,21 +126,24 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                     product: 'Product Manager',
                     project: 'Project Manager'
                 };
-                data.append('role', 'talent');
-                data.append('title', roleLabels[formData.role] || formData.role);
-                data.append('category', formData.role);
-                data.append('experience', formData.experience);
-                data.append('linkedin', formData.linkedin);
-                if (formData.portfolio) data.append('portfolio', formData.portfolio);
+                formDataPayload.append('role', 'talent');
+                formDataPayload.append('title', roleLabels[data.role] || data.role);
+                formDataPayload.append('category', data.role);
+                formDataPayload.append('experience', data.experience);
+                formDataPayload.append('linkedin', data.linkedin);
+                if (data.portfolio) formDataPayload.append('portfolio', data.portfolio);
             }
 
-            data.append('password', 'ChangesRequired123!');
-            data.append('resume', resumeFile);
+            formDataPayload.append('password', 'ChangesRequired123!');
+            formDataPayload.append('resume', resumeFile);
 
-            const response = await fetch(`${API_URL}/applications/submit`, {
-                method: 'POST',
-                body: data,
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/applications/submit`,
+                {
+                    method: 'POST',
+                    body: formDataPayload,
+                }
+            );
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -184,7 +162,7 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
         }
     };
 
-    const totalSteps = formData.role === 'agency' ? 2 : 3;
+    const totalSteps = role === 'agency' ? 2 : 3;
     const progress = (step / totalSteps) * 100;
 
     return (
@@ -199,7 +177,7 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                 />
             </div>
 
-            <form onSubmit={handleSubmit} className="p-12">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-12">
                 <AnimatePresence mode="wait">
                     {step === 1 && (
                         <motion.div
@@ -218,15 +196,15 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                             <div className="flex bg-gray-50 p-1.5 rounded-2xl mb-8 border border-gray-100">
                                 <button
                                     type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, role: 'developer' }))}
-                                    className={`flex-1 py-4 text-sm font-bold rounded-xl transition-all duration-200 ${!['agency'].includes(formData.role) ? 'bg-white text-[#204ecf] shadow-md scale-[1.02]' : 'text-gray-500 hover:text-gray-900'}`}
+                                    onClick={() => setValue('role', 'developer')}
+                                    className={`flex-1 py-4 text-sm font-bold rounded-xl transition-all duration-200 ${role !== 'agency' ? 'bg-white text-[#204ecf] shadow-md scale-[1.02]' : 'text-gray-500 hover:text-gray-900'}`}
                                 >
                                     Apply as Talent
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, role: 'agency' }))}
-                                    className={`flex-1 py-4 text-sm font-bold rounded-xl transition-all duration-200 ${formData.role === 'agency' ? 'bg-white text-[#204ecf] shadow-md scale-[1.02]' : 'text-gray-500 hover:text-gray-900'}`}
+                                    onClick={() => setValue('role', 'agency')}
+                                    className={`flex-1 py-4 text-sm font-bold rounded-xl transition-all duration-200 ${role === 'agency' ? 'bg-white text-[#204ecf] shadow-md scale-[1.02]' : 'text-gray-500 hover:text-gray-900'}`}
                                 >
                                     Apply as Agency
                                 </button>
@@ -235,145 +213,228 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="fullName" className="text-black font-semibold">
-                                        {formData.role === 'agency' ? 'Representative Name' : 'Full Name'} <span className="text-red-500">*</span>
+                                        {role === 'agency' ? 'Representative Name' : 'Full Name'}{' '}
+                                        <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="fullName"
-                                        name="fullName"
-                                        placeholder={formData.role === 'agency' ? "Jane Smith" : "John Doe"}
-                                        value={formData.fullName}
-                                        onChange={handleInputChange}
-                                        required
+                                        {...register('fullName')}
+                                        placeholder={role === 'agency' ? 'Jane Smith' : 'John Doe'}
                                         className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
                                     />
+                                    {errors.fullName && (
+                                        <p className="text-xs text-red-500 ml-1">
+                                            {errors.fullName.message}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="email" className="text-black font-semibold">
-                                        {formData.role === 'agency' ? 'Work Email' : 'Email Address'} <span className="text-red-500">*</span>
+                                        {role === 'agency' ? 'Work Email' : 'Email Address'}{' '}
+                                        <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="email"
-                                        name="email"
                                         type="email"
+                                        {...register('email')}
                                         placeholder="john@example.com"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        required
                                         className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
                                     />
+                                    {errors.email && (
+                                        <p className="text-xs text-red-500 ml-1">
+                                            {errors.email.message}
+                                        </p>
+                                    )}
                                 </div>
 
-                                {formData.role === 'agency' ? (
+                                {role === 'agency' ? (
                                     <>
                                         <div className="space-y-2">
-                                            <Label htmlFor="agencyName" className="text-black font-semibold">Agency Name <span className="text-red-500">*</span></Label>
+                                            <Label
+                                                htmlFor="agencyName"
+                                                className="text-black font-semibold"
+                                            >
+                                                Agency Name <span className="text-red-500">*</span>
+                                            </Label>
                                             <Input
                                                 id="agencyName"
-                                                name="agencyName"
+                                                {...register('agencyName' as Path<ApplyFormData>)}
                                                 placeholder="Creative Solutions Ltd."
-                                                value={formData.agencyName}
-                                                onChange={handleInputChange}
-                                                required
                                                 className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
                                             />
+                                            {(errors as AgencyErrors).agencyName && (
+                                                <p className="text-xs text-red-500 ml-1">
+                                                    {(errors as AgencyErrors).agencyName?.message}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="companyWebsite" className="text-black font-semibold">Company Website <span className="text-red-500">*</span></Label>
+                                            <Label
+                                                htmlFor="companyWebsite"
+                                                className="text-black font-semibold"
+                                            >
+                                                Company Website{' '}
+                                                <span className="text-red-500">*</span>
+                                            </Label>
                                             <Input
                                                 id="companyWebsite"
-                                                name="companyWebsite"
+                                                {...register(
+                                                    'companyWebsite' as Path<ApplyFormData>
+                                                )}
                                                 placeholder="https://agency.com"
-                                                value={formData.companyWebsite}
-                                                onChange={handleInputChange}
-                                                required
                                                 className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
                                             />
+                                            {(errors as AgencyErrors).companyWebsite && (
+                                                <p className="text-xs text-red-500 ml-1">
+                                                    {
+                                                        (errors as AgencyErrors).companyWebsite
+                                                            ?.message
+                                                    }
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="linkedinCompany" className="text-black font-semibold">LinkedIn Company Page <span className="text-red-500">*</span></Label>
+                                            <Label
+                                                htmlFor="linkedinCompany"
+                                                className="text-black font-semibold"
+                                            >
+                                                LinkedIn Company Page{' '}
+                                                <span className="text-red-500">*</span>
+                                            </Label>
                                             <Input
                                                 id="linkedinCompany"
-                                                name="linkedinCompany"
+                                                {...register(
+                                                    'linkedinCompany' as Path<ApplyFormData>
+                                                )}
                                                 placeholder="https://linkedin.com/company/agency"
-                                                value={formData.linkedinCompany}
-                                                onChange={handleInputChange}
-                                                required
                                                 className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
                                             />
+                                            {(errors as AgencyErrors).linkedinCompany && (
+                                                <p className="text-xs text-red-500 ml-1">
+                                                    {
+                                                        (errors as AgencyErrors).linkedinCompany
+                                                            ?.message
+                                                    }
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label htmlFor="teamSize" className="text-black font-semibold">Team Size <span className="text-red-500">*</span></Label>
+                                                <Label
+                                                    htmlFor="teamSize"
+                                                    className="text-black font-semibold"
+                                                >
+                                                    Team Size{' '}
+                                                    <span className="text-red-500">*</span>
+                                                </Label>
                                                 <Input
                                                     id="teamSize"
-                                                    name="teamSize"
-                                                    type="number"
+                                                    {...register('teamSize' as Path<ApplyFormData>)}
                                                     placeholder="e.g. 15"
-                                                    value={formData.teamSize}
-                                                    onChange={handleInputChange}
-                                                    required
                                                     className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
                                                 />
+                                                {(errors as AgencyErrors).teamSize && (
+                                                    <p className="text-xs text-red-500 ml-1">
+                                                        {(errors as AgencyErrors).teamSize?.message}
+                                                    </p>
+                                                )}
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="foundedYear" className="text-black font-semibold">Year Founded <span className="text-red-500">*</span></Label>
+                                                <Label
+                                                    htmlFor="foundedYear"
+                                                    className="text-black font-semibold"
+                                                >
+                                                    Year Founded{' '}
+                                                    <span className="text-red-500">*</span>
+                                                </Label>
                                                 <Input
                                                     id="foundedYear"
-                                                    name="foundedYear"
-                                                    type="number"
+                                                    {...register(
+                                                        'foundedYear' as Path<ApplyFormData>
+                                                    )}
                                                     placeholder="e.g. 2015"
-                                                    value={formData.foundedYear}
-                                                    onChange={handleInputChange}
-                                                    required
                                                     className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
                                                 />
+                                                {(errors as AgencyErrors).foundedYear && (
+                                                    <p className="text-xs text-red-500 ml-1">
+                                                        {
+                                                            (errors as AgencyErrors).foundedYear
+                                                                ?.message
+                                                        }
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     </>
                                 ) : (
                                     <div className="space-y-2">
-                                        <Label htmlFor="role" className="text-black font-semibold">Primary Role <span className="text-red-500">*</span></Label>
-                                        <select
-                                            id="role"
+                                        <Label htmlFor="role" className="text-black font-semibold">
+                                            Primary Role <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Controller
                                             name="role"
-                                            value={formData.role}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full h-12 rounded-xl text-black border border-gray-200 px-4 focus:outline-none focus:border-[#204ecf] focus:ring-1 focus:ring-[#204ecf] bg-white text-sm"
-                                        >
-                                            <option value="">Select a role</option>
-                                            <option value="developer">Software Developer</option>
-                                            <option value="designer">Designer</option>
-                                            <option value="finance">Finance Expert</option>
-                                            <option value="product">Product Manager</option>
-                                            <option value="project">Project Manager</option>
-                                        </select>
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={field.onChange}
+                                                >
+                                                    <SelectTrigger className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf] text-black">
+                                                        <SelectValue placeholder="Select a role" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-white">
+                                                        <SelectItem value="developer">
+                                                            Software Developer
+                                                        </SelectItem>
+                                                        <SelectItem value="designer">
+                                                            Designer
+                                                        </SelectItem>
+                                                        <SelectItem value="finance">
+                                                            Finance Expert
+                                                        </SelectItem>
+                                                        <SelectItem value="product">
+                                                            Product Manager
+                                                        </SelectItem>
+                                                        <SelectItem value="project">
+                                                            Project Manager
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                        {errors.role && (
+                                            <p className="text-xs text-red-500 ml-1">
+                                                {errors.role.message}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                             </div>
 
                             <Button
                                 type="button"
-                                onClick={() => {
-                                    // Validation for Step 1
-                                    if (!formData.fullName || !formData.email) {
-                                        toast.error("Required fields missing", { description: "Please fill in your name and email." });
-                                        return;
+                                onClick={async () => {
+                                    const fields: Path<ApplyFormData>[] = ['fullName', 'email'];
+                                    if (role === 'agency') {
+                                        fields.push(
+                                            'agencyName' as Path<ApplyFormData>,
+                                            'companyWebsite' as Path<ApplyFormData>,
+                                            'linkedinCompany' as Path<ApplyFormData>,
+                                            'teamSize' as Path<ApplyFormData>,
+                                            'foundedYear' as Path<ApplyFormData>
+                                        );
+                                    } else {
+                                        fields.push('role');
                                     }
 
-                                    if (formData.role === 'agency') {
-                                        if (!formData.agencyName || !formData.companyWebsite || !formData.linkedinCompany || !formData.teamSize || !formData.foundedYear) {
-                                            toast.error("Required fields missing", { description: "Please fill in all agency details." });
-                                            return;
+                                    const isValid = await trigger(fields);
+                                    if (isValid) {
+                                        if (role === 'agency') {
+                                            setStep(3);
+                                        } else {
+                                            nextStep();
                                         }
-                                        setStep(3);
-                                    } else {
-                                        if (!formData.role) {
-                                            toast.error("Role required", { description: "Please select a primary role." });
-                                            return;
-                                        }
-                                        nextStep();
                                     }
                                 }}
                                 className="w-full h-14 bg-[#204ecf] hover:bg-[#1a3da8] text-white font-bold rounded-xl mt-8"
@@ -384,94 +445,78 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                         </motion.div>
                     )}
 
-                    {step === 2 && formData.role !== 'agency' && (
+                    {step === 2 && role !== 'agency' && (
                         <motion.div
                             key="step2"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="space-y-6"
+                            className="space-y-8"
                         >
-                        <option value="">Select a role</option>
-                        <option value="developer">Software Developer</option>
-                        <option value="designer">Designer</option>
-                        <option value="finance">Finance Expert</option>
-                        <option value="product">Product Manager</option>
-                        <option value="project">Project Manager</option>
-                        </select>
-                         {errors.role && <p className="mt-1 text-sm text-red-500">{errors.role.message}</p>}
-                    </div>
-                  </div>
-                )}
-              </div>
+                            <div className="space-y-6">
+                                <div className="mb-8">
+                                    <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">
+                                        Professional Details
+                                    </h2>
+                                    <p className="text-gray-500">
+                                        Tell us about your professional background.
+                                    </p>
+                                </div>
 
-              <Button
-                type="button"
-                onClick={nextStep}
-                className="w-full h-14 bg-[#204ecf] hover:bg-[#1a3da8] text-white font-bold rounded-xl mt-8"
-              >
-                Next Step
-                <ChevronRight className="w-5 h-5 ml-2" />
-              </Button>
-            </motion.div>
-          )}
+                                <div className="space-y-2">
+                                    <Label htmlFor="linkedin" className="text-black font-semibold">
+                                        LinkedIn Profile URL <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                        id="linkedin"
+                                        {...register('linkedin' as Path<ApplyFormData>)}
+                                        placeholder="https://linkedin.com/in/username"
+                                        className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                    />
+                                    {(errors as TalentErrors).linkedin && (
+                                        <p className="text-xs text-red-500 ml-1">
+                                            {(errors as TalentErrors).linkedin?.message}
+                                        </p>
+                                    )}
+                                </div>
 
-          {step === 2 && !isAgency && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">
-                  Professional Details
-                </h2>
-                <p className="text-gray-500">
-                  Tell us about your professional background.
-                </p>
-              </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio" className="text-black font-semibold">
+                                        Portfolio URL (Optional)
+                                    </Label>
+                                    <Input
+                                        id="portfolio"
+                                        {...register('portfolio' as Path<ApplyFormData>)}
+                                        placeholder="https://yourportfolio.com"
+                                        className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                    />
+                                    {(errors as TalentErrors).portfolio && (
+                                        <p className="text-xs text-red-500 ml-1">
+                                            {(errors as TalentErrors).portfolio?.message}
+                                        </p>
+                                    )}
+                                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="linkedin" className="text-black font-semibold">
-                  LinkedIn Profile URL <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="linkedin"
-                  placeholder="https://linkedin.com/in/username"
-                  className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                  error={errors.linkedin?.message}
-                  {...register("linkedin")}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="portfolio" className="text-black font-semibold">
-                  Portfolio URL (Optional)
-                </Label>
-                <Input
-                  id="portfolio"
-                  placeholder="https://yourportfolio.com"
-                  className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                  error={errors.portfolio?.message}
-                  {...register("portfolio")}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="experience" className="text-black font-semibold">
-                  Years of Experience <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="experience"
-                  type="number"
-                  placeholder="5"
-                  className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
-                  error={errors.experience?.message}
-                  {...register("experience")}
-                />
-              </div>
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="experience"
+                                        className="text-black font-semibold"
+                                    >
+                                        Years of Experience <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                        id="experience"
+                                        {...register('experience' as Path<ApplyFormData>)}
+                                        placeholder="5"
+                                        className="h-12 rounded-xl bg-white border-gray-200 focus:border-[#204ecf] focus:ring-[#204ecf]"
+                                    />
+                                    {(errors as TalentErrors).experience && (
+                                        <p className="text-xs text-red-500 ml-1">
+                                            {(errors as TalentErrors).experience?.message}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
 
               <div className="flex gap-4 mt-8">
                 <Button
@@ -485,8 +530,15 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                 </Button>
                 <Button
                   type="button"
-                  onClick={nextStep}
-                  className="flex-[2] h-14 bg-[#204ecf] hover:bg-[#1a3da8] text-white font-bold rounded-xl"
+                    onClick={async () => {
+                                        const isValid = await trigger([
+                                            'linkedin' as Path<ApplyFormData>,
+                                            'experience' as Path<ApplyFormData>,
+                                            'portfolio' as Path<ApplyFormData>,
+                                        ]);
+                                        if (isValid) nextStep();
+                                    }}
+                  className="flex-2 h-14 bg-[#204ecf] hover:bg-[#1a3da8] text-white font-bold rounded-xl"
                 >
                   Next Step
                   <ChevronRight className="w-5 h-5 ml-2" />
@@ -505,16 +557,17 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
             >
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-[#1a1a2e] mb-2">
-                  {isAgency ? "Company Profile" : "Resume & CV"}
+                  {role === 'agency' ? "Company Profile" : "Resume & CV"}
                 </h2>
                 <p className="text-gray-500">
-                  {isAgency
+                  {role === 'agency'
                     ? "Upload your company profile/deck (PDF)."
                     : "Upload your latest resume to complete."}
                 </p>
               </div>
 
-              <div className="border-2 border-dashed border-gray-200 rounded-[2rem] p-12 text-center hover:border-[#204ecf] transition-colors cursor-pointer group relative">
+
+              <div className="border-2 border-dashed border-gray-200 rounded-4xl p-12 text-center hover:border-[#204ecf] transition-colors cursor-pointer group relative">
                 <input
                   type="file"
                   accept=".pdf,.doc,.docx"
@@ -527,7 +580,7 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                 <p className="font-bold text-[#1a1a2e] mb-1">
                   {resumeFile
                     ? resumeFile.name
-                    : isAgency
+                    : role === 'agency'
                     ? "Click to upload Company Profile"
                     : "Click to upload Resume"}
                 </p>
@@ -546,7 +599,7 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={prevStep}
+                  onClick={() => (role === 'agency' ? setStep(1) : prevStep())}
                   className="flex-1 h-14 border-2 border-gray-100 font-bold rounded-xl"
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
@@ -555,7 +608,7 @@ export default function ApplyForm({ onSuccess }: ApplyFormProps) {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-[2] h-14 bg-[#00c853] hover:bg-[#009624] text-white font-bold rounded-xl shadow-lg shadow-green-900/20"
+                  className="flex-2 h-14 bg-[#00c853] hover:bg-[#009624] text-white font-bold rounded-xl shadow-lg shadow-green-900/20"
                 >
                   {isSubmitting ? "Submitting..." : "Submit Application"}
                 </Button>
