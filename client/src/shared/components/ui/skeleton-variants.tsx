@@ -13,18 +13,18 @@ export function AuthPageSkeleton() {
             <div className="hidden lg:flex lg:w-1/2  relative overflow-hidden">
                 {/* Hero Content Skeleton */}
                 <div className="relative z-10 flex flex-col items-center justify-center w-full p-12 text-center">
-                    <Skeleton className="h-12 w-3/4 mx-auto mb-6 bg-gray-700" />
-                    <Skeleton className="h-6 w-full max-w-md mx-auto bg-gray-700" />
-                    <Skeleton className="h-6 w-5/6 max-w-md mx-auto mt-3 bg-gray-700" />
+                    <Skeleton className="h-12 w-3/4 mx-auto mb-6 " />
+                    <Skeleton className="h-6 w-full max-w-md mx-auto " />
+                    <Skeleton className="h-6 w-5/6 max-w-md mx-auto mt-3 " />
                 </div>
                 
                 {/* Background Image Placeholder */}
-                <div className="absolute inset-0 bg-gray-300" />
+                <div className="absolute inset-0 bg-gray-200/70" />
             </div>
 
             {/* Right Side - Login Form */}
             <div className="flex-1 flex items-center justify-center p-4 sm:p-8 ">
-                <div className="w-full max-w-md space-y-6 bg-gray-300 p-4 rounded-2xl">
+                <div className="w-full max-w-md space-y-6 bg-gray-200/70 p-4 rounded-2xl">
                     {/* Back Link */}
                     <Skeleton className="h-4 w-32" />
 
@@ -35,7 +35,7 @@ export function AuthPageSkeleton() {
                     </div>
 
                     {/* Form Card */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-6">
+                    <div className="bg-gray-200/70 rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-6">
                         {/* Form Fields */}
                         {[1, 2].map(i => (
                             <div key={i} className="space-y-2">
@@ -107,48 +107,60 @@ export function RegisterFormSkeleton() {
 // Dashboard Grid Layout
 export function DashboardSkeleton() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="w-full max-w-7xl p-8 space-y-8">
-                {/* Header */}
-                <div className="flex justify-between items-center">
-                    <div className="space-y-2">
-                        <Skeleton className="h-8 w-64" />
-                        <Skeleton className="h-4 w-96" />
-                    </div>
-                    <Skeleton className="h-10 w-32 rounded-xl" />
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="bg-gray-300 p-6 rounded-2xl border border-gray-200 space-y-3">
-                            <Skeleton className="h-10 w-10 rounded-lg" />
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-8 w-16" />
-                        </div>
-                    ))}
-                </div>
-
-                {/* Content Grid */}
-                <div className="grid lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 bg-gray-300 p-6 rounded-2xl border border-gray-200 space-y-4">
-                        <Skeleton className="h-6 w-32" />
-                        {[1, 2, 3].map(i => (
-                            <Skeleton key={i} className="h-20 w-full rounded-xl" />
+         <div className="min-h-screen bg-gray-50 flex relative">
+            {/* Sidebar Skeleton */}
+            <aside className="w-64 bg-gray-200/70 border-r border-gray-200 absolute  inset-y-0 left-0 z-50 hidden lg:block">
+                <div className="p-6 space-y-8">
+                    <Skeleton className="h-8 w-32" />
+                    <div className="space-y-4">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <Skeleton key={i} className="h-10 w-full rounded-xl" />
                         ))}
                     </div>
-                    <div className="space-y-6">
-                        <div className="bg-gray-300 p-6 rounded-2xl border border-gray-200 space-y-3">
-                            <Skeleton className="h-6 w-24" />
-                            {[1, 2, 3].map(i => (
-                                <Skeleton key={i} className="h-12 w-full rounded-xl" />
-                            ))}
+                </div>
+            </aside>
+
+            {/* Main Content Skeleton */}
+            <main className="flex-1 lg:ml-64 min-h-screen flex flex-col pt-8">
+                <div className="p-4 sm:p-8 space-y-8">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-2">
+                            <Skeleton className="h-8 w-48" />
+                            <Skeleton className="h-4 w-64" />
                         </div>
+                        <Skeleton className="h-10 w-32 rounded-xl" />
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="bg-gray-200/70 p-6 rounded-2xl border border-gray-200 space-y-4">
+                                <Skeleton className="h-10 w-32" />
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="bg-gray-200/70 rounded-2xl border border-gray-200 p-6 space-y-4">
+                                <div className="flex justify-between">
+                                    <Skeleton className="h-6 w-48" />
+                                    <Skeleton className="h-6 w-20 rounded-full" />
+                                </div>
+                                <Skeleton className="h-4 w-full" />
+                                <div className="pt-4 border-gray-300 border-t flex justify-between">
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-4 w-24" />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
-    )
+    );
 }
 
 // Profile Page Layout
